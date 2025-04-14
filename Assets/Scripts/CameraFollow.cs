@@ -6,7 +6,6 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public Transform cameraHolder;
-    private InputController inputController;
     private float rotationX, rotationY;
     [SerializeField]
     private float lookSpeed;
@@ -16,14 +15,12 @@ public class CameraFollow : MonoBehaviour
         // Centers and hide cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        inputController = GetComponent<InputController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector2 lookDirection = inputController.GetLookDirection();
+        Vector2 lookDirection = InputController.Instance.GetLookDirection();
 
         // Get mouse input with sensitivity
         float mouseX = lookSpeed * lookDirection.x * Time.fixedDeltaTime;

@@ -12,9 +12,15 @@ public class PlayerController : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        TogglePlayerMovement();
+    }
+
+    private void TogglePlayerMovement()
+    {
         playerMovement.enabled = playerHealth.currentHealth > 0;
+        playerMovement.hasBatteryForJumpAndSprint = playerHealth.currentHealth > playerHealth.dangerHealth;
+        playerMovement.walkSpeed = playerHealth.currentHealth > playerHealth.dangerHealth ? playerMovement.walkSpeed : playerMovement.crouchSpeed;
     }
 }

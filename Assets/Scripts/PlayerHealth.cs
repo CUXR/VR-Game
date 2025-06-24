@@ -16,6 +16,8 @@ public class PlayerHealth : MonoBehaviour
     public float minHealth = 0f;
     public float defaultDecayRate = 2f;
 
+    public float regenAmount = 50f;
+
     [HideInInspector]
     public float currentHealth;
 
@@ -28,7 +30,7 @@ public class PlayerHealth : MonoBehaviour
     void Update()
     {
         // Clamp health between max health and min health
-        currentHealth = Mathf.Clamp(currentHealth - defaultDecayRate * Time.deltaTime, minHealth, maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth - defaultDecayRate * Time.deltaTime, dangerHealth, maxHealth);
         SyncSliderHealth();
     }
 
@@ -39,5 +41,16 @@ public class PlayerHealth : MonoBehaviour
         // Set the fill color based on current health
         healthSlider.fillRect.GetComponent<Image>().color = 
             currentHealth <= dangerHealth ? dangerHealthColor : defaultHealthColor;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Battery"))
+        {
+            // Increase health by regen amount when picking up the battery
+            currentHealth = Mathf.Clamp(currentHealth + regenAmount, minHealth, maxHealth);
+            SyncSliderHealth();
+            Destroy(other.gameObject); // Remove the health pickup from the scene
+        }
     }
 }

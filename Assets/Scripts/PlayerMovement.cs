@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     [Header("Movement")]
+    public bool hasBatteryForJumpAndSprint;
     public float sprintSpeed;
     public float walkSpeed;
     public float wallRunSpeed;
@@ -69,6 +70,8 @@ public class PlayerMovement : MonoBehaviour
 
         playerHeight = GetComponentInChildren<CapsuleCollider>().height * gameObject.transform.localScale.y;
 
+        hasBatteryForJumpAndSprint = true;
+
         // if (!volume.profile.TryGet(out vignette)) {
         //     Debug.LogWarning("No Vignette component found on Global Volume");
         // }
@@ -108,7 +111,8 @@ public class PlayerMovement : MonoBehaviour
         if (Grounded)
         {
             if (coyoteTimeCounter > 0f && jumpBufferCounter > 0f
-            && movementState != MovementState.CROUCH)
+            && movementState != MovementState.CROUCH
+            && hasBatteryForJumpAndSprint)
             {
                 Jump();
 
@@ -194,7 +198,7 @@ public class PlayerMovement : MonoBehaviour
                 moveSpeed = crouchSpeed / Time.timeScale;
             }
 
-            else if (InputController.Instance.GetSprint()) {
+            else if (InputController.Instance.GetSprint() && hasBatteryForJumpAndSprint) {
                 movementState = MovementState.SPRINT;
                 moveSpeed = sprintSpeed / Time.timeScale;
             }

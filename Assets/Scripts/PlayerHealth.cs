@@ -20,26 +20,51 @@ public class PlayerHealth : MonoBehaviour
 
     [HideInInspector]
     public float currentHealth;
+    private PlayerMovement playerMovement;
+
 
     void Start()
     {
+        playerMovement = GetComponent<PlayerMovement>();
         currentHealth = 100f;
         SyncSliderHealth();
     }
 
     void Update()
     {
-        // Clamp health between max health and min health
-        currentHealth = Mathf.Clamp(currentHealth - defaultDecayRate * Time.deltaTime, dangerHealth, maxHealth);
+        Debug.Log("Update running");
+        float decayMultiplier = 1f;
+
+        switch (playerMovement.movementState)
+        {
+            case PlayerMovement.MovementState.IDLE:
+                decayMultiplier = 1f;
+                break;
+            case PlayerMovement.MovementState.WALK:
+            case PlayerMovement.MovementState.CROUCH:
+                decayMultiplier = 1.5f;
+                break;
+            case PlayerMovement.MovementState.SPRINT:
+            case PlayerMovement.MovementState.WALLRUN:
+            case PlayerMovement.MovementState.AIR:
+                decayMultiplier = 2f;
+                break;
+        }
+
+        // Apply the multiplier to health decay
+        currentHealth = Mathf.Clamp(
+            currentHealth - defaultDecayRate * decayMultiplier * Time.deltaTime,
+            minHealth,
+            maxHealth
+        );
         SyncSliderHealth();
     }
-
     void SyncSliderHealth()
     {
         healthSlider.value = currentHealth;
 
         // Set the fill color based on current health
-        healthSlider.fillRect.GetComponent<Image>().color = 
+        healthSlider.fillRect.GetComponent<Image>().color =
             currentHealth <= dangerHealth ? dangerHealthColor : defaultHealthColor;
     }
 

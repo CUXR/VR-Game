@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Collectible
+  - Cursor
   layers:
   - Default
   - TransparentFX

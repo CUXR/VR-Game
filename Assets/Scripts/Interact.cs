@@ -7,13 +7,17 @@ public class Interact : MonoBehaviour, Interactable
 {
     private Boolean holding = false;
 
-    private float width;
+    public float width;
 
     private float x;
     private float y;
     private float z;
 
     GameObject player;
+
+    private float rotationX, rotationY;
+    [SerializeField]
+    private float lookSpeed;
 
 
     // Object's collider is disabled, and the holding variable is 
@@ -45,12 +49,11 @@ public class Interact : MonoBehaviour, Interactable
     {
         if (holding == true)
         {
-            Vector3 myPosition = player.transform.GetChild(0).GetChild(0).position;
-
-            x = myPosition.x;
-            y = myPosition.y;
-            z = myPosition.z;
-            transform.position = new Vector3(x, y, z + width);
+            Transform camera = player.transform.GetChild(0);
+            // Offset relative to the camera's view direction
+            Vector3 offset = camera.right * 0.4f - camera.up * 0.3f + camera.forward * 0.7f;
+            transform.position = camera.position + offset;
+            transform.rotation = Quaternion.LookRotation(camera.forward, camera.up);
         }
     }
 }

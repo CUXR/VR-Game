@@ -9867,9 +9867,12 @@ MonoBehaviour:
   maxHealth: 100
   dangerHealth: 20
   minHealth: 0
-  defaultDecayRate: 5
   regenAmount: 50
+  defaultDecayRate: 1
+  stealthMultiplier: 2
+  aggressiveMultiplier: 4
   currentHealth: 0
+  currentDecayRate: 1
 --- !u!114 &1395325422
 MonoBehaviour:
   m_ObjectHideFlags: 0

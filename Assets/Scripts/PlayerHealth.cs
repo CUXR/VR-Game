@@ -14,12 +14,17 @@ public class PlayerHealth : MonoBehaviour
     public float maxHealth = 100f;
     public float dangerHealth = 20f;
     public float minHealth = 0f;
-    public float defaultDecayRate = 2f;
 
     public float regenAmount = 50f;
 
-    [HideInInspector]
-    public float currentHealth;
+    [Header("Decay Settings")]
+    public float defaultDecayRate = 1f;
+    public float stealthMultiplier = 2f;
+    public float aggressiveMultiplier = 4f;
+
+    [HideInInspector] public float currentHealth;
+    [HideInInspector] public float currentDecayRate;
+
     private PlayerMovement playerMovement;
 
 
@@ -27,33 +32,31 @@ public class PlayerHealth : MonoBehaviour
     {
         playerMovement = GetComponent<PlayerMovement>();
         currentHealth = 100f;
+        currentDecayRate = defaultDecayRate;
         SyncSliderHealth();
     }
 
     void Update()
     {
-        Debug.Log("Update running");
-        float decayMultiplier = 1f;
-
         switch (playerMovement.movementState)
         {
             case PlayerMovement.MovementState.IDLE:
-                decayMultiplier = 1f;
+                currentDecayRate = defaultDecayRate;
                 break;
             case PlayerMovement.MovementState.WALK:
             case PlayerMovement.MovementState.CROUCH:
-                decayMultiplier = 1.5f;
+                currentDecayRate = defaultDecayRate * stealthMultiplier;
                 break;
             case PlayerMovement.MovementState.SPRINT:
             case PlayerMovement.MovementState.WALLRUN:
             case PlayerMovement.MovementState.AIR:
-                decayMultiplier = 2f;
+                currentDecayRate = defaultDecayRate * aggressiveMultiplier;
                 break;
         }
 
         // Apply the multiplier to health decay
         currentHealth = Mathf.Clamp(
-            currentHealth - defaultDecayRate * decayMultiplier * Time.deltaTime,
+            currentHealth - defaultDecayRate * currentDecayRate * Time.deltaTime,
             minHealth,
             maxHealth
         );

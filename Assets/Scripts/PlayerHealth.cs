@@ -81,4 +81,27 @@ public class PlayerHealth : MonoBehaviour
             Destroy(other.gameObject); // Remove the health pickup from the scene
         }
     }
+    private void OnCollisionEnter(Collision collision)
+{
+    if (collision.gameObject.CompareTag("Enemy"))
+    {
+        Debug.Log("Collided with enemy!");
+
+        // Decrease health
+        currentHealth = Mathf.Clamp(currentHealth - 20f, minHealth, maxHealth);
+        SyncSliderHealth();
+
+        // Add explosion force
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            Vector3 explosionPosition = collision.transform.position;
+            float explosionForce = 10000f;
+            float explosionRadius = 2f;
+
+            rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius);
+        }
+    }
+}
+
 }

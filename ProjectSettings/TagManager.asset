@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Collectible
   - Battery
+  - Enemy
   layers:
   - Default
   - TransparentFX

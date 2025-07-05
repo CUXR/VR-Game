@@ -91,15 +91,12 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth - 20f, minHealth, maxHealth);
         SyncSliderHealth();
 
-        // Add explosion force
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        // Apply explosion force to the center of collision
+        if (TryGetComponent(out Rigidbody rb))
         {
             Vector3 explosionPosition = collision.transform.position;
-            float explosionForce = 10000f;
-            float explosionRadius = 2f;
 
-            rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius);
+            rb.AddExplosionForce(1000f, explosionPosition, 2f);
         }
     }
 }

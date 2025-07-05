@@ -61,9 +61,7 @@ public class PlayerBackpack : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Collectible collectible))
         {
-            Debug.Log($"Collectible {collectible.itemName} picked up!");
-
-            if (AddItem(collectible.ToUI()))
+            if (AddItem(collectible.ToUIObject()))
             {
                 Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack
             }

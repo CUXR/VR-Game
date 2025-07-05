@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8201614235707129371}
   - component: {fileID: 4401217200681154698}
   - component: {fileID: 5744955340453526907}
-  - component: {fileID: 3093667236277165013}
+  - component: {fileID: 2498430395898320913}
   m_Layer: 0
   m_Name: Battery
   m_TagString: Battery
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 3238
+  m_VersionIndex: 3259
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -349,7 +349,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &3093667236277165013
+--- !u!114 &2498430395898320913
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -358,9 +358,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1807003059418812349}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f74449b2007974942a09e13266cbcf89, type: 3}
+  m_Script: {fileID: 11500000, guid: 9121f28ac7c70e344a00c2e058c4008f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: Battery
-  itemDescription: test
+  itemDescription: This is a one-time use item that can be used to replenish a portion
+    of player's health
   itemIcon: {fileID: 21300000, guid: faa2c1b226f27c1408f41d5179a31299, type: 3}
+  collectibleActions: 000000000200000003000000
+  chargeAmount: 30

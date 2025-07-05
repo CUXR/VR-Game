@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerBackpack : MonoBehaviour
 {
     public bool isOpen;
+
+    [Header("Backpack References")]
     public GameObject backpackUI;
     public GameObject[] backpackSlots;
 
@@ -55,6 +57,19 @@ public class PlayerBackpack : MonoBehaviour
         backpackSlots[slotIndex].transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 
         return true;
+    }
+
+    bool RemoveItem(GameObject item)
+    {
+        for (int i = 0; i < backpackSlots.Length; i++)
+        {
+            if (backpackSlots[i].transform.childCount > 0 && backpackSlots[i].transform.GetChild(0).gameObject == item)
+            {
+                Destroy(item);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void OnTriggerEnter(Collider other)

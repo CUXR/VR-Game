@@ -6999,7 +6999,7 @@ PrefabInstance:
     - target: {fileID: 3004623302133705813, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3262
+      value: 3268
       objectReference: {fileID: 0}
     - target: {fileID: 4401217200681154698, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}
@@ -10922,6 +10922,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOpen: 0
+  dropdownVisible: 0
   backpackUI: {fileID: 675206794}
   backpackSlots: []
 --- !u!1 &1395596617
@@ -15293,7 +15294,7 @@ PrefabInstance:
     - target: {fileID: 3004623302133705813, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3262
+      value: 3268
       objectReference: {fileID: 0}
     - target: {fileID: 4401217200681154698, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}
@@ -16035,7 +16036,7 @@ PrefabInstance:
     - target: {fileID: 3004623302133705813, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3262
+      value: 3268
       objectReference: {fileID: 0}
     - target: {fileID: 4401217200681154698, guid: 7625b436ba9131943aff73152b4720bd,
         type: 3}

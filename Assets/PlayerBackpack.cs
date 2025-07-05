@@ -28,4 +28,45 @@ public class PlayerBackpack : MonoBehaviour
             backpackUI.SetActive(isOpen);
         }
     }
+
+    int FindSmallestOpenSlot()
+    {
+        for (int i = 0; i < backpackSlots.Length; i++)
+        {
+            if (backpackSlots[i].transform.childCount == 0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    bool AddItem(GameObject item)
+    {
+        int slotIndex = FindSmallestOpenSlot();
+
+        if (slotIndex == -1)
+        {
+            Debug.Log("Backpack is full!");
+            return false;
+        }
+
+        item.transform.SetParent(backpackSlots[slotIndex].transform);
+        backpackSlots[slotIndex].transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+
+        return true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.TryGetComponent(out Collectible collectible))
+        {
+            Debug.Log($"Collectible {collectible.itemName} picked up!");
+
+            if (AddItem(collectible.ToUI()))
+            {
+                Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack
+            }
+        }
+    }
 }

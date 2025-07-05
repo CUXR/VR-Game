@@ -10,6 +10,8 @@ public class InputController : MonoBehaviour
     public KeyCode crouchKey = KeyCode.LeftControl;
     public KeyCode altCrouchKey = KeyCode.LeftCommand;
     public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode interactKey = KeyCode.E;
+    public KeyCode backpackKey = KeyCode.B;
 
     void Awake() {
         if (Instance != null) {
@@ -45,5 +47,13 @@ public class InputController : MonoBehaviour
 
     public bool GetJumpDown() {
         return Input.GetKeyDown(jumpKey);
+    }
+
+    public bool GetInteractDown() {
+        return Input.GetKeyDown(interactKey);
+    }
+
+    public bool GetBackpackDown() {
+        return Input.GetKeyDown(backpackKey);
     }
 }

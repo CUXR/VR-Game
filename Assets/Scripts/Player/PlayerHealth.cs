@@ -71,6 +71,16 @@ public class PlayerHealth : MonoBehaviour
             currentHealth <= dangerHealth ? dangerHealthColor : defaultHealthColor;
     }
 
+    public bool isPlayerDead()
+    {
+        return currentHealth <= minHealth;
+    }
+
+    public bool isPlayerInDanger()
+    {
+        return currentHealth <= dangerHealth && currentHealth > minHealth;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Battery"))

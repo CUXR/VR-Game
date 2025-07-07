@@ -18,27 +18,29 @@ public class ObjectInteraction : MonoBehaviour
         {
             if (held == null)
             {
-                // Creates Ray object from camera pointing to the cursor on the screen
-                Ray ray = Camera.main.ScreenPointToRay(GameObject.FindWithTag("Cursor").transform.position);
-                // The ray variable indicates the origin of the ray, the hit variable is where the
+                // The ray is determined by the camera position, the hit variable is where the
                 // information about what the ray hits will be stored, and the range variable represents
                 // the numerical range in which an object can be interacted with
-                if (Physics.Raycast(ray, out RaycastHit hit, range))
-                // If an object is within the range and is hit by the raycast...
-                {
-                    if (hit.collider.gameObject.TryGetComponent(out Interact interactableObject))
-                    // If the object hit has an Interactable component...
+                    if (Physics.Raycast(Camera.main.gameObject.transform.position,
+                    Camera.main.gameObject.transform.forward, out RaycastHit hit, range))
+                    // If an object is within the range, is hit by the raycast, and has Interact component..
                     {
-                        interactableObject.Grab(gameObject);
-                        held = interactableObject;
+                    if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
+                    {
+                          if (hit.rigidbody.gameObject.TryGetComponent(out Interact interactableObject))
+                        // If the object hit has an Interactable component...
+                        {
+                            interactableObject.Grab(gameObject);
+                            held = interactableObject;
+                        }  
+                        }
                     }
                 }
-            }
-            else
-            {
-                held.Release();
-                held = null;
-            }
+                else
+                {
+                    held.Release();
+                    held = null;
+                }
             
         }
     }

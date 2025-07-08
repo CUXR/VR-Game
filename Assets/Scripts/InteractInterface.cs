@@ -16,6 +16,9 @@ public interface Interactable
     // object is effectively released and is typically removed from the player's influence.
     public void Release();
 
+    // This function is called when the player is holding an object and presses the left mouse
+    // button. The object is sent in a direction away from the player at a velocity determined by
+    // a throwForce variable.
     public void Throw();
 }
 

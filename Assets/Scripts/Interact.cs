@@ -8,7 +8,7 @@ public class Interact : MonoBehaviour, Interactable
 {
     private Boolean holding = false;
 
-    public float width;
+    private Vector3 width;
 
     private float x;
     private float y;
@@ -28,12 +28,13 @@ public class Interact : MonoBehaviour, Interactable
         holding = true;
         player.TryGetComponent(out Rigidbody rb);
         gameObject.layer = 6;
+        Renderer renderer = GetComponent<Renderer>();
+        width = renderer.bounds.size;
     }
 
     // Collider is enabled and holding is updated to false.
     public void Release()
     {
-        Collider collider = GetComponent<Collider>();
         holding = false;
         player.TryGetComponent(out Rigidbody rb);
         gameObject.layer = 0;
@@ -46,12 +47,10 @@ public class Interact : MonoBehaviour, Interactable
         {
             Transform camera = player.transform.GetChild(0);
             // Offset relative to the camera's view direction
-            TryGetComponent(out Rigidbody rb);
-            Vector3 offset = camera.right * 0.3f - camera.up * 0.1f + camera.forward * 0.7f;
+            Vector3 offset = camera.right * (0.4f * width.x) - camera.up * (0.1f * width.y) +
+            camera.forward * (0.7f * width.z);
             transform.position = camera.position + offset;
             transform.rotation = Quaternion.LookRotation(camera.forward, camera.up);
-            //rb.MovePosition(camera.position + offset);
-            //rb.MoveRotation(Quaternion.LookRotation(camera.forward, camera.up));
         }
     }
 }

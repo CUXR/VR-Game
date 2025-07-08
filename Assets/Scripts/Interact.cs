@@ -14,7 +14,17 @@ public class Interact : MonoBehaviour, Interactable
     private float y;
     private float z;
 
+    public float throwForce;
+
+    public Rigidbody rb;
+
     GameObject player;
+
+    void Start()
+    {
+        throwForce = 15.0f;
+        rb = gameObject.GetComponent<Rigidbody>();
+    }
 
     // Holding variable is updated to true, and object's layer is changed to layer 6
     public void Grab(GameObject gObject)
@@ -31,6 +41,12 @@ public class Interact : MonoBehaviour, Interactable
     {
         holding = false;
         gameObject.layer = 0;
+    }
+
+    public void Throw()
+    {
+        Release();
+        rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
     }
 
     // If holding is true, then object's position is updated to a new position relative to the player's view.

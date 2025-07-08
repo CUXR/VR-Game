@@ -15,5 +15,7 @@ public interface Interactable
     // This function is called when the player is holding an object and presses the "e" key. The
     // object is effectively released and is typically removed from the player's influence.
     public void Release();
+
+    public void Throw();
 }
 

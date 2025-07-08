@@ -16,38 +16,31 @@ public class Interact : MonoBehaviour, Interactable
 
     GameObject player;
 
-    private float rotationX, rotationY;
-    [SerializeField]
-    private float lookSpeed;
-
-    // Object's collider is disabled, and the holding variable is 
-    // updated.
+    // Holding variable is updated to true, and object's layer is changed to layer 6
     public void Grab(GameObject gObject)
     {
         player = gObject;
         holding = true;
-        player.TryGetComponent(out Rigidbody rb);
         gameObject.layer = 6;
         Renderer renderer = GetComponent<Renderer>();
         width = renderer.bounds.size;
     }
 
-    // Collider is enabled and holding is updated to false.
+    // Holding is updated to false, and object's layer is changed to 0.
     public void Release()
     {
         holding = false;
-        player.TryGetComponent(out Rigidbody rb);
         gameObject.layer = 0;
     }
 
     // If holding is true, then object's position is updated to a new position relative to the player's view.
-    void Update()
+    void LateUpdate()
     {
         if (holding == true)
         {
             Transform camera = player.transform.GetChild(0);
             // Offset relative to the camera's view direction
-            Vector3 offset = camera.right * (0.4f * width.x) - camera.up * (0.1f * width.y) +
+            Vector3 offset = camera.right * (0.7f * width.x) - camera.up * (0.1f * width.y) +
             camera.forward * (0.7f * width.z);
             transform.position = camera.position + offset;
             transform.rotation = Quaternion.LookRotation(camera.forward, camera.up);

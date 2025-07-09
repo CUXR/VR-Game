@@ -46,6 +46,7 @@ public class Interact : MonoBehaviour, Interactable
     public void Throw()
     {
         Release();
+        Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 5f, Color.red, 2f);
         rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
     }
 
@@ -54,9 +55,9 @@ public class Interact : MonoBehaviour, Interactable
     {
         if (holding == true)
         {
-            Transform camera = player.transform.GetChild(0);
+            Transform camera = player.transform.GetChild(0).GetChild(0);
             // Offset relative to the camera's view direction
-            Vector3 offset = camera.right * (0.7f * width.x) - camera.up * (0.1f * width.y) +
+            Vector3 offset = camera.right * (0.7f * width.x) + camera.up * (0.7f * -width.y) +
             camera.forward * (0.7f * width.z);
             transform.position = camera.position + offset;
             transform.rotation = Quaternion.LookRotation(camera.forward, camera.up);

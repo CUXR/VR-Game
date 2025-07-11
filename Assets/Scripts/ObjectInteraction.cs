@@ -46,6 +46,7 @@ public class ObjectInteraction : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0) && held != null)
         {
             held.Throw();
+            held = null;
         }
     }
 }

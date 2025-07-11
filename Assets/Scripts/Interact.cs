@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
@@ -10,15 +11,13 @@ public class Interact : MonoBehaviour, Interactable
 
     private Vector3 width;
 
-    private float x;
-    private float y;
-    private float z;
+    private Transform hold;
 
-    public float throwForce;
+    private float throwForce;
 
-    public Rigidbody rb;
+    private Rigidbody rb;
 
-    GameObject player;
+    private Renderer rend;
 
     void Start()
     {
@@ -29,39 +28,36 @@ public class Interact : MonoBehaviour, Interactable
     // Holding variable is updated to true, and object's layer is changed to layer 6
     public void Grab(GameObject gObject)
     {
-        player = gObject;
-        holding = true;
         gameObject.layer = 6;
-        Renderer renderer = GetComponent<Renderer>();
-        width = renderer.bounds.size;
+        hold = Camera.main.transform.GetChild(0);
+        rend = gameObject.GetComponent<Renderer>();
+        width = rend.bounds.size;
+        Vector3 offset = hold.InverseTransformVector(hold.right * (0.7f * width.x)
+        + hold.up * (0.7f * -width.y) + hold.forward * (0.7f * width.z));
+        rb.useGravity = false;
+        rb.isKinematic = true;
+        transform.SetParent(hold);
+        transform.localPosition = offset;
+        transform.localRotation = Quaternion.identity;
+        GetComponent<Collider>().enabled = false;
+        transform.localScale = Vector3.one;
     }
 
     // Holding is updated to false, and object's layer is changed to 0.
     public void Release()
     {
-        holding = false;
         gameObject.layer = 0;
+        gameObject.transform.SetParent(null);
+        rb.useGravity = true;
+        rb.isKinematic = false;
+        GetComponent<Collider>().enabled = true;
     }
 
     public void Throw()
     {
         Release();
-        Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 5f, Color.red, 2f);
         rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
     }
 
-    // If holding is true, then object's position is updated to a new position relative to the player's view.
-    void LateUpdate()
-    {
-        if (holding == true)
-        {
-            Transform camera = player.transform.GetChild(0).GetChild(0);
-            // Offset relative to the camera's view direction
-            Vector3 offset = camera.right * (0.7f * width.x) + camera.up * (0.7f * -width.y) +
-            camera.forward * (0.7f * width.z);
-            transform.position = camera.position + offset;
-            transform.rotation = Quaternion.LookRotation(camera.forward, camera.up);
-        }
-    }
 }
 

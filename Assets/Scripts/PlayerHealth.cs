@@ -81,4 +81,10 @@ public class PlayerHealth : MonoBehaviour
             Destroy(other.gameObject); // Remove the health pickup from the scene
         }
     }
+
+    public void deplete()
+    {
+        // 1/4 of battery reserves depleted
+        currentHealth = currentHealth / 4 * 3;
+    }
 }

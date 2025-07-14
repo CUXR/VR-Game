@@ -1,18 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private Boolean alive = true;
+    public void stab()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        alive = false;
+        Debug.Log(alive);
     }
 }

@@ -8,10 +8,10 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    private Boolean alive = true;
+    public Boolean alive = true;
     public void stab()
     {
         alive = false;
-        Debug.Log(alive);
+        Debug.Log("Enemy killed");
     }
 }

@@ -12,8 +12,10 @@ public abstract class Collectible : MonoBehaviour
 
     public enum Actions
     {
+        NONE,
         USE,
         EQUIP,
+        UNEQUIP,
         INSPECT,
         REMOVE
     }

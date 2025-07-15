@@ -17,4 +17,10 @@ public class Battery : Collectible
 
         return uiObject;
     }
+
+    public override void Use()
+    {
+        base.Use();
+        GameObject.Find("PLAYER").GetComponent<PlayerHealth>().RestoreHealth(chargeAmount);
+    }
 }

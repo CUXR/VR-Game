@@ -7,6 +7,7 @@ public abstract class Collectible : MonoBehaviour
 {
     public string itemName;
     public string itemDescription;
+    public bool isSingleUse;
     public Sprite itemIcon;
     public Actions[] collectibleActions;
 
@@ -34,7 +35,20 @@ public abstract class Collectible : MonoBehaviour
     {
         newCollectible.itemName = itemName;
         newCollectible.itemDescription = itemDescription;
+        newCollectible.isSingleUse = isSingleUse;
         newCollectible.itemIcon = itemIcon;
         newCollectible.collectibleActions = collectibleActions;
+    }
+
+    public virtual void Use()
+    {
+        // Default implementation for using the collectible
+        Debug.Log($"Using {itemName}");
+    }
+
+    public virtual void Inspect()
+    {
+        // Default implementation for inspecting the collectible
+        Debug.Log($"Inspecting {itemName}: {itemDescription}");
     }
 }

@@ -60,6 +60,7 @@ public class PlayerHealth : MonoBehaviour
             minHealth,
             maxHealth
         );
+
         SyncSliderHealth();
     }
     void SyncSliderHealth()
@@ -81,14 +82,9 @@ public class PlayerHealth : MonoBehaviour
         return currentHealth <= dangerHealth && currentHealth > minHealth;
     }
 
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.CompareTag("Battery"))
-    //    {
-    //        // Increase health by regen amount when picking up the battery
-    //        currentHealth = Mathf.Clamp(currentHealth + regenAmount, minHealth, maxHealth);
-    //        SyncSliderHealth();
-    //        Destroy(other.gameObject); // Remove the health pickup from the scene
-    //    }
-    //}
+    public void RestoreHealth(float amount)
+    {
+        currentHealth = Mathf.Clamp(currentHealth + amount, minHealth, maxHealth);
+        SyncSliderHealth();
+    }
 }

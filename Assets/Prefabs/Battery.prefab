@@ -272,7 +272,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 3283
+  m_VersionIndex: 3292
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -364,6 +364,7 @@ MonoBehaviour:
   itemName: Battery
   itemDescription: This is a one-time use item that can be used to replenish a portion
     of player's health
+  isSingleUse: 1
   itemIcon: {fileID: 21300000, guid: faa2c1b226f27c1408f41d5179a31299, type: 3}
   collectibleActions: 00000000010000000400000005000000
   chargeAmount: 30

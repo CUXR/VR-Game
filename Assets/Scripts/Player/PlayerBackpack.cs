@@ -8,11 +8,14 @@ using System.Linq;
 public class PlayerBackpack : MonoBehaviour
 {
     [Header("Backpack State")]
+    public int numSlots;
     public bool isOpen;
     public bool dropdownVisible;
     public bool isInspecting;
 
     [Header("Backpack References")]
+    public GameObject slotPrefab;
+    public GameObject backpackPanel;
     public GameObject backpackUI;
     public TMP_Dropdown dropdownUI;
     public GameObject[] backpackSlots;
@@ -30,6 +33,7 @@ public class PlayerBackpack : MonoBehaviour
         dropdownVisible = false;
         isInspecting = false;
 
+        backpackPanel.SetActive(false);
         backpackUI.SetActive(false);
         dropdownUI.gameObject.SetActive(false);
         dropdownUI.ClearOptions();
@@ -37,11 +41,13 @@ public class PlayerBackpack : MonoBehaviour
         itemNameText.gameObject.SetActive(false);
         itemDescriptionText.gameObject.SetActive(false);
 
-        backpackSlots = new GameObject[backpackUI.transform.childCount];
+        backpackSlots = new GameObject[numSlots];
 
-        for (int i = 0; i < backpackUI.transform.childCount; i++)
+        // Initialize backpack slots
+        for (int i = 0; i < numSlots; i++)
         {
-            backpackSlots[i] = backpackUI.transform.GetChild(i).gameObject;
+            GameObject slot = Instantiate(slotPrefab, backpackUI.transform);
+            backpackSlots[i] = slot;
         }
     }
 
@@ -50,6 +56,7 @@ public class PlayerBackpack : MonoBehaviour
         if (InputController.Instance.GetBackpackDown())
         {
             isOpen = !isOpen;
+            backpackPanel.SetActive(isOpen);
             backpackUI.SetActive(isOpen);
 
             if (!isOpen)
@@ -113,6 +120,28 @@ public class PlayerBackpack : MonoBehaviour
             }
         }
         return false;
+    }
+
+    void ExtendBackpack(int newSize)
+    {
+        if (newSize <= numSlots) return;
+
+        GameObject[] newSlots = new GameObject[newSize];
+        for (int i = 0; i < newSize; i++)
+        {
+            if (i < numSlots)
+            {
+                newSlots[i] = backpackSlots[i];
+            }
+            else
+            {
+                newSlots[i] = Instantiate(slotPrefab, backpackUI.transform);
+                newSlots[i].GetComponent<Button>().onClick.AddListener(() => ToggleDropdown(null));
+            }
+        }
+
+        backpackSlots = newSlots;
+        numSlots = newSize;
     }
 
     void ToggleDropdown(GameObject item)

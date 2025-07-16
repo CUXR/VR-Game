@@ -99,10 +99,16 @@ public class PlayerBackpack : MonoBehaviour
         {
             if (backpackSlots[i].transform.childCount > 0 && backpackSlots[i].transform.GetChild(0).gameObject == item)
             {
-                Destroy(item);
                 backpackSlots[i].GetComponent<Button>().onClick.RemoveAllListeners();
-                dropdownUI.transform.parent = backpackUI.transform; // Reset the dropdown's parent to the backpack UI
+                
+                dropdownUI.transform.SetParent(backpackUI.transform); // Reset the dropdown's parent to the backpack UI
+                dropdownUI.ClearOptions();
+                dropdownVisible = false;
+
+                isInspecting = false;
                 selectedItem = null;
+                
+                Destroy(item);
                 return true;
             }
         }
@@ -111,34 +117,43 @@ public class PlayerBackpack : MonoBehaviour
 
     void ToggleDropdown(GameObject item)
     {
-        dropdownVisible = !dropdownVisible;
+        if (selectedItem == item || selectedItem == null)
+        {
+            dropdownVisible = !dropdownVisible;
+        }
 
         // Update the dropdown options based on the currently selected item
         if (dropdownVisible)
         {
             selectedItem = item;
 
-            List<string> actions = item.GetComponent<Collectible>().collectibleActions.Select(action => action.ToString()).ToList();
+            List<string> actions = selectedItem.GetComponent<Collectible>().collectibleActions.Select(action => action.ToString()).ToList();
 
             dropdownUI.ClearOptions();
             dropdownUI.AddOptions(actions);
 
-            dropdownUI.transform.parent = item.transform.parent; // Set the dropdown's parent to the slot
+            dropdownUI.transform.SetParent(selectedItem.transform.parent);
             dropdownUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -70);
 
             dropdownUI.onValueChanged.AddListener(delegate {
                 Collectible.Actions selectedAction = (Collectible.Actions)System.Enum.Parse(typeof(Collectible.Actions), dropdownUI.options[dropdownUI.value].text);
                 switch (selectedAction)
                 {
+                    case Collectible.Actions.NONE:
+                        isInspecting = false;
+                        break;
+
                     case Collectible.Actions.USE:
+                        print(selectedItem.transform.parent);
+                        print(selectedItem);
                         selectedItem.GetComponent<Collectible>().Use();
+                        print(selectedItem);
 
                         if (selectedItem.GetComponent<Collectible>().isSingleUse)
                         {
                             RemoveItem(selectedItem);
                         }
 
-                        dropdownVisible = false;
                         isInspecting = false;
 
                         break;
@@ -146,18 +161,11 @@ public class PlayerBackpack : MonoBehaviour
                     // TODO: Add cases for equipping, unequipping, and inspecting items
 
                     case Collectible.Actions.INSPECT:
-                        isInspecting = true;
-
-                        itemNameText.text = selectedItem.GetComponent<Collectible>().itemName;
-                        itemDescriptionText.text = selectedItem.GetComponent<Collectible>().itemDescription;
+                        InspectItem();
                         break;
 
                     case Collectible.Actions.REMOVE:
-                        if (RemoveItem(selectedItem))
-                        {
-                            dropdownVisible = false; // Close the dropdown after removing the item
-                            isInspecting = false; // Close the inspection view
-                        }
+                        RemoveItem(selectedItem);
                         break;
 
                     default:
@@ -171,6 +179,14 @@ public class PlayerBackpack : MonoBehaviour
         {
             selectedItem = null;
         }
+    }
+
+    private void InspectItem()
+    {
+        isInspecting = true;
+
+        itemNameText.text = selectedItem.GetComponent<Collectible>().itemName;
+        itemDescriptionText.text = selectedItem.GetComponent<Collectible>().itemDescription;
     }
 
     private void OnTriggerEnter(Collider other)

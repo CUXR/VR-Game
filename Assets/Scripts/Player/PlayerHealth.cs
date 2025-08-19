@@ -87,4 +87,10 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth + amount, minHealth, maxHealth);
         SyncSliderHealth();
     }
+
+    public void deplete()
+    {
+        // 1/4 of battery reserves depleted
+        currentHealth = currentHealth / 4 * 3;
+    }
 }

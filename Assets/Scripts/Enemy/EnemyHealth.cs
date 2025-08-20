@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public GameObject player;
     public bool isAlive = true;
     public Outline outline;
+    public Color outlineColor = Color.red;
+    public float outlineWidth = 12.0f;
 
     void Start()
     {
         outline = gameObject.AddComponent<Outline>();
         outline.enabled = false;
-        outline.OutlineColor = Color.red;
-        outline.OutlineWidth = 12.0f;
+        outline.OutlineColor = outlineColor;
+        outline.OutlineWidth = outlineWidth;
     }
 
     public void Stab()
     {
         isAlive = false;
+        outline.enabled = false;
         Debug.Log("Enemy killed");
     }
 }

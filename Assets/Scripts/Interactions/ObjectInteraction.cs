@@ -7,14 +7,14 @@ using UnityEngine;
 public class ObjectInteraction : MonoBehaviour
 {
     // Range is a float indicating the range in which the player can interact with an object
-    private float range = 3;
+    public float range = 3;
 
     // Object currently being held; if nothing, is null
     private Interactable held = null;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (InputController.Instance.GetInteractDown())
         {
             if (held == null)
             {

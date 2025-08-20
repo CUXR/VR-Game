@@ -88,7 +88,7 @@ public class PlayerHealth : MonoBehaviour
         SyncSliderHealth();
     }
 
-    public void deplete()
+    public void Deplete()
     {
         // 1/4 of battery reserves depleted
         currentHealth = currentHealth / 4 * 3;

@@ -3041,6 +3041,7 @@ MonoBehaviour:
   jumpKey: 32
   interactKey: 101
   backpackKey: 98
+  stabKey: 113
 --- !u!43 &303662203
 Mesh:
   m_ObjectHideFlags: 0
@@ -9494,7 +9495,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1395325411}
-  alive: 1
+  isAlive: 1
+  outline: {fileID: 0}
 --- !u!1 &1201069686
 GameObject:
   m_ObjectHideFlags: 0
@@ -11344,6 +11346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c57f91cc224fd4e911511db36b5d48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  range: 3
 --- !u!114 &1395325425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11356,8 +11359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07cf4ca963b624dc6b1888e3d20df809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  range: 2
   enemyInRange: 0
-  enemyObject: {fileID: 0}
+  currentEnemy: {fileID: 0}
 --- !u!1 &1395596617
 GameObject:
   m_ObjectHideFlags: 0

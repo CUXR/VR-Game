@@ -12,6 +12,7 @@ public class InputController : MonoBehaviour
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode interactKey = KeyCode.E;
     public KeyCode backpackKey = KeyCode.B;
+    public KeyCode stabKey = KeyCode.Q;
 
     void Awake() {
         if (Instance != null) {
@@ -55,5 +56,10 @@ public class InputController : MonoBehaviour
 
     public bool GetBackpackDown() {
         return Input.GetKeyDown(backpackKey);
+    }
+
+    public bool GetStabDown()
+    {
+        return Input.GetKeyDown(stabKey);
     }
 }

@@ -22,11 +22,13 @@ public class PlayerHealth : MonoBehaviour
     public float stealthMultiplier = 2f;
     public float aggressiveMultiplier = 4f;
 
-    [HideInInspector] public float currentHealth;
-    [HideInInspector] public float currentDecayRate;
+    [HideInInspector]
+    public float currentHealth;
+
+    [HideInInspector]
+    public float currentDecayRate;
 
     private PlayerMovement playerMovement;
-
 
     void Start()
     {
@@ -63,6 +65,7 @@ public class PlayerHealth : MonoBehaviour
 
         SyncSliderHealth();
     }
+
     void SyncSliderHealth()
     {
         healthSlider.value = currentHealth;
@@ -96,8 +99,25 @@ public class PlayerHealth : MonoBehaviour
     public void DepleteHealthPercentage(float percentage, bool isMaxHealthBased)
     {
         if (isMaxHealthBased)
-            currentHealth = Mathf.Clamp(currentHealth - (maxHealth * percentage), minHealth, maxHealth);
+            currentHealth = Mathf.Clamp(
+                currentHealth - (maxHealth * percentage),
+                minHealth,
+                maxHealth
+            );
         else
-            currentHealth = Mathf.Clamp(currentHealth - (currentHealth * percentage), minHealth, maxHealth);
+            currentHealth = Mathf.Clamp(
+                currentHealth - (currentHealth * percentage),
+                minHealth,
+                maxHealth
+            );
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // Handle collision with enemy
+            DepleteHealthFixed(10f);
+        }
     }
 }

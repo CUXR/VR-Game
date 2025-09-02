@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -21,7 +22,6 @@ public class EnemyHealth : MonoBehaviour
     {
         isAlive = false;
         outline.enabled = false;
-        Debug.Log("Enemy killed");
+        Destroy(gameObject);
     }
 }
-

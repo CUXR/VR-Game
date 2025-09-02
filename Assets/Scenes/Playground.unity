@@ -6582,6 +6582,11 @@ PrefabInstance:
       propertyPath: m_Extents.z
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 9041987385286134137, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
+        type: 3}
+      propertyPath: range
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
       propertyPath: volume
@@ -15778,6 +15783,11 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 850773777}
+    - target: {fileID: 4497860773181272573, guid: 2d559d2a857af4fbdbe7d490c976207d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5490527488824028600, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_Mesh

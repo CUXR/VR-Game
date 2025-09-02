@@ -281,7 +281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07cf4ca963b624dc6b1888e3d20df809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 2
+  range: 1
 --- !u!208 &2977459851763967986
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -291,7 +291,7 @@ NavMeshObstacle:
   m_GameObject: {fileID: 454641893840355991}
   m_Enabled: 1
   serializedVersion: 3
-  m_Shape: 1
+  m_Shape: 0
   m_Extents: {x: 0.5, y: 1, z: 0.5}
   m_MoveThreshold: 0.1
   m_Carve: 0

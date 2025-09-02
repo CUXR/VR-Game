@@ -72,11 +72,11 @@ public class PlayerMovement : MonoBehaviour
 
         hasBatteryForJumpAndSprint = true;
 
-        // if (!volume.profile.TryGet(out vignette)) {
-        //     Debug.LogWarning("No Vignette component found on Global Volume");
-        // }
+        if (!volume.profile.TryGet(out vignette)) {
+            Debug.LogWarning("No Vignette component found on Global Volume");
+        }
 
-        // rayUpper.transform.position = rayLower.transform.position + stepHeight * Vector3.up;
+        rayUpper.transform.position = rayLower.transform.position + stepHeight * Vector3.up;
         defaultScale = transform.localScale.y;
     }
 
@@ -215,13 +215,13 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // if (movementState == MovementState.CROUCH) {
-        //     vignette.intensity.value = crouchVignette;
-        // }
+        if (movementState == MovementState.CROUCH) {
+            vignette.intensity.value = crouchVignette;
+        }
 
-        // else {
-        //     vignette.intensity.value = defaultVignette;
-        // }
+        else {
+            vignette.intensity.value = defaultVignette;
+        }
     }
 
     void Move() {

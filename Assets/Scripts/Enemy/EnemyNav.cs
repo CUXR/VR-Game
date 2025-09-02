@@ -9,7 +9,7 @@ public class EnemyNav : MonoBehaviour
     public float repathInterval = 0.1f;   // How often to refresh the path (seconds)
 
     private NavMeshAgent agent;
-    private float timer;
+    // private float timer;
 
     void Awake()
     {
@@ -34,11 +34,11 @@ public class EnemyNav : MonoBehaviour
 
     void Update()
     {
-        if (!target) return;
+        // if (!target) return;
 
-        timer += Time.deltaTime;
-        if (timer < repathInterval) return;
-        timer = 0f;
+        // timer += Time.deltaTime;
+        // if (timer < repathInterval) return;
+        // timer = 0f;
 
         agent.SetDestination(target.position);
     }

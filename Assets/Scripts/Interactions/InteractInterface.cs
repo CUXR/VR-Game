@@ -10,7 +10,7 @@ public interface Interactable
     // "e" key (applied only if the player is not currently holding an object). The effects of the
     // interaction depend on the characteristics of the object. Takes in a GameObject (the player)
     // as an argument.
-    public void Grab(GameObject gObject);
+    public void Grab(Collider collider);
 
     // This function is called when the player is holding an object and presses the "e" key. The
     // object is effectively released and is typically removed from the player's influence.

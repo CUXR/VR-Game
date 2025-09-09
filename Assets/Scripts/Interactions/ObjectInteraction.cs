@@ -12,6 +12,13 @@ public class ObjectInteraction : MonoBehaviour
     // Object currently being held; if nothing, is null
     private Interactable held = null;
 
+    private Collider playerCollider;
+
+    void Start()
+    {
+        playerCollider = gameObject.GetComponent<Collider>();
+    }
+
     void Update()
     {
         if (InputController.Instance.GetInteractDown())
@@ -30,7 +37,7 @@ public class ObjectInteraction : MonoBehaviour
                         if (hit.rigidbody.gameObject.TryGetComponent(out Interact interactableObject))
                         // If the object hit has an Interactable component...
                         {
-                            interactableObject.Grab(gameObject);
+                            interactableObject.Grab(playerCollider);
                             held = interactableObject;
                         }
                     }

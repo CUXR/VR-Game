@@ -17,7 +17,7 @@ public class Interact : MonoBehaviour, Interactable
     [Header("Component References")]
     private Rigidbody rb;
     private Collider objectCollider;
-    private Collider playerCollider;
+    private Collider playerColliderRef;
     
 
     void Start()
@@ -30,10 +30,11 @@ public class Interact : MonoBehaviour, Interactable
     public void Grab(Collider playerCollider)
     {
         holdPosition = Camera.main.transform.GetChild(0);
-        holdOffset = holdPosition.InverseTransformVector((holdPosition.forward * size.z * 0.5f) +
-            (holdPosition.up * -size.y * 0.3f));
+        holdOffset = holdPosition.InverseTransformVector((holdPosition.right * 0.2f) +
+            (holdPosition.forward * size.z * 1.5f) + (holdPosition.up * size.y * 0.1f));
         rb.useGravity = false;
         rb.freezeRotation = true;
+        playerColliderRef = playerCollider;
         transform.SetParent(holdPosition);
         transform.localScale = Vector3.one;
         holding = true;
@@ -83,7 +84,7 @@ public class Interact : MonoBehaviour, Interactable
         rb.useGravity = true;
         rb.freezeRotation = false;
         holding = false;
-        Physics.IgnoreCollision(objectCollider, playerCollider, false);
+        Physics.IgnoreCollision(objectCollider, playerColliderRef, false);
     }
 
     public void Throw()
@@ -131,7 +132,7 @@ public class Interact : MonoBehaviour, Interactable
             Vector3 toTarget = targetPos - currentPos;
             rb.velocity = toTarget * 10f;
         }
-        if (Vector3.Distance(transform.position, holdPosition.position) > maxDistance) {
+        if (Vector3.Distance(transform.position, targetPos) > maxDistance) {
             Release();
         }
     }

@@ -14,9 +14,9 @@ public class ObjectInteraction : MonoBehaviour
 
     private Collider playerCollider;
 
-    [SerializeField] private float horizontalOffset = 1.2f;
+    [SerializeField] private float horizontalOffset = 1.1f;
     [SerializeField] private float verticalOffset = 0.2f;
-    [SerializeField] private float forwardOffset = 1.2f;
+    [SerializeField] private float forwardOffset = 1.5f;
 
     void Start()
     {

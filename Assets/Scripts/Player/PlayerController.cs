@@ -29,12 +29,17 @@ public class PlayerController : MonoBehaviour
 
             return;
         }
-
-        if (playerHealth.isPlayerInDanger())
+        else if (playerHealth.isPlayerInDanger())
         {
             cameraFollow.enabled = true;
             playerMovement.enabled = true;
             playerMovement.hasBatteryForJumpAndSprint = false; // Disable jump and sprint if in danger
+        }
+        else
+        {
+            cameraFollow.enabled = true;
+            playerMovement.enabled = true;
+            playerMovement.hasBatteryForJumpAndSprint = true; // Enable jump and sprint if not in danger
         }
 
         if (playerBackpack.isOpen)

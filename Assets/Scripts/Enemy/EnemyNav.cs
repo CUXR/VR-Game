@@ -5,8 +5,8 @@ using UnityEngine.AI;
 public class EnemyNav : MonoBehaviour
 {
     [Header("Chase")]
-    public Transform target;              // Drag your PLAYER here in the Inspector
-    public float repathInterval = 0.1f;   // How often to refresh the path (seconds)
+    public Transform target; // Drag your PLAYER here in the Inspector
+    public float repathInterval = 0.1f; // How often to refresh the path (seconds)
 
     private NavMeshAgent agent;
     private float timer;
@@ -28,16 +28,19 @@ public class EnemyNav : MonoBehaviour
         if (!target)
         {
             var p = GameObject.FindWithTag("Player");
-            if (p) target = p.transform;
+            if (p)
+                target = p.transform;
         }
     }
 
     void Update()
     {
-        if (!target) return;
+        if (!target)
+            return;
 
         timer += Time.deltaTime;
-        if (timer < repathInterval) return;
+        if (timer < repathInterval)
+            return;
         timer = 0f;
 
         agent.SetDestination(target.position);

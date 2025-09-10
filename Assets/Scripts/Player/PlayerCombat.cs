@@ -7,17 +7,34 @@ using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
-    [SerializeField] private float range = 2;
+    [SerializeField]
+    private float range = 2;
+    private EnemyHealth currentEnemy;
 
     void Update()
     {
-        if (!Physics.Raycast(Camera.main.gameObject.transform.position,
-                Camera.main.gameObject.transform.forward, out RaycastHit hit, range)) return;
+        if (
+            !Physics.Raycast(
+                Camera.main.gameObject.transform.position,
+                Camera.main.gameObject.transform.forward,
+                out RaycastHit hit,
+                range
+            )
+        )
+        {
+            if (currentEnemy != null)
+            {
+                currentEnemy.outline.enabled = false;
+                currentEnemy = null;
+            }
 
-        if (hit.collider.gameObject.TryGetComponent(out EnemyHealth enemy)
-            && enemy.isAlive)
+            return;
+        }
+
+        if (hit.collider.gameObject.TryGetComponent(out EnemyHealth enemy) && enemy.isAlive)
         {
             enemy.outline.enabled = true;
+            currentEnemy = enemy;
 
             if (InputController.Instance.GetStabDown())
             {
@@ -27,4 +44,3 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 }
-

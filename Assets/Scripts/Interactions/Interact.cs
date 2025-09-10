@@ -8,78 +8,43 @@ using UnityEngine;
 public class Interact : MonoBehaviour, Interactable
 {
     private Vector3 holdOffset;
+    private Vector3 targetPos;
     private Transform holdPosition;
     private bool holding;
-    private bool wallpress;
+    private bool objectPressed;
     private Vector3 size;
+    private float rangeTimer = 0f;
     [Header("Serialized Fields")]
-    [SerializeField] float maxDistance = 1.5f;
-    [SerializeField] float throwForce = 15.0f;
+    [SerializeField] private float maxDistance = 1.5f;
+    [SerializeField] private float throwForce = 15.0f;
+    [SerializeField] private float maxRangeTime = 0.5f;
 
     [Header("Component References")]
     private Rigidbody rb;
-    private Collider objectCollider;
     private Collider playerColliderRef;
-    
 
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        objectCollider = gameObject.GetComponent<Collider>();
         size = gameObject.GetComponent<Renderer>().bounds.size;
     }
 
     public void Grab(Collider playerCollider, float horizontalOffset, float verticalOffset,
         float forwardOffset)
     {
+        playerColliderRef = playerCollider;
         holdPosition = Camera.main.transform.GetChild(0);
+        // Calculates an offset based off of holdPosition so that the object is held in player view
         holdOffset = holdPosition.InverseTransformVector((holdPosition.right * horizontalOffset) +
             (holdPosition.forward * size.z * forwardOffset)
             + (holdPosition.up * size.y * verticalOffset));
         rb.useGravity = false;
         rb.freezeRotation = true;
-        playerColliderRef = playerCollider;
         transform.SetParent(holdPosition);
-        holding = true;
         transform.rotation = Camera.main.transform.rotation;
-        //Physics.IgnoreCollision(objectCollider, playerCollider, true);
-        Vector3 targetPos = holdPosition.TransformPoint(holdOffset);
-        Vector3 halfExtents = size * 0.5f;
-        Quaternion rotation = Quaternion.identity;
-        Collider[] hits = Physics.OverlapBox(targetPos, halfExtents, rotation);
-        bool blocked = false;
-        foreach (Collider hit in hits)
-        {
-            if (!hit.CompareTag("Player"))
-                {
-                    blocked = true;
-                    break;
-                }
-        }
-        if (!blocked)
-        {
-            transform.position = targetPos;
-        }
-        else
-        {
-            Vector3 direction = (targetPos - transform.position).normalized;
-            float distance = Vector3.Distance(transform.position, targetPos);
-            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, distance))
-            {
-                if (!hit.collider.CompareTag("Player"))
-                {
-                    transform.position = hit.point - direction * 0.05f;
-                }
-                else
-                {
-                    transform.position = targetPos;
-                }
-            }
-            else
-            {
-                transform.position = targetPos;
-            }
-        }
+        targetPos = holdPosition.TransformPoint(holdOffset);
+        rb.MovePosition(targetPos);
+        holding = true;
     }
 
     public void Release()
@@ -88,7 +53,6 @@ public class Interact : MonoBehaviour, Interactable
         rb.useGravity = true;
         rb.freezeRotation = false;
         holding = false;
-        Physics.IgnoreCollision(objectCollider, playerColliderRef, false);
     }
 
     public void Throw()
@@ -101,8 +65,7 @@ public class Interact : MonoBehaviour, Interactable
     {
         if (holding && collision.collider.tag != "Player")
         {
-            wallpress = true;
-            Debug.Log("wall");
+            objectPressed = true;
         }
     }
 
@@ -110,7 +73,7 @@ public class Interact : MonoBehaviour, Interactable
     {
         if (holding && collision.collider.tag != "Player")
         {
-            wallpress = false;
+            objectPressed = false;
         }
     }
 
@@ -124,20 +87,37 @@ public class Interact : MonoBehaviour, Interactable
 
     public void AdjustHoldPosition()
     {
-        Vector3 targetPos = holdPosition.TransformPoint(holdOffset);
+        targetPos = holdPosition.TransformPoint(holdOffset);
         Vector3 currentPos = transform.position;
-        if (wallpress)
+        Vector3 toTarget = targetPos - currentPos;
+        if (objectPressed)
         {
-            Vector3 pushBack = (targetPos - currentPos) * 2.0f;
-            rb.velocity = pushBack;
+            rb.velocity = (targetPos - currentPos) * 1.2f;
         }
         else
         {
-            Vector3 toTarget = targetPos - currentPos;
-            rb.velocity = toTarget * 10f;
+            rb.velocity = (targetPos - currentPos) * 5f;
         }
-        if (Vector3.Distance(transform.position, targetPos) > maxDistance) {
-            Release();
+        if (toTarget.magnitude > maxDistance)
+        {
+            rangeTimer += Time.fixedDeltaTime;
+            if (rangeTimer > maxRangeTime)
+            {
+                Release();
+            }
+        }
+        else
+        {
+            rangeTimer = 0f;
+        }
+        Vector3 toCamera = Camera.main.transform.position - transform.position;
+        if (Physics.Raycast(transform.position,
+               toCamera.normalized, out RaycastHit hit, toCamera.magnitude))
+        {
+            if (hit.collider != playerColliderRef)
+            {
+                Release();
+            }
         }
     }
 }

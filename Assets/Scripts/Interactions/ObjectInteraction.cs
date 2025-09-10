@@ -34,12 +34,12 @@ public class ObjectInteraction : MonoBehaviour
                 // the numerical range in which an object can be interacted with
                 if (Physics.Raycast(Camera.main.gameObject.transform.position,
                 Camera.main.gameObject.transform.forward, out RaycastHit hit, range))
-                // If an object is within the range, is hit by the raycast, and has Interact component..
+                // If an object is within the range, is hit by the raycast, and has Interact component
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
                     {
                         if (hit.rigidbody.gameObject.TryGetComponent(out Interact interactableObject))
-                        // If the object hit has an Interactable component...
+                        // If the object hit has an Interactable component
                         {
                             interactableObject.Grab(playerCollider, horizontalOffset,
                                 verticalOffset, forwardOffset);
@@ -60,10 +60,5 @@ public class ObjectInteraction : MonoBehaviour
             held.Throw();
             held = null;
         }
-    }
-
-    public float GetRange()
-    {
-        return range;
     }
 }

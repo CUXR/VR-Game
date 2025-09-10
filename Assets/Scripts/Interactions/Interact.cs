@@ -98,6 +98,8 @@ public class Interact : MonoBehaviour, Interactable
         {
             rb.velocity = (targetPos - currentPos) * 5f;
         }
+        // More forgiving interaction system, allowing a bit of time out of range
+        // before object is released
         if (toTarget.magnitude > maxDistance)
         {
             rangeTimer += Time.fixedDeltaTime;
@@ -110,6 +112,7 @@ public class Interact : MonoBehaviour, Interactable
         {
             rangeTimer = 0f;
         }
+        // If object being held leaves player's view, object is released
         Vector3 toCamera = Camera.main.transform.position - transform.position;
         if (Physics.Raycast(transform.position,
                toCamera.normalized, out RaycastHit hit, toCamera.magnitude))

@@ -12,8 +12,10 @@ public class Interact : MonoBehaviour, Interactable
     private bool holding;
     private bool wallpress;
     private Vector3 size;
-    private float maxDistance = 1.5f;
-    private float throwForce = 15.0f;
+    [Header("Serialized Fields")]
+    [SerializeField] float maxDistance = 1.5f;
+    [SerializeField] float throwForce = 15.0f;
+
     [Header("Component References")]
     private Rigidbody rb;
     private Collider objectCollider;
@@ -27,18 +29,20 @@ public class Interact : MonoBehaviour, Interactable
         size = gameObject.GetComponent<Renderer>().bounds.size;
     }
 
-    public void Grab(Collider playerCollider)
+    public void Grab(Collider playerCollider, float horizontalOffset, float verticalOffset,
+        float forwardOffset)
     {
         holdPosition = Camera.main.transform.GetChild(0);
-        holdOffset = holdPosition.InverseTransformVector((holdPosition.right * 0.2f) +
-            (holdPosition.forward * size.z * 1.5f) + (holdPosition.up * size.y * 0.1f));
+        holdOffset = holdPosition.InverseTransformVector((holdPosition.right * horizontalOffset) +
+            (holdPosition.forward * size.z * forwardOffset)
+            + (holdPosition.up * size.y * verticalOffset));
         rb.useGravity = false;
         rb.freezeRotation = true;
         playerColliderRef = playerCollider;
         transform.SetParent(holdPosition);
-        transform.localScale = Vector3.one;
         holding = true;
-        Physics.IgnoreCollision(objectCollider, playerCollider, true);
+        transform.rotation = Camera.main.transform.rotation;
+        //Physics.IgnoreCollision(objectCollider, playerCollider, true);
         Vector3 targetPos = holdPosition.TransformPoint(holdOffset);
         Vector3 halfExtents = size * 0.5f;
         Quaternion rotation = Quaternion.identity;

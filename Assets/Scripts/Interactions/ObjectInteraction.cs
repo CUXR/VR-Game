@@ -14,6 +14,10 @@ public class ObjectInteraction : MonoBehaviour
 
     private Collider playerCollider;
 
+    [SerializeField] private float horizontalOffset = 1.2f;
+    [SerializeField] private float verticalOffset = 0.2f;
+    [SerializeField] private float forwardOffset = 1.2f;
+
     void Start()
     {
         playerCollider = gameObject.GetComponent<Collider>();
@@ -37,7 +41,8 @@ public class ObjectInteraction : MonoBehaviour
                         if (hit.rigidbody.gameObject.TryGetComponent(out Interact interactableObject))
                         // If the object hit has an Interactable component...
                         {
-                            interactableObject.Grab(playerCollider);
+                            interactableObject.Grab(playerCollider, horizontalOffset,
+                                verticalOffset, forwardOffset);
                             held = interactableObject;
                         }
                     }

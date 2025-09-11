@@ -31,7 +31,7 @@ public class PlayerCombat : MonoBehaviour
             return;
         }
 
-        if (hit.collider.gameObject.TryGetComponent(out EnemyHealth enemy) && enemy.isAlive)
+        if (hit.collider.gameObject.TryGetComponent(out EnemyHealth enemy) && enemy.isAlive && !enemy.GetComponent<EnemyVision>().PlayerVisible())
         {
             enemy.outline.enabled = true;
             currentEnemy = enemy;

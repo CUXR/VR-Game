@@ -11,10 +11,19 @@ public class EnemyVision : MonoBehaviour
 
     [Range(0, 360)]
     public float viewAngle = 90f;
-    public bool playerVisible;
 
-    GameObject player;
-    Vector3 playerDirection;
+    [Header("Visibility Settings")]
+    public float visibilityThreshold = 0.7f;
+    public float visibilityIncreaseRate = 0.3f;
+    public float visibilityDecreaseRate = 0.1f;
+    public float visibilityDistanceMultiplier = 2f;
+    private float minVisibilityValue = 0f;
+    private float maxVisibilityValue = 1f;
+    private float visibilityValue;
+
+    [Header("References")]
+    private GameObject player;
+    private Vector3 playerDirection;
 
     void Start()
     {
@@ -47,18 +56,41 @@ public class EnemyVision : MonoBehaviour
             // If the raycast hits the player, they are visible
             if (hit.collider.gameObject.CompareTag("Player"))
             {
-                playerVisible = true;
+                visibilityValue = Mathf.Clamp(
+                    visibilityValue + visibilityIncreaseRate * (1 + (viewRadius - hit.distance) / viewRadius * visibilityDistanceMultiplier) * Time.deltaTime,
+                    minVisibilityValue,
+                    maxVisibilityValue
+                );
             }
             else
             {
-                playerVisible = false;
+                visibilityValue = Mathf.Clamp(
+                    visibilityValue - visibilityDecreaseRate * Time.deltaTime,
+                    minVisibilityValue,
+                    maxVisibilityValue
+                );
             }
         }
     }
 
+    public bool PlayerVisible()
+    {
+        return visibilityValue >= maxVisibilityValue;
+    }
+
     private void OnDrawGizmos()
     {
+        Vector3 leftBoundary = Quaternion.Euler(0, -viewAngle / 2, 0) * transform.forward;
+        Vector3 rightBoundary = Quaternion.Euler(0, viewAngle / 2, 0) * transform.forward;
+
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, playerDirection * viewRadius);
+        Gizmos.DrawLine(transform.position, transform.position + leftBoundary * viewRadius);
+        Gizmos.DrawLine(transform.position, transform.position + rightBoundary * viewRadius);
+
+        if (player != null)
+        {
+            Gizmos.color = PlayerVisible() ? Color.green : Color.gray;
+            Gizmos.DrawLine(transform.position + Vector3.up * 0.5f, player.transform.position);
+        }
     }
 }

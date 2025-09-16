@@ -60,9 +60,10 @@ public class PlayerMovement : MonoBehaviour
     public float stepHeight;
     public float stepSmoothing;
 
-    [Header("Sounds")]
+    [Header("Walking Sound Variables")]
     private float walkingVolumeRadius = 15f;
     private float walkingVolumeDecay = 0.5f;
+    private float walkingLoudness =  0.3f;
 
     Rigidbody rb;
     Vector3 moveDirection;
@@ -258,7 +259,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementState = MovementState.WALK;
                 // Sound produced by walking
-                AudioController.Instance.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingVolumeDecay));
+                AudioController.Instance.SoundProduced(new Sound(transform.position, walkingVolumeRadius,
+                walkingLoudness, walkingVolumeDecay));
                 moveSpeed = walkSpeed / Time.timeScale;
             }
             else

@@ -26,6 +26,7 @@ public class EnemyHearing : MonoBehaviour
     {
         heardSound = true;
         investigatePos = soundPos;
+        Debug.Log("SOUND");
     }
 
 }

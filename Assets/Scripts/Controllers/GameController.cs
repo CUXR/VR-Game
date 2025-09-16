@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     public static GameController Instance;
-    public List<EnemyController> enemies;
+    public List<EnemyController> enemies = new List<EnemyController>();
     private void Awake()
     {
         if (Instance != null && Instance != this)

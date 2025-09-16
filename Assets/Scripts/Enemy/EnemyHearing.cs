@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class EnemyHearing : MonoBehaviour
 {
-    private float maxHearingRange;
+    private float maxHearingRange = 5f;
     private float loudnessThreshold;
+    private EnemyController enemy;
     public bool heardSound;
     public Vector3 investigatePos;
     //The player should be heard from a far distance while running or jumping (since it's really loud)
@@ -27,6 +28,19 @@ public class EnemyHearing : MonoBehaviour
         heardSound = true;
         investigatePos = soundPos;
         Debug.Log("SOUND");
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (enemy == null)
+        {
+            enemy = GetComponent<EnemyController>();
+        }
+        if (enemy != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(enemy.transform.position, maxHearingRange);
+        }
     }
 
 }

@@ -16,10 +16,9 @@ public class EnemyHearing : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public float GetRange()
     {
-
+        return maxHearingRange;
     }
 
 }

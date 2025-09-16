@@ -253,6 +253,8 @@ public class PlayerMovement : MonoBehaviour
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
                 movementState = MovementState.WALK;
+                // Sound produced by walking
+                
                 moveSpeed = walkSpeed / Time.timeScale;
             }
             else

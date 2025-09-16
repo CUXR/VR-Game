@@ -29,7 +29,10 @@ public class AudioController : MonoBehaviour
             if (Overlap(enemy.transform.position, enemy.hearing.GetRange(), sound.position, sound.radius))
             {
                 soundVolume = sound.loudness * Mathf.Exp(sound.decayRate * distance);
-                if (soundVolume >= enemy.hearing.)
+                if (soundVolume >= enemy.hearing.GetThreshold())
+                {
+                    enemy.hearing.HeardSound();
+                }
             }
         }
     }

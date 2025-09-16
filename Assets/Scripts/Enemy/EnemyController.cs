@@ -40,6 +40,10 @@ public class EnemyController : MonoBehaviour
         {
             agent.SetDestination(player.transform.position);
         }
+        if (hearing.heardSound)
+        {
+            agent.SetDestination(hearing.investigatePos);
+        }
         if (!health.isAlive)
         {
             GameController.Instance.RemoveEnemy(this);

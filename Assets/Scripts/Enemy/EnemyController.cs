@@ -19,7 +19,6 @@ public class EnemyController : MonoBehaviour
         hearing = GetComponent<EnemyHearing>();
         health = GetComponent<EnemyHealth>();
         player = GameObject.FindWithTag("Player");
-        GameController.Instance.AddEnemy(this);
     }
 
     void Start()
@@ -29,6 +28,7 @@ public class EnemyController : MonoBehaviour
             if (NavMesh.SamplePosition(transform.position, out var hit, 2f, NavMesh.AllAreas))
                 agent.Warp(hit.position);
         }
+        GameController.Instance.AddEnemy(this);
     }
 
     void Update()

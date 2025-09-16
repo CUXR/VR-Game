@@ -31,7 +31,7 @@ public class AudioController : MonoBehaviour
                 soundVolume = sound.loudness * Mathf.Exp(sound.decayRate * distance);
                 if (soundVolume >= enemy.hearing.GetThreshold())
                 {
-                    enemy.hearing.HeardSound();
+                    enemy.hearing.HeardSound(sound.position);
                 }
             }
         }

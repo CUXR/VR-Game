@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sound
+public class Sound : MonoBehaviour
 {
     public readonly Vector3 position;
     public readonly float radius;

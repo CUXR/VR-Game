@@ -22,5 +22,8 @@ public class AudioController : MonoBehaviour
     public void SoundProduced(Sound sound)
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, sound.radius, enemies);
+        foreach (Collider collider in hitColliders) {
+            
+        }
     }
 }

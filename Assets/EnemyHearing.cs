@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyHearing : MonoBehaviour
 {
     private float maxHearingRange;
+    private float loudnessThreshold;
     //The enemy should know where a noise is originated when a noise is heard
     //The player should be heard from a far distance while running or jumping (since it's really loud)
     //The player should be heard from a medium distance while walking around

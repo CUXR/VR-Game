@@ -21,10 +21,13 @@ public class GameController : MonoBehaviour
     public void RemoveEnemy(EnemyController enemy)
     {
         enemies.Remove(enemy);
+        AudioController.Instance.EnemyChanged();
     }
 
     public void AddEnemy(EnemyController enemy)
     {
         enemies.Add(enemy);
+        AudioController.Instance.EnemyChanged();
     }
+
 }

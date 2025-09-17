@@ -7,7 +7,7 @@ public class AudioController : MonoBehaviour
     public static AudioController Instance;
     private List<EnemyController> enemies;
     private float soundVolume;
-    private float distance;
+    private float muffling;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -23,22 +23,34 @@ public class AudioController : MonoBehaviour
 
     public void SoundProduced(Sound sound)
     {
-        enemies = GameController.Instance.enemies;
-        foreach (EnemyController enemy in enemies)
+        if (enemies != null)
         {
-            if (Overlap(enemy.transform.position, enemy.hearing.GetRange(), sound.position, sound.radius))
+          foreach (EnemyController enemy in enemies)
             {
-                soundVolume = sound.loudness * Mathf.Exp(sound.decayRate * distance);
-                if (soundVolume >= enemy.hearing.GetThreshold())
+                float distance = Vector3.Distance(enemy.transform.position, sound.position);
+                if (Overlap(enemy.hearing.GetRange(), sound.radius, distance))
                 {
-                    enemy.hearing.HeardSound(sound.position);
+                    Vector3 direction = (enemy.transform.position - sound.position).normalized;
+                    if (Physics.Raycast(sound.position, direction, sound.radius))
+                    {
+                        muffling = 0.5f;
+                    }
+                    else
+                    {
+                        muffling = 1f;
+                    }
+                    soundVolume = sound.loudness * muffling * Mathf.Exp(-sound.decayRate * distance);
+                    if (soundVolume >= enemy.hearing.GetThreshold())
+                    {
+                        enemy.hearing.HeardSound(sound.position);
+                    }
                 }
-            }
+            }  
         }
     }
 
-    private bool Overlap(Vector3 firstCenter, float firstRadius, Vector3 secondCenter, float secondRadius) {
-        distance = Vector3.Distance(firstCenter, secondCenter);
+    private bool Overlap(float firstRadius, float secondRadius, float distance)
+    {
         if (distance <= (firstRadius + secondRadius))
         {
             return true;
@@ -47,5 +59,10 @@ public class AudioController : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public void EnemyChanged()
+    {
+        enemies = GameController.Instance.enemies;
     }
 }

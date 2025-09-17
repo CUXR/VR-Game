@@ -5,13 +5,10 @@ using UnityEngine;
 public class EnemyHearing : MonoBehaviour
 {
     private float maxHearingRange = 5f;
-    private float loudnessThreshold;
+    private float loudnessThreshold = 0.05f;
     private EnemyController enemy;
     public bool heardSound = false;
     public Vector3 investigatePos;
-    //The player should be heard from a far distance while running or jumping (since it's really loud)
-    //The player should be heard from a medium distance while walking around
-    //(Bonus) Objects that were thrown should create a noise at the place where it landed/collided with another object
 
     public float GetRange()
     {

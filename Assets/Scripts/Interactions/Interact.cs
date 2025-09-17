@@ -22,6 +22,12 @@ public class Interact : MonoBehaviour, Interactable
     private Rigidbody rb;
     private Collider playerColliderRef;
 
+    [Header("Sound Variables")]
+    private float objectVolumeRadius = 7f;
+    private float objectVolumeDecay = 0.3f;
+    private float objectLoudness = 0.3f;
+
+
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
@@ -66,11 +72,10 @@ public class Interact : MonoBehaviour, Interactable
         {
             objectPressed = true;
         }
-        if (!holding)
-        {
-            // Sound produced by object hitting something
-            //AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
-        }
+        float kineticEnergy = 0.5f * rb.mass * Mathf.Pow(collision.relativeVelocity.magnitude, 2);
+        // Sound produced by object hitting something
+        AudioController.Instance.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
+            objectVolumeDecay * kineticEnergy, objectLoudness * kineticEnergy));
     }
 
     void OnCollisionExit(Collision collision)

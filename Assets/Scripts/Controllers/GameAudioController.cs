@@ -39,7 +39,7 @@ public class AudioController : MonoBehaviour
 
     private bool Overlap(Vector3 firstCenter, float firstRadius, Vector3 secondCenter, float secondRadius) {
         distance = Vector3.Distance(firstCenter, secondCenter);
-        if (distance > (firstRadius + secondRadius))
+        if (distance <= (firstRadius + secondRadius))
         {
             return true;
         }

@@ -7,7 +7,8 @@ public class EnemyHearing : MonoBehaviour
     private float maxHearingRange = 5f;
     private float loudnessThreshold;
     private EnemyController enemy;
-    public bool heardSound;
+    private bool investigating = false;
+    public bool heardSound = false;
     public Vector3 investigatePos;
     //The player should be heard from a far distance while running or jumping (since it's really loud)
     //The player should be heard from a medium distance while walking around
@@ -25,9 +26,17 @@ public class EnemyHearing : MonoBehaviour
 
     public void HeardSound(Vector3 soundPos)
     {
-        heardSound = true;
         investigatePos = soundPos;
-        Debug.Log("SOUND");
+        heardSound = true;
+        investigating = true;
+    }
+
+    void FixedUpdate()
+    {
+        if (heardSound)
+        {
+            heardSound = false;
+        }
     }
 
     private void OnDrawGizmos()

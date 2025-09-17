@@ -42,6 +42,7 @@ public class EnemyController : MonoBehaviour
         }
         if (hearing.heardSound)
         {
+            Debug.Log("investigate");
             agent.SetDestination(hearing.investigatePos);
         }
         if (!health.isAlive)

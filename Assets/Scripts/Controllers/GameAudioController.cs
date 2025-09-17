@@ -30,9 +30,14 @@ public class AudioController : MonoBehaviour
                 if (Overlap(enemy.hearing.GetRange(), sound.radius, distance))
                 {
                     Vector3 direction = (enemy.transform.position - sound.position).normalized;
-                    if (Physics.Raycast(sound.position, direction, distance))
+                    if (Physics.Raycast(sound.position, direction, out RaycastHit hit, distance))
                     {
-                        muffling = 0.5f;
+                        if (hit.collider.gameObject.layer != 8)
+                        {
+                            // index 8 refers to the "Environment" layer, change the index if the corresponding layer
+                            // is moved to a different index
+                            muffling = 0.5f;
+                        }
                     }
                     float soundVolume = sound.loudness * muffling * Mathf.Exp(-sound.decayRate * distance);
                     if (soundVolume >= enemy.hearing.GetThreshold())

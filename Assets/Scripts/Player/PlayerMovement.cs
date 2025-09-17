@@ -61,9 +61,14 @@ public class PlayerMovement : MonoBehaviour
     public float stepSmoothing;
 
     [Header("Walking Sound Variables")]
-    private float walkingVolumeRadius = 15f;
+    private float walkingVolumeRadius = 13f;
     private float walkingVolumeDecay = 0.5f;
     private float walkingLoudness =  0.3f;
+
+    [Header("Sprinting Sound Variables")]
+    private float sprintingVolumeRadius = 20f;
+    private float sprintingVolumeDecay = 0.3f;
+    private float sprintingLoudness =  1.0f;
 
     Rigidbody rb;
     Vector3 moveDirection;
@@ -253,6 +258,8 @@ public class PlayerMovement : MonoBehaviour
             else if (InputController.Instance.GetSprint() && hasBatteryForJumpAndSprint)
             {
                 movementState = MovementState.SPRINT;
+                // Sound produced by sprinting
+                AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
                 moveSpeed = sprintSpeed / Time.timeScale;
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
@@ -367,6 +374,9 @@ public class PlayerMovement : MonoBehaviour
     void Jump()
     {
         exitingSlope = true;
+
+        // Sound produced by jumping
+        AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
 
         // Resets y-velocity to have consistent jump height
         rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);

@@ -68,8 +68,8 @@ public class Interact : MonoBehaviour, Interactable
         }
         if (!holding)
         {
-            // Sound produced by hitting something
-            AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
+            // Sound produced by object hitting something
+            //AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
         }
     }
 

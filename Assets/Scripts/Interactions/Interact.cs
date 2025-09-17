@@ -24,7 +24,7 @@ public class Interact : MonoBehaviour, Interactable
 
     [Header("Sound Variables")]
     private float objectVolumeRadius = 7f;
-    private float objectVolumeDecay = 0.3f;
+    private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
 
 
@@ -74,8 +74,9 @@ public class Interact : MonoBehaviour, Interactable
         }
         float kineticEnergy = 0.5f * rb.mass * Mathf.Pow(collision.relativeVelocity.magnitude, 2);
         // Sound produced by object hitting something
+        Debug.Log(objectVolumeDecay);
         AudioController.Instance.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
-            objectVolumeDecay * kineticEnergy, objectLoudness * kineticEnergy));
+            objectLoudness * kineticEnergy, objectVolumeDecay));
     }
 
     void OnCollisionExit(Collision collision)

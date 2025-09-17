@@ -62,12 +62,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Walking Sound Variables")]
     private float walkingVolumeRadius = 13f;
-    private float walkingVolumeDecay = 0.5f;
-    private float walkingLoudness =  0.3f;
+    private float walkingVolumeDecay = 0.4f;
+    private float walkingLoudness =  0.6f;
 
     [Header("Sprinting Sound Variables")]
     private float sprintingVolumeRadius = 20f;
-    private float sprintingVolumeDecay = 0.3f;
+    private float sprintingVolumeDecay = 0.1f;
     private float sprintingLoudness =  1.0f;
 
     Rigidbody rb;
@@ -259,14 +259,14 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementState = MovementState.SPRINT;
                 // Sound produced by sprinting
-                AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
+                AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 moveSpeed = sprintSpeed / Time.timeScale;
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
                 movementState = MovementState.WALK;
                 // Sound produced by walking
-                AudioController.Instance.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingVolumeDecay, walkingLoudness));
+                AudioController.Instance.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 moveSpeed = walkSpeed / Time.timeScale;
             }
             else

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyHearing : MonoBehaviour
 {
-    private float maxHearingRange = 5f;
+    private float maxHearingRange = 10f;
     private float loudnessThreshold = 0.05f;
     private EnemyController enemy;
     public bool heardSound = false;

@@ -66,6 +66,11 @@ public class Interact : MonoBehaviour, Interactable
         {
             objectPressed = true;
         }
+        if (!holding)
+        {
+            // Sound produced by hitting something
+            AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
+        }
     }
 
     void OnCollisionExit(Collision collision)

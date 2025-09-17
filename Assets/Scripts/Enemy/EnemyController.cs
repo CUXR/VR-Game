@@ -39,11 +39,14 @@ public class EnemyController : MonoBehaviour
         if (vision.PlayerVisible())
         {
             agent.SetDestination(player.transform.position);
-        }
-        if (hearing.heardSound)
+        } else if (hearing.heardSound)
         {
-            Debug.Log("investigate");
-            agent.SetDestination(hearing.investigatePos);
+            // This prioritizes vision over hearing
+            float toTarget = Vector3.Distance(agent.destination, hearing.investigatePos);
+            if (toTarget > 1f) // Only change if target has moved relatively far from previous investigatePos
+            {
+                agent.SetDestination(hearing.investigatePos);
+            }
         }
         if (!health.isAlive)
         {

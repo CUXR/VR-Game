@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0c81ff56482ab64bb6173470797f138, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numSlots: 8
+  numSlots: 16
   isOpen: 0
   dropdownVisible: 0
   isInspecting: 0

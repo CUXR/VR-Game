@@ -74,7 +74,6 @@ public class Interact : MonoBehaviour, Interactable
         }
         float kineticEnergy = 0.5f * rb.mass * Mathf.Pow(collision.relativeVelocity.magnitude, 2);
         // Sound produced by object hitting something
-        Debug.Log(objectVolumeDecay);
         AudioController.Instance.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
             objectLoudness * kineticEnergy, objectVolumeDecay));
     }

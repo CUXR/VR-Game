@@ -259,14 +259,14 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementState = MovementState.SPRINT;
                 // Sound produced by sprinting
-                AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
+                AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 moveSpeed = sprintSpeed / Time.timeScale;
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
                 movementState = MovementState.WALK;
                 // Sound produced by walking
-                AudioController.Instance.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
+                AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 moveSpeed = walkSpeed / Time.timeScale;
             }
             else
@@ -376,7 +376,7 @@ public class PlayerMovement : MonoBehaviour
         exitingSlope = true;
 
         // Sound produced by jumping
-        AudioController.Instance.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
+        AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
 
         // Resets y-velocity to have consistent jump height
         rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);

@@ -14,10 +14,6 @@ public class ObjectInteraction : MonoBehaviour
 
     private Collider playerCollider;
 
-    [SerializeField] private float horizontalOffset = 1.1f;
-    [SerializeField] private float verticalOffset = 0.2f;
-    [SerializeField] private float forwardOffset = 1.5f;
-
     void Start()
     {
         playerCollider = gameObject.GetComponent<Collider>();
@@ -38,12 +34,14 @@ public class ObjectInteraction : MonoBehaviour
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
                     {
-                        if (hit.rigidbody.gameObject.TryGetComponent(out Interact interactableObject))
+                        if (hit.rigidbody.gameObject.TryGetComponent(out Holdable interactableObject))
                         // If the object hit has an Interactable component
                         {
-                            interactableObject.Grab(playerCollider, horizontalOffset,
-                                verticalOffset, forwardOffset);
-                            held = interactableObject;
+                            interactableObject.InteractWith();
+                            if (interactableObject.IsHoldable())
+                            {
+                                held = interactableObject;
+                            }
                         }
                     }
                 }
@@ -55,9 +53,9 @@ public class ObjectInteraction : MonoBehaviour
             }
 
         }
-        if (Input.GetKeyDown(KeyCode.Mouse0) && held != null)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && held != null && held is Holdable interact)
         {
-            held.Throw();
+            interact.Throw();
             held = null;
         }
     }

@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 1840915541854244570}
   - component: {fileID: 6283357950158972332}
   - component: {fileID: 1941861895629756143}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -1638,6 +1638,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d574a73bd1b5c4e8aafb3344e38ff690, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hearing: {fileID: 0}
 --- !u!114 &1840915541854244570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1684,3 +1685,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a02e03745fb8c430fb904f857e98a016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  heardSound: 0
+  investigatePos: {x: 0, y: 0, z: 0}

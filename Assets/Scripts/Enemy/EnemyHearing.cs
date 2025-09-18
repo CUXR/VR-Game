@@ -4,15 +4,32 @@ using UnityEngine;
 
 public class EnemyHearing : MonoBehaviour
 {
-    private float maxHearingRange = 10f;
     private float loudnessThreshold = 0.05f;
     private EnemyController enemy;
     public bool heardSound = false;
     public Vector3 investigatePos;
+    public float maxHearingRange;
+    public float hearingRange;
+
+    void Start()
+    {
+        maxHearingRange = GameController.Instance.maxHearingRange;
+        hearingRange = maxHearingRange;
+    }
 
     public float GetRange()
     {
-        return maxHearingRange;
+        return hearingRange;
+    }
+
+    public void SetRange(float range)
+    {
+        // To allow different thypes of enemies to have different hearing ranges, but
+        // they must all be less than the maximum hearing range
+        if (range <= maxHearingRange)
+        {
+            hearingRange = range;
+        }
     }
 
     public float GetThreshold()
@@ -43,7 +60,7 @@ public class EnemyHearing : MonoBehaviour
         if (enemy != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(enemy.transform.position, maxHearingRange);
+            Gizmos.DrawWireSphere(enemy.transform.position, hearingRange);
         }
     }
 

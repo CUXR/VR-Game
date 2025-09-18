@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    private LayerMask enemyLayer;
+    private int environmentLayerInt;
+    public float maxHearingRange = 15f;
     public static GameController Instance;
     public List<EnemyController> enemies = new List<EnemyController>();
     private void Awake()
@@ -18,16 +21,22 @@ public class GameController : MonoBehaviour
             DontDestroyOnLoad(transform.root.gameObject);
         }
     }
+
+    void Start()
+    {
+        enemyLayer = LayerMask.GetMask("Enemy");
+        environmentLayerInt = LayerMask.NameToLayer("Environment");
+        AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
+    }
+    
     public void RemoveEnemy(EnemyController enemy)
     {
         enemies.Remove(enemy);
-        AudioController.Instance.EnemyChanged();
     }
 
     public void AddEnemy(EnemyController enemy)
     {
         enemies.Add(enemy);
-        AudioController.Instance.EnemyChanged();
     }
 
 }

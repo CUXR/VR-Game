@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class Interact : MonoBehaviour, Interactable
+public class Holdable : MonoBehaviour, Interactable
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;
@@ -17,10 +17,13 @@ public class Interact : MonoBehaviour, Interactable
     [SerializeField] private float maxDistance = 1.5f;
     [SerializeField] private float throwForce = 15.0f;
     [SerializeField] private float maxRangeTime = 0.5f;
+    [SerializeField] private float horizontalOffset = 1.1f;
+    [SerializeField] private float verticalOffset = 0.2f;
+    [SerializeField] private float forwardOffset = 1.5f;
 
     [Header("Component References")]
     private Rigidbody rb;
-    private Collider playerColliderRef;
+    private Collider playerCollider;
 
     [Header("Sound Variables")]
     private float objectVolumeRadius = 7f;
@@ -32,12 +35,22 @@ public class Interact : MonoBehaviour, Interactable
     {
         rb = gameObject.GetComponent<Rigidbody>();
         size = gameObject.GetComponent<Renderer>().bounds.size;
+        playerCollider = GameObject.FindWithTag("Player").GetComponent<Collider>();
     }
 
-    public void Grab(Collider playerCollider, float horizontalOffset, float verticalOffset,
-        float forwardOffset)
+    public bool IsHoldable()
     {
-        playerColliderRef = playerCollider;
+        return true;
+    }
+
+    public bool IsThrowable()
+    {
+        return true;
+    }
+
+    public void InteractWith()
+    {
+        // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);
         // Calculates an offset based off of holdPosition so that the object is held in player view
         holdOffset = holdPosition.InverseTransformVector((holdPosition.right * horizontalOffset) +
@@ -54,6 +67,7 @@ public class Interact : MonoBehaviour, Interactable
 
     public void Release()
     {
+        // This implementation of Release drops the object (InteractInterface)
         transform.SetParent(null);
         rb.useGravity = true;
         rb.freezeRotation = false;
@@ -62,6 +76,9 @@ public class Interact : MonoBehaviour, Interactable
 
     public void Throw()
     {
+        // This function is called when the player is holding an object and presses the left mouse
+        // button. The object is sent in a direction away from the player at a velocity determined by
+        // a throwForce variable.
         Release();
         rb.AddForce(Camera.main.transform.forward * throwForce + Camera.main.transform.up * throwForce * 0.5f, ForceMode.Impulse);
     }
@@ -74,7 +91,7 @@ public class Interact : MonoBehaviour, Interactable
         }
         float kineticEnergy = 0.5f * rb.mass * Mathf.Pow(collision.relativeVelocity.magnitude, 2);
         // Sound produced by object hitting something
-        AudioController.Instance.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
+        AudioUtility.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
             objectLoudness * kineticEnergy, objectVolumeDecay));
     }
 
@@ -96,6 +113,8 @@ public class Interact : MonoBehaviour, Interactable
 
     public void AdjustHoldPosition()
     {
+        // This function is called in FixedUpdate() to ensure that the held object
+        // interacts correctly with walls and other objects (physics-wise).
         targetPos = holdPosition.TransformPoint(holdOffset);
         Vector3 currentPos = transform.position;
         Vector3 toTarget = targetPos - currentPos;
@@ -126,7 +145,7 @@ public class Interact : MonoBehaviour, Interactable
         if (Physics.Raycast(transform.position,
                toCamera.normalized, out RaycastHit hit, toCamera.magnitude))
         {
-            if (hit.collider != playerColliderRef)
+            if (hit.collider != playerCollider)
             {
                 Release();
             }

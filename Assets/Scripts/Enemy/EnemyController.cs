@@ -39,7 +39,8 @@ public class EnemyController : MonoBehaviour
         if (vision.PlayerVisible())
         {
             agent.SetDestination(player.transform.position);
-        } else if (hearing.heardSound)
+        }
+        else if (hearing.heardSound)
         {
             // This prioritizes vision over hearing
             float toTarget = Vector3.Distance(agent.destination, hearing.investigatePos);
@@ -52,5 +53,10 @@ public class EnemyController : MonoBehaviour
         {
             GameController.Instance.RemoveEnemy(this);
         }
+    }
+
+    public float GetHearingRange()
+    {
+        return hearing.GetRange();
     }
 }

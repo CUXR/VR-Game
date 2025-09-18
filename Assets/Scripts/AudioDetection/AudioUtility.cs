@@ -45,7 +45,6 @@ public static class AudioUtility
                     if (soundVolume >= enemy.hearing.GetThreshold())
                     {
                         enemy.hearing.HeardSound(sound.position);
-                        Debug.Log("enemyheard");
                     }
                 }
             }

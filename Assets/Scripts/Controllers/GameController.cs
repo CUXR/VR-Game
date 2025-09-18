@@ -6,7 +6,8 @@ public class GameController : MonoBehaviour
 {
     private LayerMask enemyLayer;
     private int environmentLayerInt;
-    public float maxHearingRange = 15f;
+    // Universal maximum hearing range for all enemies in the game
+    public float maxHearingRange = 12f;
     public static GameController Instance;
     public List<EnemyController> enemies = new List<EnemyController>();
     private void Awake()
@@ -28,7 +29,7 @@ public class GameController : MonoBehaviour
         environmentLayerInt = LayerMask.NameToLayer("Environment");
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
     }
-    
+
     public void RemoveEnemy(EnemyController enemy)
     {
         enemies.Remove(enemy);

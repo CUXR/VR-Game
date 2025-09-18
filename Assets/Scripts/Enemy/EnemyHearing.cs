@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class EnemyHearing : MonoBehaviour
 {
     private float loudnessThreshold = 0.05f;
     private EnemyController enemy;
+    private float rangeToDraw;
     public bool heardSound = false;
     public Vector3 investigatePos;
     public float maxHearingRange;
@@ -13,8 +16,8 @@ public class EnemyHearing : MonoBehaviour
 
     void Start()
     {
-        maxHearingRange = GameController.Instance.maxHearingRange;
         hearingRange = maxHearingRange;
+        maxHearingRange = GameController.Instance.maxHearingRange;
     }
 
     public float GetRange()
@@ -59,9 +62,18 @@ public class EnemyHearing : MonoBehaviour
         }
         if (enemy != null)
         {
+            if (maxHearingRange == 0)
+            {
+                rangeToDraw = 12f;
+            }
+            else
+            {
+                rangeToDraw = maxHearingRange;
+            }
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(enemy.transform.position, hearingRange);
+            Gizmos.DrawWireSphere(enemy.transform.position, rangeToDraw);
         }
     }
 
 }
+

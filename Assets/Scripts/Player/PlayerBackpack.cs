@@ -55,20 +55,31 @@ public class PlayerBackpack : MonoBehaviour
     {
         if (InputController.Instance.GetBackpackDown())
         {
-            isOpen = !isOpen;
-            backpackPanel.SetActive(isOpen);
-            backpackUI.SetActive(isOpen);
-
-            if (!isOpen)
-            {
-                dropdownVisible = false;
-            }
+            ToggleBackpack();
         }
 
+        UpdateBackpackElementVisibility();
+    }
+
+    private void UpdateBackpackElementVisibility()
+    {
         dropdownUI.gameObject.SetActive(dropdownVisible && isOpen);
 
         itemNameText.gameObject.SetActive(isInspecting);
         itemDescriptionText.gameObject.SetActive(isInspecting);
+    }
+
+    private void ToggleBackpack()
+    {
+        isOpen = !isOpen;
+        Time.timeScale = isOpen ? 0f : 1f;
+        backpackPanel.SetActive(isOpen);
+        backpackUI.SetActive(isOpen);
+
+        if (!isOpen)
+        {
+            dropdownVisible = false;
+        }
     }
 
     int FindSmallestOpenSlot()

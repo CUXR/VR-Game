@@ -46,7 +46,6 @@ public class PlayerController : MonoBehaviour
         {
             cameraFollow.enabled = false;
             playerMovement.enabled = false;
-            Time.timeScale = 0f;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
@@ -54,7 +53,6 @@ public class PlayerController : MonoBehaviour
         {
             cameraFollow.enabled = true;
             playerMovement.enabled = true;
-            Time.timeScale = 1f;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }

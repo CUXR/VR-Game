@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
         crouchVignette;
     private float defaultScale;
     private Vignette vignette;
+    private float radiusToDraw;
 
     [Header("Slope Check")]
     public float maxSlopeAngle;
@@ -63,12 +64,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Walking Sound Variables")]
     private float walkingVolumeRadius = 13f;
     private float walkingVolumeDecay = 0.4f;
-    private float walkingLoudness =  0.6f;
+    private float walkingLoudness = 0.6f;
 
     [Header("Sprinting Sound Variables")]
     private float sprintingVolumeRadius = 20f;
     private float sprintingVolumeDecay = 0.1f;
-    private float sprintingLoudness =  1.0f;
+    private float sprintingLoudness = 1.0f;
 
     Rigidbody rb;
     Vector3 moveDirection;
@@ -253,6 +254,7 @@ public class PlayerMovement : MonoBehaviour
             )
             {
                 movementState = MovementState.CROUCH;
+                radiusToDraw = 0;
                 moveSpeed = crouchSpeed / Time.timeScale;
             }
             else if (InputController.Instance.GetSprint() && hasBatteryForJumpAndSprint)
@@ -260,6 +262,7 @@ public class PlayerMovement : MonoBehaviour
                 movementState = MovementState.SPRINT;
                 // Sound produced by sprinting
                 AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
+                radiusToDraw = sprintingVolumeRadius;
                 moveSpeed = sprintSpeed / Time.timeScale;
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
@@ -267,12 +270,14 @@ public class PlayerMovement : MonoBehaviour
                 movementState = MovementState.WALK;
                 // Sound produced by walking
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
+                radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed / Time.timeScale;
             }
             else
             {
                 movementState = MovementState.IDLE;
                 moveSpeed = 0;
+                radiusToDraw = 0;
             }
         }
 
@@ -377,6 +382,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Sound produced by jumping
         AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingVolumeDecay, sprintingLoudness));
+        radiusToDraw = sprintingVolumeRadius;
 
         // Resets y-velocity to have consistent jump height
         rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
@@ -440,5 +446,11 @@ public class PlayerMovement : MonoBehaviour
     public MovementState GetMovementState()
     {
         return movementState;
+    }
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, radiusToDraw);
     }
 }

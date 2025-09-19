@@ -13,6 +13,10 @@ public class Holdable : MonoBehaviour, Interactable
     private bool objectPressed;
     private Vector3 size;
     private float rangeTimer = 0f;
+    private float radiusToDraw;
+    private float soundTimer = 0f;
+    private float soundRadiusDuration = 2f;
+
     [Header("Serialized Fields")]
     [SerializeField] private float maxDistance = 1.5f;
     [SerializeField] private float throwForce = 15.0f;
@@ -93,6 +97,8 @@ public class Holdable : MonoBehaviour, Interactable
         // Sound produced by object hitting something
         AudioUtility.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
             objectLoudness * kineticEnergy, objectVolumeDecay));
+        radiusToDraw = objectVolumeRadius * kineticEnergy;
+        soundTimer = soundRadiusDuration;
     }
 
     void OnCollisionExit(Collision collision)
@@ -108,6 +114,14 @@ public class Holdable : MonoBehaviour, Interactable
         if (holding)
         {
             AdjustHoldPosition();
+        }
+        if (soundTimer > 0f)
+        {
+            soundTimer -= Time.fixedDeltaTime;
+            if (soundTimer <= 0f)
+            {
+                radiusToDraw = 0f;
+            }
         }
     }
 
@@ -150,6 +164,13 @@ public class Holdable : MonoBehaviour, Interactable
                 Release();
             }
         }
+
+    }
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, radiusToDraw);
     }
 }
 

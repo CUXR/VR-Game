@@ -15314,6 +15314,11 @@ PrefabInstance:
       propertyPath: m_VersionIndex
       value: 1608
       objectReference: {fileID: 0}
+    - target: {fileID: 6283357950158972332, guid: 2d559d2a857af4fbdbe7d490c976207d,
+        type: 3}
+      propertyPath: peripheralRadius
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6368401682128559185, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_Mesh

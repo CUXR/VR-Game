@@ -8,7 +8,7 @@ public class EnemyVision : MonoBehaviour
 {
     [Header("Vision Settings")]
     public float viewRadius = 7f;
-    public float peripheralRadius = 0.5f;
+    public float peripheralRadius = 0.7f;
 
     [Range(0, 360)]
     public float viewAngle = 90f;
@@ -41,13 +41,16 @@ public class EnemyVision : MonoBehaviour
 
         // Direction and distance from enemy to player
         playerDirection = (player.transform.position - transform.position).normalized;
-        distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
+        Vector3 enemyPos = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 playerPos = new Vector3(player.transform.position.x, 0, player.transform.position.z);
+        distanceToPlayer = Vector3.Distance(playerPos, enemyPos);
 
         bool inMainView = Vector3.Angle(transform.forward, playerDirection) <= viewAngle / 2;
         bool inPeripheral = distanceToPlayer <= peripheralRadius;
 
         // Check if player's direction is within viewing angle
-        if (inMainView) {
+        if (inMainView)
+        {
             // Check if there's a clear line of sight to the player
             if (
                 Physics.Raycast(
@@ -77,15 +80,31 @@ public class EnemyVision : MonoBehaviour
                 }
             }
         }
-        // Otherwise, check if the player is within the enemy's peripheral
-        else if (inPeripheral) {
-            visibilityValue = Mathf.Clamp(
-                visibilityValue + visibilityPeripheralIncreaseRate * Time.deltaTime,
-                minVisibilityValue,
-                maxVisibilityValue
-            );
+        else if (inPeripheral)
+        {
+            // Otherwise, check if the player is within the enemy's peripheral
+            if (
+                Physics.Raycast(
+                    transform.position + Vector3.up * 0.5f, // Slightly raise the raycast origin
+                    playerDirection,
+                    out RaycastHit hit,
+                    viewRadius
+                )
+            )
+            {
+                // If the raycast hits the player, they are visible
+                if (hit.collider.gameObject.CompareTag("Player"))
+                {
+                    visibilityValue = Mathf.Clamp(
+                        visibilityValue + visibilityPeripheralIncreaseRate * Time.deltaTime,
+                        minVisibilityValue,
+                        maxVisibilityValue
+                    );
+                }
+            }
         }
-        else {
+        else
+        {
             visibilityValue = Mathf.Clamp(
                 visibilityValue - visibilityDecreaseRate * Time.deltaTime,
                 minVisibilityValue,
@@ -96,6 +115,7 @@ public class EnemyVision : MonoBehaviour
 
     public bool PlayerVisible()
     {
+        Debug.Log(visibilityValue);
         return visibilityValue >= maxVisibilityValue;
     }
 
@@ -107,6 +127,14 @@ public class EnemyVision : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + leftBoundary * viewRadius);
         Gizmos.DrawLine(transform.position, transform.position + rightBoundary * viewRadius);
+
+        // Peripheral vision radius
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, peripheralRadius);
+
+        // Main vision radius
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, viewRadius);
 
         if (player != null)
         {

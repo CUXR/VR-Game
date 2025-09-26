@@ -38,6 +38,7 @@ public class EnemyController : MonoBehaviour
 
         if (vision.PlayerVisible())
         {
+            Debug.Log("SEEN");
             agent.SetDestination(player.transform.position);
         }
         else if (hearing.heardSound)

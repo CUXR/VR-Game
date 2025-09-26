@@ -115,7 +115,6 @@ public class EnemyVision : MonoBehaviour
 
     public bool PlayerVisible()
     {
-        Debug.Log(visibilityValue);
         return visibilityValue >= maxVisibilityValue;
     }
 

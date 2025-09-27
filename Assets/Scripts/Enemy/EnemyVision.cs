@@ -6,6 +6,12 @@ using UnityEngine.AI;
 [ExecuteInEditMode]
 public class EnemyVision : MonoBehaviour
 {
+    [Header("References")]
+    private GameObject player;
+    private Vector3 playerDirection;
+    private float distanceToPlayer;
+    private EnemyController enemyController;
+
     [Header("Vision Settings")]
     public float viewRadius = 7f;
     public float peripheralRadius = 0.7f;
@@ -14,7 +20,8 @@ public class EnemyVision : MonoBehaviour
     public float viewAngle = 90f;
 
     [Header("Visibility Settings")]
-    public float visibilityThreshold = 0.7f;
+    public float investigateThreshold = 0.4f;
+    public float seenThreshold = 0.7f;
     public float visibilityIncreaseRate = 0.3f;
     public float visibilityPeripheralIncreaseRate = 0.1f;
     public float visibilityDecreaseRate = 0.1f;
@@ -23,14 +30,10 @@ public class EnemyVision : MonoBehaviour
     private float maxVisibilityValue = 1f;
     private float visibilityValue;
 
-    [Header("References")]
-    private GameObject player;
-    private Vector3 playerDirection;
-    private float distanceToPlayer;
-
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        enemyController = GetComponent<EnemyController>();
     }
 
     void Update()
@@ -111,6 +114,16 @@ public class EnemyVision : MonoBehaviour
                 maxVisibilityValue
             );
         }
+
+        if (visibilityValue >= investigateThreshold)
+        {
+            enemyController.investigatePositions.Push(player.transform.position);
+        }
+    }
+
+    public bool InvestigatePlayer()
+    {
+        return visibilityValue >= investigateThreshold;
     }
 
     public bool PlayerVisible()

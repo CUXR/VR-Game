@@ -6,8 +6,11 @@ using UnityEngine.PlayerLoop;
 
 public class EnemyHearing : MonoBehaviour
 {
+    [Header("References")]
+    private EnemyController enemyController;
+
+    [Header("Hearing Settings")]
     public bool heardSound = false;
-    public Vector3 investigatePos;
     public float maxHearingRange;
     public float hearingRange;
     private float loudnessThreshold = 0.05f;
@@ -41,7 +44,7 @@ public class EnemyHearing : MonoBehaviour
 
     public void HeardSound(Vector3 soundPos)
     {
-        investigatePos = soundPos;
+        enemyController.investigatePositions.Push(soundPos);
         heardSound = true;
     }
 

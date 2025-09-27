@@ -1668,9 +1668,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   viewRadius: 7
+  peripheralRadius: 0.7
   viewAngle: 90
   visibilityThreshold: 0.7
-  visibilityIncreaseRate: 0.3
+  visibilityIncreaseRate: 0.5
+  visibilityPeripheralIncreaseRate: 0.3
   visibilityDecreaseRate: 0.1
   visibilityDistanceMultiplier: 2
 --- !u!114 &1941861895629756143
@@ -1687,3 +1689,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heardSound: 0
   investigatePos: {x: 0, y: 0, z: 0}
+  maxHearingRange: 0
+  hearingRange: 0

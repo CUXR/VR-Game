@@ -209,7 +209,7 @@ public class PlayerMovement : MonoBehaviour
             if (isWallRunning)
             {
                 movementState = MovementState.WALLRUN;
-                moveSpeed = wallRunSpeed / Time.timeScale;
+                moveSpeed = wallRunSpeed;
             }
             else
             {
@@ -233,7 +233,7 @@ public class PlayerMovement : MonoBehaviour
             )
             {
                 movementState = MovementState.CROUCH;
-                moveSpeed = crouchSpeed / Time.timeScale;
+                moveSpeed = crouchSpeed;
 
                 transform.localScale = new Vector3(
                     transform.localScale.x,
@@ -300,7 +300,7 @@ public class PlayerMovement : MonoBehaviour
         // Apply force perpendicular to slope's normal if on slope
         if (OnSlope() && !exitingSlope)
         {
-            rb.AddForce(20 * moveSpeed * GetSlopeMoveDirection() / Time.timeScale, ForceMode.Force);
+            rb.AddForce(20 * moveSpeed * GetSlopeMoveDirection(), ForceMode.Force);
 
             // Apply downward force to keep player on slope
             if (rb.velocity.y > 0)
@@ -308,7 +308,7 @@ public class PlayerMovement : MonoBehaviour
                 rb.AddForce(
                     Vector3.down
                         * (movementState == MovementState.CROUCH ? 40f : 80f)
-                        / Time.timeScale,
+                       ,
                     ForceMode.Force
                 );
             }
@@ -316,13 +316,13 @@ public class PlayerMovement : MonoBehaviour
         // Move in direction
         else if (Grounded)
         {
-            rb.AddForce(10 * moveSpeed * moveDirection / Time.timeScale, ForceMode.Force);
+            rb.AddForce(10 * moveSpeed * moveDirection, ForceMode.Force);
         }
         // Move in direction but slower in air
         else if (!Grounded)
         {
             rb.AddForce(
-                10 * moveSpeed * moveDirection * airMultiplier / Time.timeScale,
+                10 * moveSpeed * moveDirection * airMultiplier,
                 ForceMode.Force
             );
         }

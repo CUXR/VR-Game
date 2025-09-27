@@ -43,7 +43,6 @@ public class EnemyController : MonoBehaviour
         hearing = GetComponent<EnemyHearing>();
         health = GetComponent<EnemyHealth>();
         player = GameObject.FindGameObjectWithTag("Player");        
-        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     void Start()

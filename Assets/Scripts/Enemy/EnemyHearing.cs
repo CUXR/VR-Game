@@ -6,13 +6,12 @@ using UnityEngine.PlayerLoop;
 
 public class EnemyHearing : MonoBehaviour
 {
-    private float loudnessThreshold = 0.05f;
-    private EnemyController enemy;
-    private float rangeToDraw;
     public bool heardSound = false;
     public Vector3 investigatePos;
     public float maxHearingRange;
     public float hearingRange;
+    private float loudnessThreshold = 0.05f;
+    private float rangeToDraw;
 
     void Start()
     {
@@ -56,24 +55,17 @@ public class EnemyHearing : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (enemy == null)
+        if (maxHearingRange == 0)
         {
-            enemy = GetComponent<EnemyController>();
+            rangeToDraw = 12f;
         }
-        if (enemy != null)
+        else
         {
-            if (maxHearingRange == 0)
-            {
-                rangeToDraw = 12f;
-            }
-            else
-            {
-                rangeToDraw = maxHearingRange;
-            }
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(enemy.transform.position, rangeToDraw);
+            rangeToDraw = maxHearingRange;
         }
+        
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, rangeToDraw);
     }
-
 }
 

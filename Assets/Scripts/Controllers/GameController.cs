@@ -12,14 +12,14 @@ public class GameController : MonoBehaviour
     public List<EnemyController> enemies = new List<EnemyController>();
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
         {
-            Destroy(gameObject);
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Instance = this;
-            DontDestroyOnLoad(transform.root.gameObject);
+            Destroy(gameObject);
         }
     }
 

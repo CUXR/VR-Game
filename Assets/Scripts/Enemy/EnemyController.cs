@@ -145,6 +145,9 @@ public class EnemyController : MonoBehaviour
     void Chase()
     {
         print("Chasing Player");
+
+        investigatePositions.Clear();
+        
         if (vision.PlayerVisible()) startChaseTime = Time.time;
         agent.SetDestination(player.transform.position);
         agent.SetDestination(player.transform.position);

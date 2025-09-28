@@ -19,6 +19,7 @@ public class EnemyHearing : MonoBehaviour
     void Start()
     {
         hearingRange = maxHearingRange;
+        enemyController = GetComponent<EnemyController>();
         maxHearingRange = GameController.Instance.maxHearingRange;
     }
 

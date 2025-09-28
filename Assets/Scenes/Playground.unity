@@ -15318,6 +15318,11 @@ PrefabInstance:
       objectReference: {fileID: 1867163832}
     - target: {fileID: 1941861895629756143, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
+      propertyPath: hearingRange
+      value: 4.74
+      objectReference: {fileID: 0}
+    - target: {fileID: 1941861895629756143, guid: 2d559d2a857af4fbdbe7d490c976207d,
+        type: 3}
       propertyPath: maxHearingRange
       value: 12
       objectReference: {fileID: 0}
@@ -15400,6 +15405,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_VersionIndex
       value: 1614
+      objectReference: {fileID: 0}
+    - target: {fileID: 5766782576356853653, guid: 2d559d2a857af4fbdbe7d490c976207d,
+        type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6368401682128559185, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}

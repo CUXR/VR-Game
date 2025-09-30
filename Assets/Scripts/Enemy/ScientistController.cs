@@ -47,7 +47,7 @@ public class ScientistController : EnemyController
     private void InitStates(string initialState)
     {
         fsm.AddState("Patrol", onEnter: state => agent.speed = patrolSpeed, onLogic: state => Patrol());
-        fsm.AddState("Investigate", onEnter: state => agent.speed = investigateSpeed, onLogic: state => Investigate());
+        fsm.AddState("Investigate", onEnter: state => agent.speed = investigateSpeed, onLogic: state => Investigate(), onExit: state => investigatePositions.Clear());
         // For when scientists are killed and become more aggressive: fsm.AddState("Search", onLogic: state => Search());
         fsm.AddState("Chase", onEnter: state => agent.speed = chaseSpeed, onLogic: state => Chase());
         // Depends on how fleshed out head-to-head combat will be: fsm.AddState("Evade", onLogic: state => Evade());
@@ -59,7 +59,7 @@ public class ScientistController : EnemyController
     private void InitTransitions()
     {
         // Patrol -> Investigate
-        fsm.AddTransition("Patrol", "Investigate", t => hearing.heardSound || vision.InvestigatePlayer());
+        fsm.AddTransition("Patrol", "Investigate", t => investigatePositions.Count > 0);
 
         // Patrol -> Chase
         fsm.AddTransition("Patrol", "Chase", t => vision.PlayerVisible());
@@ -81,9 +81,6 @@ public class ScientistController : EnemyController
 
     protected override void Patrol()
     {
-        // print("Patrolling");
-        investigatePositions.Clear();
-
         if (patrolPoints.Count == 0) return;
 
         if (agent.remainingDistance < 0.5f && !isPatrolWaiting)
@@ -132,10 +129,6 @@ public class ScientistController : EnemyController
 
     protected override void Chase()
     {
-        // print("Chasing Player");
-
-        investigatePositions.Clear();
-
         if (vision.PlayerVisible()) startChaseTime = Time.time;
         agent.SetDestination(player.transform.position);
         agent.SetDestination(player.transform.position);

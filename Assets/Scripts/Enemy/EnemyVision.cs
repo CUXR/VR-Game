@@ -122,11 +122,6 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
-    public bool InvestigatePlayer()
-    {
-        return visibilityValue >= investigateThreshold;
-    }
-
     public bool PlayerVisible()
     {
         return visibilityValue >= maxVisibilityValue;

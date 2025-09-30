@@ -44,6 +44,8 @@ public abstract class EnemyController : MonoBehaviour
     protected virtual void Update()
     {
         fsm.OnLogic();
+
+        print(string.Join(", ", investigatePositions.ToArray()));
     }
     
     protected virtual void Patrol() { }

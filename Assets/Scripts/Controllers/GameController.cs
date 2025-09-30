@@ -45,12 +45,10 @@ public class GameController : MonoBehaviour
 
     public void AddEnemy(EnemyController enemy)
     {
-        print(enemy);
-        enemies.Add(enemy);
-        // if (enemy != null && !enemies.Contains(enemy))
-        // {
-        //     enemies.Add(enemy);
-        // }
+        if (enemy != null && !enemies.Contains(enemy))
+        {
+            enemies.Add(enemy);
+        }
     }
 
     public void RemoveEnemy(EnemyController enemy)

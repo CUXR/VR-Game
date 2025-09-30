@@ -12,7 +12,6 @@ public class ScientistController : EnemyController
     public float minPatrolPauseTime = 2f;
     public float maxPatrolPauseTime = 5f;
     private int currentPatrolIndex;
-    private float patrolPauseTime;
     private bool isPatrolWaiting;
 
     [Header("Investigation Settings")]
@@ -31,26 +30,29 @@ public class ScientistController : EnemyController
     protected override void Start()
     {
         base.Start();
-
         SetInitialPatrolPosition();
 
         InitStates(initialState: "Patrol");
         InitTransitions();
-
         fsm.Init();
+
+        ToggleRagdoll(false);
     }
 
     protected override void Update()
     {
         base.Update();
+
+        print(fsm.ActiveStateName);
     }
 
     private void InitStates(string initialState)
     {
-        fsm.AddState("Patrol", onEnter: state => agent.speed = patrolSpeed, onLogic: state => Patrol());
-        fsm.AddState("Investigate", onEnter: state => agent.speed = investigateSpeed, onLogic: state => Investigate(), onExit: state => investigatePositions.Clear());
+        // lerp speed for smoother transitions between speeds
+        fsm.AddState("Patrol", onEnter: state => SetSpeed(patrolSpeed), onLogic: state => Patrol());
+        fsm.AddState("Investigate", onEnter: state => SetSpeed(investigateSpeed), onLogic: state => Investigate(), onExit: state => investigatePositions.Clear());
         // For when scientists are killed and become more aggressive: fsm.AddState("Search", onLogic: state => Search());
-        fsm.AddState("Chase", onEnter: state => agent.speed = chaseSpeed, onLogic: state => Chase());
+        fsm.AddState("Chase", onEnter: state => SetSpeed(chaseSpeed), onLogic: state => Chase());
         // Depends on how fleshed out head-to-head combat will be: fsm.AddState("Evade", onLogic: state => Evade());
         fsm.AddState("Dead", onEnter: state => Dead());
 
@@ -60,7 +62,7 @@ public class ScientistController : EnemyController
     private void InitTransitions()
     {
         // Patrol -> Investigate
-        fsm.AddTransition("Patrol", "Investigate", t => investigatePositions.Count > 0);
+        fsm.AddTransition("Patrol", "Investigate", t => vision.PlayerInvestigate() || hearing.HeardSound());
 
         // Patrol -> Chase
         fsm.AddTransition("Patrol", "Chase", t => vision.PlayerVisible());
@@ -82,35 +84,39 @@ public class ScientistController : EnemyController
 
     protected override void Patrol()
     {
+        investigatePositions.Clear();
         if (patrolPoints.Count == 0) return;
 
         if (agent.remainingDistance < 0.5f && !isPatrolWaiting)
         {
-            patrolPauseTime = Random.Range(minPatrolPauseTime, maxPatrolPauseTime);
-            StartCoroutine(WaitAtPatrolPoint());
+            StartCoroutine(WaitAtPatrolPoint(Random.Range(minPatrolPauseTime, maxPatrolPauseTime)));
         }
     }
 
-    private IEnumerator WaitAtPatrolPoint()
+    private IEnumerator WaitAtPatrolPoint(float waitTime)
     {
         isPatrolWaiting = true;
-        agent.isStopped = true;
+        SetSpeed(0);
 
-        yield return new WaitForSeconds(patrolPauseTime);
-
+        yield return new WaitForSeconds(waitTime);
+        
         currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Count;
-        agent.isStopped = false;
-        agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+
+        if (agent != null)
+        {
+            SetSpeed(patrolSpeed);
+            agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+        }
+
         isPatrolWaiting = false;
     }
 
     protected override void Investigate()
     {
-        // refactor this function so that the enemy goes to the investigate position, waits there for a bit, then goes to the next one
-        // if there are investigate positions, delete the current from the stack and go to the next most recent one
-        // if there are no more investigate positions, go back to patrol
+        StopAllCoroutines();
 
-        if (investigatePositions.Count == 0) return;
+        if (vision.PlayerInvestigate() || hearing.HeardSound()) startInvestigateTime = Time.time;
+
         if (!reachedPosition)
         {
             Vector3 targetPos = investigatePositions.Peek();
@@ -129,6 +135,11 @@ public class ScientistController : EnemyController
             {
                 reachedPosition = false;
             }
+
+            else
+            {
+                SetSpeed(0);
+            }
         }
     }
 
@@ -139,6 +150,8 @@ public class ScientistController : EnemyController
 
     protected override void Chase()
     {
+        StopAllCoroutines();
+        investigatePositions.Clear();
         if (vision.PlayerVisible()) startChaseTime = Time.time;
         agent.SetDestination(player.transform.position);
     }
@@ -150,16 +163,20 @@ public class ScientistController : EnemyController
 
     protected override void Dead()
     {
-        base.Dead();
+        agent.isStopped = true;
 
-        // Additional death logic for Scientist (if any)
+        if (GameController.Instance != null)
+        {
+            GameController.Instance.RemoveEnemy(this);
+        }
+
+        ToggleRagdoll(true);
     }
-    
+
     protected void SetInitialPatrolPosition()
     {
         GameObject startPatrolPoint = new GameObject(gameObject.name + ": Waypoint 0");
         startPatrolPoint.transform.position = transform.position;
-        startPatrolPoint.transform.rotation = transform.rotation;
 
         if (patrolPoints.Count > 0)
         {
@@ -167,6 +184,21 @@ public class ScientistController : EnemyController
         }
 
         patrolPoints.Insert(0, startPatrolPoint.transform);
+    }
+
+    protected IEnumerator UpdateSpeed(float targetSpeed, float duration)
+    {
+        float initialSpeed = agent.speed;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            agent.speed = Mathf.Lerp(initialSpeed, targetSpeed, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        agent.speed = targetSpeed;
     }
 
     protected void FindNearestPatrolPoint()
@@ -200,5 +232,28 @@ public class ScientistController : EnemyController
 
         // Go to closest patrol point
         currentPatrolIndex = patrolPoints.IndexOf(closestPatrolPos);
+    }
+
+    private void ToggleRagdoll(bool isRagdoll)
+    {
+        if (isRagdoll)
+        {
+            animator.enabled = false;
+            agent.enabled = false;
+            foreach (var rb in GetComponentsInChildren<Rigidbody>())
+            {
+                rb.isKinematic = false;
+            }
+        }
+
+        else
+        {
+            animator.enabled = true;
+            agent.enabled = true;
+            foreach (var rb in GetComponentsInChildren<Rigidbody>())
+            {
+                rb.isKinematic = true;
+            }
+        }
     }
 }

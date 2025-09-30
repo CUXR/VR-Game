@@ -15,7 +15,7 @@ public abstract class EnemyController : MonoBehaviour
     protected GameObject player;
     protected StateMachine fsm;
     [HideInInspector] public EnemyHearing hearing;
-    public Stack<Vector3> investigatePositions = new Stack<Vector3>(3);
+    public Stack<Vector3> investigatePositions = new Stack<Vector3>();
 
     protected virtual void Start()
     {
@@ -46,15 +46,13 @@ public abstract class EnemyController : MonoBehaviour
     protected virtual void Update()
     {
         fsm.OnLogic();
-
-        animator.SetFloat("Move Speed", agent.isStopped ? 0 : agent.speed);
     }
-    
+
     protected virtual void Patrol() { }
     protected virtual void Investigate() { }
     public void AddInvestigatePosition(Vector3 pos)
     {
-        if (investigatePositions.Count < 3)
+        if (investigatePositions.Count < 1)
         {
             investigatePositions.Push(pos);
         }
@@ -62,10 +60,12 @@ public abstract class EnemyController : MonoBehaviour
         else
         {
             // Remove the oldest position (bottom of the stack) and add the new one
-            var tempList = new List<Vector3>(investigatePositions);
-            tempList.RemoveAt(0); // Remove the oldest
-            tempList.Add(pos);    // Add the new position
-            investigatePositions = new Stack<Vector3>(tempList);
+            // var tempList = new List<Vector3>(investigatePositions);
+            // tempList.RemoveAt(0); // Remove the oldest
+            // tempList.Add(pos);    // Add the new position
+            // investigatePositions = new Stack<Vector3>(tempList);
+            investigatePositions.Clear();
+            investigatePositions.Push(pos);
         }
     }
 
@@ -88,5 +88,11 @@ public abstract class EnemyController : MonoBehaviour
     public float GetHearingRange()
     {
         return hearing.GetRange();
+    }
+    
+    protected void SetSpeed(float speed)
+    {
+        agent.speed = speed;
+        animator.SetFloat("Move Speed", speed);
     }
 }

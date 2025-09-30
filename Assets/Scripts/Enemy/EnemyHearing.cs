@@ -14,6 +14,7 @@ public class EnemyHearing : MonoBehaviour
     public float hearingRange;
     private float loudnessThreshold = 0.05f;
     private float rangeToDraw;
+    bool heardSound;
 
     void Start()
     {
@@ -42,9 +43,22 @@ public class EnemyHearing : MonoBehaviour
         return loudnessThreshold;
     }
 
-    public void HeardSound(Vector3 soundPos)
+    public void AddSoundPosition(Vector3 soundPos)
     {
         enemyController.AddInvestigatePosition(soundPos);
+        StartCoroutine(HeardSoundCoroutine());
+
+        IEnumerator HeardSoundCoroutine()
+        {
+            heardSound = true;
+            yield return new WaitForSeconds(Time.deltaTime);
+            heardSound = false;
+        }
+    }
+
+    public bool HeardSound()
+    {
+        return heardSound;        
     }
 
     private void OnDrawGizmos()
@@ -57,7 +71,7 @@ public class EnemyHearing : MonoBehaviour
         {
             rangeToDraw = maxHearingRange;
         }
-        
+
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, rangeToDraw);
     }

@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class EnemyVision : MonoBehaviour
 {
     [Header("References")]
+    public Transform head;
     private GameObject player;
     private Vector3 playerDirection;
     private float distanceToPlayer;
@@ -43,27 +44,33 @@ public class EnemyVision : MonoBehaviour
             return;
 
         // Direction and distance from enemy to player
-        playerDirection = (player.transform.position - transform.position).normalized;
+        playerDirection = (player.transform.position - head.position).normalized;
         Vector3 enemyPos = new Vector3(transform.position.x, 0, transform.position.z);
         Vector3 playerPos = new Vector3(player.transform.position.x, 0, player.transform.position.z);
         distanceToPlayer = Vector3.Distance(playerPos, enemyPos);
 
-        bool inMainView = Vector3.Angle(transform.forward, playerDirection) <= viewAngle / 2;
+        bool inMainView = Vector3.Angle(head.forward, playerDirection) <= viewAngle / 2;
         bool inPeripheral = distanceToPlayer <= peripheralRadius;
+
+
+        // print("In Main View: " + inMainView + ", In Peripheral: " + inPeripheral + ", Distance: " + distanceToPlayer + ", Visibility: " + visibilityValue);
 
         // Check if player's direction is within viewing angle
         if (inMainView)
         {
+            Debug.DrawRay(head.position, playerDirection * viewRadius, Color.red, Time.deltaTime);
             // Check if there's a clear line of sight to the player
             if (
                 Physics.Raycast(
-                    transform.position + Vector3.up * 0.5f, // Slightly raise the raycast origin
+                    head.position,
                     playerDirection,
                     out RaycastHit hit,
-                    viewRadius
+                    viewRadius,
+                    ~LayerMask.GetMask("Enemy") // Ignore other enemies in raycast
                 )
             )
             {
+                print("Hit: " + hit.collider.gameObject.name);
                 // If the raycast hits the player, they are visible
                 if (hit.collider.gameObject.CompareTag("Player"))
                 {
@@ -88,10 +95,11 @@ public class EnemyVision : MonoBehaviour
             // Otherwise, check if the player is within the enemy's peripheral
             if (
                 Physics.Raycast(
-                    transform.position + Vector3.up * 0.5f, // Slightly raise the raycast origin
+                    head.position,
                     playerDirection,
                     out RaycastHit hit,
-                    viewRadius
+                    viewRadius,
+                    ~LayerMask.GetMask("Enemy") // Ignore other enemies in raycast
                 )
             )
             {
@@ -127,27 +135,32 @@ public class EnemyVision : MonoBehaviour
         return visibilityValue >= maxVisibilityValue;
     }
 
+    public bool PlayerInvestigate()
+    {
+        return visibilityValue >= investigateThreshold && visibilityValue < seenThreshold;
+    }
+
     private void OnDrawGizmos()
     {
         Vector3 leftBoundary = Quaternion.Euler(0, -viewAngle / 2, 0) * transform.forward;
         Vector3 rightBoundary = Quaternion.Euler(0, viewAngle / 2, 0) * transform.forward;
 
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + leftBoundary * viewRadius);
-        Gizmos.DrawLine(transform.position, transform.position + rightBoundary * viewRadius);
+        Gizmos.DrawLine(head.position, head.position + leftBoundary * viewRadius);
+        Gizmos.DrawLine(head.position, head.position + rightBoundary * viewRadius);
 
         // Peripheral vision radius
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, peripheralRadius);
+        Gizmos.DrawWireSphere(head.position, peripheralRadius);
 
         // Main vision radius
         Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, viewRadius);
+        Gizmos.DrawWireSphere(head.position, viewRadius);
 
         if (player != null)
         {
             Gizmos.color = PlayerVisible() ? Color.green : Color.gray;
-            Gizmos.DrawLine(transform.position + Vector3.up * 0.5f, player.transform.position);
+            Gizmos.DrawLine(head.position, player.transform.position);
         }
     }
 }

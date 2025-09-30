@@ -22,6 +22,5 @@ public class EnemyHealth : MonoBehaviour
     {
         isAlive = false;
         outline.enabled = false;
-        Destroy(gameObject);
     }
 }

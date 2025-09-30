@@ -30,7 +30,10 @@ public class PlayerCombat : MonoBehaviour
             return;
         }
 
-        if (hit.collider.gameObject.TryGetComponent(out EnemyHealth enemy) && enemy.isAlive && !enemy.GetComponent<EnemyVision>().PlayerVisible())
+        if (hit.transform.root.TryGetComponent(out EnemyHealth enemy)
+            && enemy.isAlive
+            && !enemy.GetComponent<EnemyVision>().PlayerVisible()
+            && !enemy.GetComponent<EnemyVision>().PlayerInvestigate())
         {
             enemy.outline.enabled = true;
             currentEnemy = enemy;

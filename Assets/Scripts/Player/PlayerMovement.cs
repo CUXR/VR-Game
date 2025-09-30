@@ -255,15 +255,15 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementState = MovementState.CROUCH;
                 radiusToDraw = 0;
-                moveSpeed = crouchSpeed / Time.timeScale;
+                moveSpeed = crouchSpeed;
             }
-            else if (InputController.Instance.GetSprint() && hasBatteryForJumpAndSprint)
+            else if (InputController.Instance.GetSprint() && InputController.Instance.GetWalkDirection().magnitude > 0 && hasBatteryForJumpAndSprint)
             {
                 movementState = MovementState.SPRINT;
                 // Sound produced by sprinting
                 AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 radiusToDraw = sprintingVolumeRadius;
-                moveSpeed = sprintSpeed / Time.timeScale;
+                moveSpeed = sprintSpeed;
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
@@ -271,7 +271,7 @@ public class PlayerMovement : MonoBehaviour
                 // Sound produced by walking
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 radiusToDraw = walkingVolumeRadius;
-                moveSpeed = walkSpeed / Time.timeScale;
+                moveSpeed = walkSpeed;
             }
             else
             {
@@ -293,8 +293,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Move()
     {
-        if (Time.timeScale == 0f) return;
-
         moveDirection = (
             transform.right * horizontalInput + transform.forward * verticalInput
         ).normalized;

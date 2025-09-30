@@ -24,10 +24,8 @@ public static class AudioUtility
         Collider[] colliders = Physics.OverlapSphere(sound.position, sound.radius + maxHearingRange, enemyLayer);
         foreach (var collider in colliders)
         {
-            Debug.Log("Detected collider: " + collider.gameObject.name);
-            if (collider.TryGetComponent<EnemyController>(out var enemy))
+            if (collider.transform.root.TryGetComponent<EnemyController>(out var enemy))
             {
-                Debug.Log("Sound heard by: " + enemy.gameObject.name);
                 float distance = Vector3.Distance(enemy.transform.position, sound.position);
                 float enemyHearingRange = enemy.GetHearingRange();
                 float muffling = 1f;
@@ -46,7 +44,7 @@ public static class AudioUtility
                     float soundVolume = sound.loudness * muffling * Mathf.Exp(-sound.decayRate * distance);
                     if (soundVolume >= enemy.hearing.GetThreshold())
                     {
-                        enemy.hearing.HeardSound(sound.position);
+                        enemy.hearing.AddSoundPosition(sound.position);
                     }
                 }
             }

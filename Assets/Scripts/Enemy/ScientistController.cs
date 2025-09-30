@@ -18,6 +18,7 @@ public class ScientistController : EnemyController
     [Header("Investigation Settings")]
     public float investigateSpeed = 6f;
     public float investigateTime = 10f;
+    public float investigateWaitTime = 3f;
     private float startInvestigateTime;
     private float reachedPositionTime;
     private bool reachedPosition;
@@ -105,20 +106,29 @@ public class ScientistController : EnemyController
 
     protected override void Investigate()
     {
-        startInvestigateTime = Time.time;
-        if (agent.remainingDistance < 0.5f)
+        // refactor this function so that the enemy goes to the investigate position, waits there for a bit, then goes to the next one
+        // if there are investigate positions, delete the current from the stack and go to the next most recent one
+        // if there are no more investigate positions, go back to patrol
+
+        if (investigatePositions.Count == 0) return;
+        if (!reachedPosition)
         {
-            reachedPositionTime = Time.time;
-            reachedPosition = true;
-        }
-        if (investigatePositions.Count > 0)
-        {
-            if (Time.time - reachedPositionTime > 3f && reachedPosition)
+            Vector3 targetPos = investigatePositions.Peek();
+            agent.SetDestination(targetPos);
+
+            if (agent.remainingDistance < 0.5f)
             {
+                reachedPosition = true;
+                reachedPositionTime = Time.time;
                 investigatePositions.Pop();
-                startInvestigateTime = Time.time;
             }
-            agent.SetDestination(investigatePositions.Peek());
+        }
+        else
+        {
+            if (Time.time - reachedPositionTime >= investigateWaitTime)
+            {
+                reachedPosition = false;
+            }
         }
     }
 
@@ -130,7 +140,6 @@ public class ScientistController : EnemyController
     protected override void Chase()
     {
         if (vision.PlayerVisible()) startChaseTime = Time.time;
-        agent.SetDestination(player.transform.position);
         agent.SetDestination(player.transform.position);
     }
 

@@ -6146,6 +6146,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2977459851763967986, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
       propertyPath: volume
@@ -11263,7 +11268,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1588610665}
   m_Layer: 0
-  m_Name: Patrol Point 1
+  m_Name: 'Scientist: Waypoint 1'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15375,11 +15380,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4497860773181272573, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
-      propertyPath: patrolPoints.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4497860773181272573, guid: 2d559d2a857af4fbdbe7d490c976207d,
-        type: 3}
       propertyPath: patrolPoints.Array.data[0]
       value: 
       objectReference: {fileID: 1588610665}
@@ -15391,7 +15391,12 @@ PrefabInstance:
     - target: {fileID: 5490527488824028600, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 1626
+      value: 1638
+      objectReference: {fileID: 0}
+    - target: {fileID: 6283357950158972332, guid: 2d559d2a857af4fbdbe7d490c976207d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6368401682128559185, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}

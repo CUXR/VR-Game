@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        enemyLayer = LayerMask.NameToLayer("Enemy");
+        enemyLayer = LayerMask.GetMask("Enemy");
         environmentLayerInt = LayerMask.NameToLayer("Environment");
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
 

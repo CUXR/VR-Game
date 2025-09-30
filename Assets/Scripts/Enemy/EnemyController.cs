@@ -45,11 +45,28 @@ public abstract class EnemyController : MonoBehaviour
     {
         fsm.OnLogic();
 
-        print(string.Join(", ", investigatePositions.ToArray()));
+        print($"Current State: {fsm.ActiveStateName}");
     }
     
     protected virtual void Patrol() { }
     protected virtual void Investigate() { }
+    public void AddInvestigatePosition(Vector3 pos)
+    {
+        if (investigatePositions.Count < 3)
+        {
+            investigatePositions.Push(pos);
+        }
+
+        else
+        {
+            // Remove the oldest position (bottom of the stack) and add the new one
+            var tempList = new List<Vector3>(investigatePositions);
+            tempList.RemoveAt(0); // Remove the oldest
+            tempList.Add(pos);    // Add the new position
+            investigatePositions = new Stack<Vector3>(tempList);
+        }
+    }
+
     protected virtual void Chase() { }
     // protected virtual void Search() { }
     // protected virtual void Evade() { }

@@ -10,7 +10,6 @@ public class EnemyHearing : MonoBehaviour
     private EnemyController enemyController;
 
     [Header("Hearing Settings")]
-    public bool heardSound = false;
     public float maxHearingRange;
     public float hearingRange;
     private float loudnessThreshold = 0.05f;
@@ -45,17 +44,7 @@ public class EnemyHearing : MonoBehaviour
 
     public void HeardSound(Vector3 soundPos)
     {
-        heardSound = true;
-        enemyController.investigatePositions.Push(soundPos);
-        print("Investigate Position Added [HEARING]");
-    }
-
-    void FixedUpdate()
-    {
-        if (heardSound)
-        {
-            heardSound = false;
-        }
+        enemyController.AddInvestigatePosition(soundPos);
     }
 
     private void OnDrawGizmos()

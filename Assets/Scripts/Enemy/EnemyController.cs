@@ -8,6 +8,7 @@ using UnityHFSM;
 public abstract class EnemyController : MonoBehaviour
 {
     [Header("References")]
+    protected Animator animator;
     protected NavMeshAgent agent;
     protected EnemyVision vision;
     protected EnemyHealth health;
@@ -18,6 +19,7 @@ public abstract class EnemyController : MonoBehaviour
 
     protected virtual void Start()
     {
+        animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         vision = GetComponent<EnemyVision>();
         hearing = GetComponent<EnemyHearing>();
@@ -45,7 +47,7 @@ public abstract class EnemyController : MonoBehaviour
     {
         fsm.OnLogic();
 
-        print($"Current State: {fsm.ActiveStateName}");
+        animator.SetFloat("Move Speed", agent.isStopped ? 0 : agent.speed);
     }
     
     protected virtual void Patrol() { }

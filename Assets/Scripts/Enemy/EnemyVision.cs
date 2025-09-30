@@ -58,7 +58,6 @@ public class EnemyVision : MonoBehaviour
         // Check if player's direction is within viewing angle
         if (inMainView)
         {
-            Debug.DrawRay(head.position, playerDirection * viewRadius, Color.red, Time.deltaTime);
             // Check if there's a clear line of sight to the player
             if (
                 Physics.Raycast(
@@ -70,7 +69,6 @@ public class EnemyVision : MonoBehaviour
                 )
             )
             {
-                print("Hit: " + hit.collider.gameObject.name);
                 // If the raycast hits the player, they are visible
                 if (hit.collider.gameObject.CompareTag("Player"))
                 {
@@ -125,8 +123,8 @@ public class EnemyVision : MonoBehaviour
 
         if (visibilityValue >= investigateThreshold && visibilityValue < seenThreshold)
         {
-            enemyController.AddInvestigatePosition(player.transform.position);
-            print("Investigate Position Added [VISION]");
+        enemyController.AddInvestigatePosition(player.transform.position);
+        // Debug.Log("Investigate Position Updated [VISION]");
         }
     }
 

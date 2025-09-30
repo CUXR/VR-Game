@@ -15,7 +15,8 @@ public abstract class EnemyController : MonoBehaviour
     protected GameObject player;
     protected StateMachine fsm;
     [HideInInspector] public EnemyHearing hearing;
-    public Stack<Vector3> investigatePositions = new Stack<Vector3>();
+    [HideInInspector] public bool hasInvestigatePosition;
+    public Vector3 investigatePosition;
 
     protected virtual void Start()
     {
@@ -52,21 +53,8 @@ public abstract class EnemyController : MonoBehaviour
     protected virtual void Investigate() { }
     public void AddInvestigatePosition(Vector3 pos)
     {
-        if (investigatePositions.Count < 1)
-        {
-            investigatePositions.Push(pos);
-        }
-
-        else
-        {
-            // Remove the oldest position (bottom of the stack) and add the new one
-            // var tempList = new List<Vector3>(investigatePositions);
-            // tempList.RemoveAt(0); // Remove the oldest
-            // tempList.Add(pos);    // Add the new position
-            // investigatePositions = new Stack<Vector3>(tempList);
-            investigatePositions.Clear();
-            investigatePositions.Push(pos);
-        }
+        investigatePosition = pos;
+        hasInvestigatePosition = true;
     }
 
     protected virtual void Chase() { }

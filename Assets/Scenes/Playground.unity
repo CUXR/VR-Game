@@ -6162,12 +6162,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 850773775}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &850773777 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
-    type: 3}
-  m_PrefabInstance: {fileID: 850773775}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &867490363
 Mesh:
   m_ObjectHideFlags: 0
@@ -9586,10 +9580,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2313540737595868548, guid: dd41aa0c2cb024d3d96fa3d915164d39,
+        type: 3}
+      propertyPath: pauseKey
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39,
         type: 3}
       propertyPath: m_Name
       value: GAME MANAGER
+      objectReference: {fileID: 0}
+    - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39,
+        type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 4395414874416246074, guid: dd41aa0c2cb024d3d96fa3d915164d39,
         type: 3}
@@ -9641,14 +9645,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 6819479362527866782, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 5996524760862692223, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2123582805}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
 --- !u!1 &1391755230
 GameObject:
@@ -15316,16 +15318,6 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1867163832}
-    - target: {fileID: 1941861895629756143, guid: 2d559d2a857af4fbdbe7d490c976207d,
-        type: 3}
-      propertyPath: hearingRange
-      value: 4.74
-      objectReference: {fileID: 0}
-    - target: {fileID: 1941861895629756143, guid: 2d559d2a857af4fbdbe7d490c976207d,
-        type: 3}
-      propertyPath: maxHearingRange
-      value: 12
-      objectReference: {fileID: 0}
     - target: {fileID: 3060057816505371766, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -15379,13 +15371,8 @@ PrefabInstance:
     - target: {fileID: 3340927423945244911, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_Name
-      value: Enemy
+      value: Scientist
       objectReference: {fileID: 0}
-    - target: {fileID: 4497860773181272573, guid: 2d559d2a857af4fbdbe7d490c976207d,
-        type: 3}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 850773777}
     - target: {fileID: 4497860773181272573, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: patrolPoints.Array.size
@@ -15404,12 +15391,7 @@ PrefabInstance:
     - target: {fileID: 5490527488824028600, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 1614
-      objectReference: {fileID: 0}
-    - target: {fileID: 5766782576356853653, guid: 2d559d2a857af4fbdbe7d490c976207d,
-        type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
+      value: 1626
       objectReference: {fileID: 0}
     - target: {fileID: 6368401682128559185, guid: 2d559d2a857af4fbdbe7d490c976207d,
         type: 3}
@@ -15833,26 +15815,6 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!1 &2123582801 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39,
-    type: 3}
-  m_PrefabInstance: {fileID: 1391442613}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2123582805
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2123582801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7b1a02e36154f998bccf8f0ead52d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHearingRange: 12
-  enemies: []
 --- !u!1 &2141483020
 GameObject:
   m_ObjectHideFlags: 0

@@ -118,6 +118,7 @@ public class EnemyVision : MonoBehaviour
         if (visibilityValue >= investigateThreshold)
         {
             enemyController.investigatePositions.Push(player.transform.position);
+            print("Investigate Position Added [VISION]");
         }
     }
 

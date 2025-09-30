@@ -1469,7 +1469,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1605
+  m_VersionIndex: 1623
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1600,7 +1600,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
@@ -1639,6 +1639,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hearing: {fileID: 0}
+  patrolPoints: []
+  patrolSpeed: 4
+  minPatrolPauseTime: 2
+  maxPatrolPauseTime: 5
+  investigateSpeed: 6
+  investigateTime: 10
+  chaseSpeed: 8
+  chaseTime: 15
 --- !u!114 &1840915541854244570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1670,7 +1678,8 @@ MonoBehaviour:
   viewRadius: 7
   peripheralRadius: 0.7
   viewAngle: 90
-  visibilityThreshold: 0.7
+  investigateThreshold: 0.4
+  seenThreshold: 0.7
   visibilityIncreaseRate: 0.5
   visibilityPeripheralIncreaseRate: 0.3
   visibilityDecreaseRate: 0.1
@@ -1688,6 +1697,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   heardSound: 0
-  investigatePos: {x: 0, y: 0, z: 0}
-  maxHearingRange: 0
-  hearingRange: 0
+  maxHearingRange: 12
+  hearingRange: 4.74

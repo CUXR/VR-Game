@@ -1,43 +1,63 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    public static GameController Instance { get; private set; }
+    public List<EnemyController> enemies = new List<EnemyController>();
+    public float maxHearingRange = 15f;
     private LayerMask enemyLayer;
     private int environmentLayerInt;
-    // Universal maximum hearing range for all enemies in the game
-    public float maxHearingRange = 12f;
-    public static GameController Instance;
-    public List<EnemyController> enemies = new List<EnemyController>();
+    private bool isPaused;
+
     private void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
-    void Start()
+    private void Start()
     {
-        enemyLayer = LayerMask.GetMask("Enemy");
+        enemyLayer = LayerMask.NameToLayer("Enemy");
         environmentLayerInt = LayerMask.NameToLayer("Environment");
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
+
+        Application.targetFrameRate = 60;
+        isPaused = false;
     }
 
-    public void RemoveEnemy(EnemyController enemy)
+    // Update is called once per frame
+    void Update()
     {
-        enemies.Remove(enemy);
+        if (InputController.Instance.GetPauseDown()) {
+            isPaused = !isPaused;
+
+            Time.timeScale = isPaused ? 0f : 1f;
+        }
     }
 
     public void AddEnemy(EnemyController enemy)
     {
+        print(enemy);
         enemies.Add(enemy);
+        // if (enemy != null && !enemies.Contains(enemy))
+        // {
+        //     enemies.Add(enemy);
+        // }
     }
 
+    public void RemoveEnemy(EnemyController enemy)
+    {
+        if (enemy != null && enemies.Contains(enemy))
+        {
+            enemies.Remove(enemy);
+        }
+    }
 }

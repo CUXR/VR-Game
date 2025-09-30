@@ -293,6 +293,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Move()
     {
+        if (Time.timeScale == 0f) return;
+
         moveDirection = (
             transform.right * horizontalInput + transform.forward * verticalInput
         ).normalized;

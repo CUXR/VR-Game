@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class InputController : MonoBehaviour
 {
-    public static InputController Instance { get; private set;}
-    
+    public static InputController Instance { get; private set; }
+
     public KeyCode sprintKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
     public KeyCode altCrouchKey = KeyCode.LeftCommand;
@@ -13,53 +13,70 @@ public class InputController : MonoBehaviour
     public KeyCode interactKey = KeyCode.E;
     public KeyCode backpackKey = KeyCode.B;
     public KeyCode stabKey = KeyCode.Q;
+    public KeyCode pauseKey = KeyCode.Escape;
 
-    void Awake() {
-        if (Instance != null) {
+    void Awake()
+    {
+        if (Instance != null)
+        {
             Debug.LogWarning("More than one InputController in scene");
         }
 
         Instance = this;
     }
 
-    public Vector2 GetWalkDirection() {
+    public Vector2 GetWalkDirection()
+    {
         return new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
     }
 
-    public Vector2 GetLookDirection() {
+    public Vector2 GetLookDirection()
+    {
         return new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
     }
 
-    public bool GetSprint() {
+    public bool GetSprint()
+    {
         return Input.GetKey(sprintKey);
     }
 
-    public bool GetCrouchDown() {
+    public bool GetCrouchDown()
+    {
         return Input.GetKeyDown(crouchKey) ^ Input.GetKeyDown(altCrouchKey);
     }
 
-    public bool GetCrouchHold() {
+    public bool GetCrouchHold()
+    {
         return Input.GetKey(crouchKey) ^ Input.GetKey(altCrouchKey);
     }
 
-    public bool GetCrouchUp() {
+    public bool GetCrouchUp()
+    {
         return Input.GetKeyUp(crouchKey) ^ Input.GetKeyUp(altCrouchKey);
     }
 
-    public bool GetJumpDown() {
+    public bool GetJumpDown()
+    {
         return Input.GetKeyDown(jumpKey);
     }
 
-    public bool GetInteractDown() {
+    public bool GetInteractDown()
+    {
         return Input.GetKeyDown(interactKey);
     }
 
-    public bool GetBackpackDown() {
+    public bool GetBackpackDown()
+    {
         return Input.GetKeyDown(backpackKey);
     }
 
     public bool GetStabDown()
     {
         return Input.GetKeyDown(stabKey);
+    }
+    
+    public bool GetPauseDown()
+    {
+        return Input.GetKeyDown(pauseKey);
     }
 }

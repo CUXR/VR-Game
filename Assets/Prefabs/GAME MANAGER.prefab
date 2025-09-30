@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4395414874416246074}
   - component: {fileID: 2313540737595868548}
-  - component: {fileID: 6819479362527866782}
+  - component: {fileID: 7379670576039071046}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -32,7 +32,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 233964421854191776}
-  - {fileID: 6701672126569951435}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2313540737595868548
@@ -54,7 +53,8 @@ MonoBehaviour:
   interactKey: 101
   backpackKey: 98
   stabKey: 113
---- !u!114 &6819479362527866782
+  pauseKey: 27
+--- !u!114 &7379670576039071046
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63,11 +63,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3735919714756444862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61a263f859caec34e831582622ddc99f, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d7b1a02e36154f998bccf8f0ead52d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseKey: 112
-  isPaused: 0
+  enemies: []
 --- !u!1 &5532172147794311262
 GameObject:
   m_ObjectHideFlags: 0
@@ -136,49 +135,3 @@ MonoBehaviour:
   m_InputActionsPerSecond: 10
   m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
---- !u!1 &5996524760862692223
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6701672126569951435}
-  - component: {fileID: 2735640496445687971}
-  m_Layer: 0
-  m_Name: GameController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6701672126569951435
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5996524760862692223}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4395414874416246074}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2735640496445687971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5996524760862692223}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7b1a02e36154f998bccf8f0ead52d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHearingRange: 12
-  enemies: []

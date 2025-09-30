@@ -46,6 +46,7 @@ public class EnemyHearing : MonoBehaviour
     public void HeardSound(Vector3 soundPos)
     {
         enemyController.investigatePositions.Push(soundPos);
+        print("Investigate Position Added [HEARING]");
         heardSound = true;
     }
 

@@ -38,7 +38,8 @@ public class PlayerCombat : MonoBehaviour
             if (InputController.Instance.GetStabDown())
             {
                 enemy.Stab();
-                gameObject.GetComponent<PlayerHealth>().DepleteHealthPercentage(0.25f, true);
+                enemy.outline.enabled = false;
+                enemy.GetComponent<EnemyHealth>().isAlive = false;
             }
         }
     }

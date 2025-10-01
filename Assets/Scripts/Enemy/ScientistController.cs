@@ -50,19 +50,42 @@ public class ScientistController : EnemyController
     private void InitStates()
     {
         // lerp speed for smoother transitions between speeds
-        fsm.AddState("Patrol",
-            onEnter: state => { SetSpeed(patrolSpeed);  FindNearestPatrolPoint(); hasInvestigatePosition = false; isPatrolWaiting = false; },
+        fsm.AddState(
+            "Patrol",
+            onEnter: state =>
+            {
+                SetSpeed(patrolSpeed);
+                FindNearestPatrolPoint();
+                hasInvestigatePosition = false;
+                isPatrolWaiting = false;
+            },
             onLogic: state => Patrol()
         );
 
-        fsm.AddState("Investigate",
-            onEnter: state => { SetSpeed(investigateSpeed); reachedPosition = false; startInvestigateTime = Time.time; },
+        fsm.AddState(
+            "Investigate",
+            onEnter: state =>
+            {
+                SetSpeed(investigateSpeed);
+                reachedPosition = false;
+                startInvestigateTime = Time.time;
+            },
             onLogic: state => Investigate(),
-            onExit: state => { hasInvestigatePosition = false; reachedPosition = false; }
+            onExit: state =>
+            {
+                hasInvestigatePosition = false;
+                reachedPosition = false;
+            }
         );
 
-        fsm.AddState("Chase",
-            onEnter: state => { SetSpeed(chaseSpeed); hasInvestigatePosition = false; startChaseTime = Time.time; },
+        fsm.AddState(
+            "Chase",
+            onEnter: state =>
+            {
+                SetSpeed(chaseSpeed);
+                hasInvestigatePosition = false;
+                startChaseTime = Time.time;
+            },
             onLogic: state => Chase()
         );
 
@@ -77,7 +100,11 @@ public class ScientistController : EnemyController
     private void InitTransitions()
     {
         // Patrol -> Investigate
-        fsm.AddTransition("Patrol", "Investigate", t => vision.PlayerInvestigate() || hearing.HeardSound());
+        fsm.AddTransition(
+            "Patrol",
+            "Investigate",
+            t => vision.PlayerInvestigate() || hearing.HeardSound()
+        );
 
         // Patrol -> Chase
         fsm.AddTransition("Patrol", "Chase", t => vision.PlayerVisible());
@@ -86,7 +113,11 @@ public class ScientistController : EnemyController
         fsm.AddTransition("Investigate", "Chase", t => vision.PlayerVisible());
 
         // Investigate -> Patrol
-        fsm.AddTransition("Investigate", "Patrol", t => reachedPosition && Time.time - reachedPositionTime >= investigateTime);
+        fsm.AddTransition(
+            "Investigate",
+            "Patrol",
+            t => reachedPosition && Time.time - reachedPositionTime >= investigateTime
+        );
 
         // Chase -> Investigate
         fsm.AddTransition("Chase", "Investigate", t => Time.time - startChaseTime >= chaseTime);
@@ -97,7 +128,8 @@ public class ScientistController : EnemyController
 
     protected override void Patrol()
     {
-        if (patrolPoints.Count == 0) return;
+        if (patrolPoints.Count == 0)
+            return;
 
         // If currently waiting at a patrol point, check timer
         if (isPatrolWaiting)
@@ -139,8 +171,12 @@ public class ScientistController : EnemyController
 
         agent.SetDestination(investigatePosition);
         print("Investigating: " + investigatePosition);
-        
-        if (hasInvestigatePosition && agent.remainingDistance < agent.stoppingDistance && !reachedPosition)
+
+        if (
+            hasInvestigatePosition
+            && agent.remainingDistance < agent.stoppingDistance
+            && !reachedPosition
+        )
         {
             reachedPositionTime = Time.time;
             reachedPosition = true;
@@ -168,7 +204,8 @@ public class ScientistController : EnemyController
     protected override void Chase()
     {
         hasInvestigatePosition = false;
-        if (vision.PlayerVisible()) startChaseTime = Time.time;
+        if (vision.PlayerVisible())
+            startChaseTime = Time.time;
         agent.SetDestination(player.transform.position);
     }
 
@@ -187,6 +224,8 @@ public class ScientistController : EnemyController
         }
 
         ToggleRagdoll(true);
+
+        gameObject.AddComponent<Holdable>();
     }
 
     protected void SetInitialPatrolPosition()
@@ -213,17 +252,14 @@ public class ScientistController : EnemyController
 
             if (closestPatrolPos != null)
             {
-
                 // If closer than previous closest distance
                 if (distance < closestDistance)
                 {
-
                     // Set as temporary closest patrol point
                     closestPatrolPos = patrolPos;
                     closestDistance = distance;
                 }
             }
-
             else
             {
                 closestPatrolPos = patrolPos;
@@ -246,7 +282,6 @@ public class ScientistController : EnemyController
                 rb.isKinematic = false;
             }
         }
-
         else
         {
             animator.enabled = true;

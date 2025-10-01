@@ -17,13 +17,24 @@ public class Holdable : MonoBehaviour, Interactable
     private float soundTimer = 0f;
     private float soundRadiusDuration = 2f;
 
-    [Header("Serialized Fields")]
-    [SerializeField] private float maxDistance = 1.5f;
-    [SerializeField] private float throwForce = 15.0f;
-    [SerializeField] private float maxRangeTime = 0.5f;
-    [SerializeField] private float horizontalOffset = 1.1f;
-    [SerializeField] private float verticalOffset = 0.2f;
-    [SerializeField] private float forwardOffset = 1.5f;
+    [Header("Throw Settings")]
+    [SerializeField]
+    private float maxDistance = 1.5f;
+
+    [SerializeField]
+    private float throwForce = 15.0f;
+
+    [SerializeField]
+    private float maxRangeTime = 0.5f;
+
+    [SerializeField]
+    private float horizontalOffset = 1.1f;
+
+    [SerializeField]
+    private float verticalOffset = 0.2f;
+
+    [SerializeField]
+    private float forwardOffset = 1.5f;
 
     [Header("Component References")]
     private Rigidbody rb;
@@ -33,7 +44,6 @@ public class Holdable : MonoBehaviour, Interactable
     private float objectVolumeRadius = 7f;
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
-
 
     void Start()
     {
@@ -57,9 +67,11 @@ public class Holdable : MonoBehaviour, Interactable
         // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);
         // Calculates an offset based off of holdPosition so that the object is held in player view
-        holdOffset = holdPosition.InverseTransformVector((holdPosition.right * horizontalOffset) +
-            (holdPosition.forward * size.z * forwardOffset)
-            + (holdPosition.up * size.y * verticalOffset));
+        holdOffset = holdPosition.InverseTransformVector(
+            (holdPosition.right * horizontalOffset)
+                + (holdPosition.forward * size.z * forwardOffset)
+                + (holdPosition.up * size.y * verticalOffset)
+        );
         rb.useGravity = false;
         rb.freezeRotation = true;
         transform.SetParent(holdPosition);
@@ -84,7 +96,11 @@ public class Holdable : MonoBehaviour, Interactable
         // button. The object is sent in a direction away from the player at a velocity determined by
         // a throwForce variable.
         Release();
-        rb.AddForce(Camera.main.transform.forward * throwForce + Camera.main.transform.up * throwForce * 0.5f, ForceMode.Impulse);
+        rb.AddForce(
+            Camera.main.transform.forward * throwForce
+                + Camera.main.transform.up * throwForce * 0.5f,
+            ForceMode.Impulse
+        );
     }
 
     void OnCollisionEnter(Collision collision)
@@ -95,8 +111,14 @@ public class Holdable : MonoBehaviour, Interactable
         }
         float kineticEnergy = 0.5f * rb.mass * Mathf.Pow(collision.relativeVelocity.magnitude, 2);
         // Sound produced by object hitting something
-        AudioUtility.SoundProduced(new Sound(transform.position, objectVolumeRadius * kineticEnergy,
-            objectLoudness * kineticEnergy, objectVolumeDecay));
+        AudioUtility.SoundProduced(
+            new Sound(
+                transform.position,
+                objectVolumeRadius * kineticEnergy,
+                objectLoudness * kineticEnergy,
+                objectVolumeDecay
+            )
+        );
         radiusToDraw = objectVolumeRadius * kineticEnergy;
         soundTimer = soundRadiusDuration;
     }
@@ -134,11 +156,11 @@ public class Holdable : MonoBehaviour, Interactable
         Vector3 toTarget = targetPos - currentPos;
         if (objectPressed)
         {
-            rb.velocity = (targetPos - currentPos) * 1.2f;
+            rb.linearVelocity = (targetPos - currentPos) * 1.2f;
         }
         else
         {
-            rb.velocity = (targetPos - currentPos) * 5f;
+            rb.linearVelocity = (targetPos - currentPos) * 5f;
         }
         // More forgiving interaction system, allowing a bit of time out of range
         // before object is released
@@ -156,21 +178,25 @@ public class Holdable : MonoBehaviour, Interactable
         }
         // If object being held leaves player's view, object is released
         Vector3 toCamera = Camera.main.transform.position - transform.position;
-        if (Physics.Raycast(transform.position,
-               toCamera.normalized, out RaycastHit hit, toCamera.magnitude))
+        if (
+            Physics.Raycast(
+                transform.position,
+                toCamera.normalized,
+                out RaycastHit hit,
+                toCamera.magnitude
+            )
+        )
         {
             if (hit.collider != playerCollider)
             {
                 Release();
             }
         }
-
     }
-    
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, radiusToDraw);
     }
 }
-

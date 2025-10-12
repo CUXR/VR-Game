@@ -205,7 +205,10 @@ public class DroneController : EnemyController
     {
         hasInvestigatePosition = false;
         if (vision.PlayerVisible())
+        {
             startChaseTime = Time.time;
+            Debug.Log("ALERT");
+        }
         agent.SetDestination(player.transform.position);
     }
 

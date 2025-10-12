@@ -15775,6 +15775,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Drone
       objectReference: {fileID: 0}
+    - target: {fileID: 939192487106612038, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: 'patrolPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1588610665}
     - target: {fileID: 2885254831300567457, guid: dc7e878f8514246eab3ef3428c153ef7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -15830,6 +15835,11 @@ PrefabInstance:
       propertyPath: 'patrolPoints.Array.data[0]'
       value: 
       objectReference: {fileID: 1588610665}
+    - target: {fileID: 5882901818476109372, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

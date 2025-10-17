@@ -15775,6 +15775,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Drone
       objectReference: {fileID: 0}
+    - target: {fileID: 494848655294826221, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 900472539865004685, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 939192487106612038, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 939192487106612038, guid: dc7e878f8514246eab3ef3428c153ef7,
         type: 3}
       propertyPath: 'patrolPoints.Array.data[0]'
@@ -15829,6 +15844,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3037564716491110203, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4756528270119448107, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4776164618853565950, guid: dc7e878f8514246eab3ef3428c153ef7,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5339605270203641007, guid: dc7e878f8514246eab3ef3428c153ef7,
         type: 3}

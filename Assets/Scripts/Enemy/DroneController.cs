@@ -8,7 +8,8 @@ public class DroneController : EnemyController
 {
     [Header("Patrol Settings")]
     public List<Transform> patrolPoints;
-    public float patrolSpeed = 4f;
+    // patrolSpeed also lower than Scientists
+    public float patrolSpeed = 2f;
     public float minPatrolPauseTime = 2f;
     public float maxPatrolPauseTime = 5f;
     private int currentPatrolIndex;
@@ -16,7 +17,8 @@ public class DroneController : EnemyController
     private float patrolWaitUntil;
 
     [Header("Investigation Settings")]
-    public float investigateSpeed = 6f;
+    // investigateSpeed lower than Scientists
+    public float investigateSpeed = 4f;
     public float investigateTime = 10f;
     public float investigateWaitTime = 3f;
     private float startInvestigateTime;
@@ -91,7 +93,6 @@ public class DroneController : EnemyController
 
         fsm.AddState("Dead", onEnter: state => Dead());
 
-        // For when scientists are killed and become more aggressive: fsm.AddState("Search", onLogic: state => Search());
         // Depends on how fleshed out head-to-head combat will be: fsm.AddState("Evade", onLogic: state => Evade());
 
         fsm.SetStartState("Patrol");

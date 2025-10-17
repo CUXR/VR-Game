@@ -129,13 +129,13 @@ MonoBehaviour:
   investigatePosition: {x: 0, y: 0, z: 0}
   patrolPoints:
   - {fileID: 0}
-  patrolSpeed: 4
+  patrolSpeed: 2
   minPatrolPauseTime: 2
   maxPatrolPauseTime: 5
-  investigateSpeed: 6
+  investigateSpeed: 4
   investigateTime: 10
   investigateWaitTime: 3
-  chaseSpeed: 8
+  chaseSpeed: 4
   chaseTime: 15
 --- !u!95 &4229636711706801193
 Animator:
@@ -185,17 +185,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 77ec979c4a1053f4fb90fee3d17b240c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.69
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 77ec979c4a1053f4fb90fee3d17b240c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.75
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 77ec979c4a1053f4fb90fee3d17b240c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.32
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 77ec979c4a1053f4fb90fee3d17b240c,
         type: 3}

@@ -8,7 +8,7 @@ public class DroneController : EnemyController
 {
     [Header("Patrol Settings")]
     public List<Transform> patrolPoints;
-    // patrolSpeed also lower than Scientists
+    // patrolSpeed lower than Scientists
     public float patrolSpeed = 2f;
     public float minPatrolPauseTime = 2f;
     public float maxPatrolPauseTime = 5f;
@@ -26,7 +26,8 @@ public class DroneController : EnemyController
     private bool reachedPosition;
 
     [Header("Chase Settings")]
-    public float chaseSpeed = 8f;
+    // chaseSpeed lower than Scientists
+    public float chaseSpeed = 4f;
     public float chaseTime = 15f;
     private float startChaseTime;
 
@@ -204,6 +205,7 @@ public class DroneController : EnemyController
 
     protected override void Chase()
     {
+        AudioUtility.SoundProduced(new Sound(transform.position, 13f, 0.6f, 0.4f));
         hasInvestigatePosition = false;
         if (vision.PlayerVisible())
         {

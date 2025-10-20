@@ -27,11 +27,11 @@ public abstract class EnemyController : MonoBehaviour
         health = GetComponent<EnemyHealth>();
         player = GameObject.FindGameObjectWithTag("Player");
 
-        if (!agent.isOnNavMesh)
-        {
-            if (NavMesh.SamplePosition(transform.position, out var hit, 2f, NavMesh.AllAreas))
-                agent.Warp(hit.position);
-        }
+        // if (!agent.isOnNavMesh)
+        // {
+        //     if (NavMesh.SamplePosition(transform.position, out var hit, 2f, NavMesh.AllAreas))
+        //         agent.Warp(hit.position);
+        // }
 
         if (GameController.Instance != null)
         {
@@ -78,9 +78,8 @@ public abstract class EnemyController : MonoBehaviour
         return hearing.GetRange();
     }
     
-    protected void SetSpeed(float speed)
+    protected virtual void SetSpeed(float speed)
     {
         agent.speed = speed;
-        animator.SetFloat("Move Speed", speed);
     }
 }

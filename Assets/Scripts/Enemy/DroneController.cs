@@ -30,6 +30,11 @@ public class DroneController : EnemyController
     public float chaseSpeed = 4f;
     public float chaseTime = 15f;
     private float startChaseTime;
+    [Header("Drone Fly Settings")]
+    public float flyHeight = 2f;
+
+    [Header("Drone Animation Settings")]
+    public GameObject[] fans;
 
     protected override void Start()
     {
@@ -39,8 +44,6 @@ public class DroneController : EnemyController
         InitStates();
         InitTransitions();
         fsm.Init();
-
-        ToggleRagdoll(false);
     }
 
     protected override void Update()
@@ -48,6 +51,15 @@ public class DroneController : EnemyController
         base.Update();
 
         print(fsm.ActiveStateName);
+        FlyAnimation();
+    }
+
+    private void FlyAnimation()
+    {
+        foreach (GameObject fan in fans)
+        {
+            fan.transform.Rotate(Vector3.forward * 1000f * Time.deltaTime);
+        }
     }
 
     private void InitStates()
@@ -229,8 +241,6 @@ public class DroneController : EnemyController
             GameController.Instance.RemoveEnemy(this);
         }
 
-        ToggleRagdoll(true);
-
         gameObject.AddComponent<Holdable>();
     }
 
@@ -275,27 +285,5 @@ public class DroneController : EnemyController
 
         // Go to closest patrol point
         currentPatrolIndex = patrolPoints.IndexOf(closestPatrolPos);
-    }
-
-    private void ToggleRagdoll(bool isRagdoll)
-    {
-        if (isRagdoll)
-        {
-            animator.enabled = false;
-            agent.enabled = false;
-            foreach (var rb in GetComponentsInChildren<Rigidbody>())
-            {
-                rb.isKinematic = false;
-            }
-        }
-        else
-        {
-            animator.enabled = true;
-            agent.enabled = true;
-            foreach (var rb in GetComponentsInChildren<Rigidbody>())
-            {
-                rb.isKinematic = true;
-            }
-        }
     }
 }

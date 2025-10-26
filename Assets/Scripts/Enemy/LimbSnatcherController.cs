@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityHFSM;
@@ -27,6 +28,13 @@ public class LimbSnatcherController : EnemyController
     public float chaseSpeed = 8f;
     public float chaseTime = 15f;
     private float startChaseTime;
+
+    [Header("Attack Settings")]
+    public float attackRange = 2f;
+    public float attackCooldown = 3f;
+    public float timeNeededToSnatch = 2f;
+    private float currentProgress = 0f;
+    private float lastAttackTime;
 
     protected override void Start()
     {
@@ -91,9 +99,15 @@ public class LimbSnatcherController : EnemyController
 
         fsm.AddState("Dead", onEnter: state => Dead());
 
-        // For when scientists are killed and become more aggressive: fsm.AddState("Search", onLogic: state => Search());
-        // Depends on how fleshed out head-to-head combat will be: fsm.AddState("Evade", onLogic: state => Evade());
-
+        fsm.AddState(
+            "Attack",
+            onEnter: state => {
+                SetSpeed(0f);
+                lastAttackTime = Time.time;
+                currentProgress = 0f;
+            },
+            onLogic: state => Attack()
+        );
         fsm.SetStartState("Patrol");
     }
 
@@ -122,6 +136,11 @@ public class LimbSnatcherController : EnemyController
         // Chase -> Investigate
         fsm.AddTransition("Chase", "Investigate", t => Time.time - startChaseTime >= chaseTime);
 
+        // Chase -> Attack
+        fsm.AddTransition("Chase", "Attack", t => IsPlayerInAttackRange() && Time.time - lastAttackTime >= attackCooldown);
+        
+        // Attack -> Chase
+        fsm.AddTransition("Attack", "Chase", t => !IsPlayerInAttackRange() || currentProgress >= timeNeededToSnatch);
         // [ANY STATE] -> Dead
         fsm.AddTransitionFromAny("Dead", t => !health.isAlive);
     }
@@ -196,11 +215,6 @@ public class LimbSnatcherController : EnemyController
         }
     }
 
-    // protected override void Search()
-    // {
-    //     // TODO: Implement search logic
-    // }
-
     protected override void Chase()
     {
         hasInvestigatePosition = false;
@@ -209,10 +223,36 @@ public class LimbSnatcherController : EnemyController
         agent.SetDestination(player.transform.position);
     }
 
-    // protected override void Evade()
-    // {
-    //     // TODO: Implement evade logic
-    // }
+    private bool IsPlayerInAttackRange()
+    {
+        if (player == null) return false;
+        return Vector3.Distance(transform.position, player.transform.position) <= attackRange;
+    }
+
+    private void Attack()
+    {
+        if (IsPlayerInAttackRange())
+        {
+            currentProgress += Time.deltaTime;
+            if (currentProgress >= timeNeededToSnatch)
+            {
+                CompleteSnatchAttempt();
+            }
+        }
+        else
+        {
+            currentProgress = 0f;
+        }
+    }
+
+    private void CompleteSnatchAttempt()
+    {        
+        var playerHealth = player.GetComponent<PlayerHealth>();
+        playerHealth?.DepleteHealthFixed(10f);
+
+        currentProgress = 0f;
+        lastAttackTime = Time.time;
+    }
 
     protected override void Dead()
     {

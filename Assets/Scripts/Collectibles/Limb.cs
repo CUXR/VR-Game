@@ -5,10 +5,10 @@ public class Limb : Collectible
     public override GameObject ToUIObject()
     {
         GameObject uiObject = base.ToUIObject();
-        Battery battery = uiObject.AddComponent<Battery>();
+        Limb limb = uiObject.AddComponent<Limb>();
 
         uiObject.name = itemName;
-        CopyCollectibleData(battery);
+        CopyCollectibleData(limb);
 
         return uiObject;
     }

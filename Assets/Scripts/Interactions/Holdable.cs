@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class Holdable : MonoBehaviour, Interactable
+public class Holdable : MonoBehaviour, Interactable, Throwable
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;
@@ -57,12 +57,7 @@ public class Holdable : MonoBehaviour, Interactable
         return true;
     }
 
-    public bool IsThrowable()
-    {
-        return true;
-    }
-
-    public void InteractWith()
+    public void Interact()
     {
         // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);

@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class ObjectInteraction : MonoBehaviour
@@ -10,7 +6,7 @@ public class ObjectInteraction : MonoBehaviour
     public float range = 3;
 
     // Object currently being held; if nothing, is null
-    private Interactable held = null;
+    private Holdable held = null;
 
     private Collider playerCollider;
 
@@ -37,7 +33,7 @@ public class ObjectInteraction : MonoBehaviour
                         if (hit.rigidbody.gameObject.TryGetComponent(out Holdable interactableObject))
                         // If the object hit has an Interactable component
                         {
-                            interactableObject.InteractWith();
+                            interactableObject.Interact();
                             if (interactableObject.IsHoldable())
                             {
                                 held = interactableObject;

@@ -9,7 +9,12 @@ public abstract class Collectible : MonoBehaviour
     public string itemDescription;
     public bool isSingleUse;
     public Sprite itemIcon;
-    public Actions[] collectibleActions = new Actions[] { Actions.NONE , Actions.INSPECT, Actions.REMOVE };
+    public Actions[] collectibleActions = new Actions[]
+    {
+        Actions.NONE,
+        Actions.INSPECT,
+        Actions.REMOVE,
+    };
 
     public enum Actions
     {

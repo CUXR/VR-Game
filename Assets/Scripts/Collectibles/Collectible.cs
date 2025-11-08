@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Collectible : MonoBehaviour
+public abstract class Collectible : MonoBehaviour, Interactable
 {
     public string itemName;
     public string itemDescription;
@@ -50,5 +50,10 @@ public abstract class Collectible : MonoBehaviour
     {
         // Default implementation for inspecting the collectible
         Debug.Log($"Inspecting {itemName}: {itemDescription}");
+    }
+
+    public void Interact()
+    {
+        throw new System.NotImplementedException();
     }
 }

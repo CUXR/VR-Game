@@ -1,4 +1,4 @@
-public interface Throwable
+public interface Throwable : Interactable
 {
 
     // This function is called when the player is holding an object and presses the "e" key. The

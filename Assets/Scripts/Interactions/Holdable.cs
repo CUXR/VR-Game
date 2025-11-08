@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class Holdable : MonoBehaviour, Interactable, Throwable
+public class Holdable : MonoBehaviour, Throwable
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;

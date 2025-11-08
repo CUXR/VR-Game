@@ -30,13 +30,14 @@ public class ObjectInteraction : MonoBehaviour
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
                     {
-                        if (hit.rigidbody.gameObject.TryGetComponent(out Holdable interactableObject))
+                        if (hit.rigidbody.gameObject.TryGetComponent(out Interactable interactableObject))
                         // If the object hit has an Interactable component
                         {
                             interactableObject.Interact();
-                            if (interactableObject.IsHoldable())
+
+                            if (interactableObject is Holdable holdableObject)
                             {
-                                held = interactableObject;
+                                held = holdableObject;
                             }
                         }
                     }

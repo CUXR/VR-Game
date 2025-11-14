@@ -292,4 +292,10 @@ public class ScientistController : EnemyController
             }
         }
     }
+
+    protected override void SetSpeed(float speed)
+    {
+        agent.speed = speed;
+        animator.SetFloat("Move Speed", speed);
+    }
 }

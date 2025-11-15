@@ -4632,11 +4632,6 @@ PrefabInstance:
       propertyPath: healthSlider
       value: 
       objectReference: {fileID: 1291975663}
-    - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
-        type: 3}
-      propertyPath: defaultDecayRate
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10676,7 +10671,7 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 383
+    m_Bits: 4294967295
   m_UseGeometry: 0
   m_DefaultArea: 0
   m_GenerateLinks: 0
@@ -10708,7 +10703,7 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 383
+    m_Bits: 4294967295
   m_UseGeometry: 0
   m_DefaultArea: 0
   m_GenerateLinks: 0
@@ -10719,7 +10714,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.083333336
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 8d815b39ca60d47d89c5130a165b37d4, type: 2}
+  m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
 --- !u!1001 &1788506297
 PrefabInstance:
@@ -14955,7 +14950,7 @@ PrefabInstance:
     - target: {fileID: 494848655294826221, guid: dc7e878f8514246eab3ef3428c153ef7,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 939192487106612038, guid: dc7e878f8514246eab3ef3428c153ef7,
         type: 3}
@@ -15230,7 +15225,7 @@ PrefabInstance:
     - target: {fileID: 5964005580522811799, guid: 51b7a4469442a8740bed76090184e3d5,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6307779340700012163, guid: 51b7a4469442a8740bed76090184e3d5,
         type: 3}

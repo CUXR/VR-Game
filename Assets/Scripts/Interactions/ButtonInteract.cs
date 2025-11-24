@@ -2,9 +2,13 @@ using UnityEngine;
 
 public class ButtonInteract : MonoBehaviour, InteractableInterface
 {
-    [SerializeField] private InteractableInterface interactable;
+    [SerializeField] public GameObject interactableObject;
     public void Interact()
     {
-        interactable.Interact();
+        if (interactableObject!=null)
+        {
+            InteractableInterface interactable = interactableObject.GetComponent<InteractableInterface>();
+            interactable.Interact();
+        }
     }
 }

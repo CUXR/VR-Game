@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Collectible : MonoBehaviour, Interactable
+public abstract class Collectible : MonoBehaviour, InteractableInterface
 {
     public string itemName;
     public string itemDescription;

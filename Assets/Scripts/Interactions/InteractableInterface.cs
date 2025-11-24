@@ -1,4 +1,4 @@
-public interface Interactable
+public interface InteractableInterface
 {
 
     // This function is called by the player being in range of an interactable object and pressing the

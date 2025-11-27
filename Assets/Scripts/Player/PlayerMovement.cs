@@ -75,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 moveDirection;
     float horizontalInput,
         verticalInput;
+    private PlayerLimb playerLimb;
 
     void Start()
     {
@@ -93,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
 
         rayUpper.transform.position = rayLower.transform.position + stepHeight * Vector3.up;
         defaultScale = transform.localScale.y;
+        playerLimb = GetComponent<PlayerLimb>();
     }
 
     void Update()
@@ -289,6 +291,9 @@ public class PlayerMovement : MonoBehaviour
         {
             vignette.intensity.value = defaultVignette;
         }
+
+        float limbMultiplier = playerLimb != null ? playerLimb.moveSpeedMultiplier : 1f;
+        moveSpeed *= limbMultiplier;
     }
 
     void Move()

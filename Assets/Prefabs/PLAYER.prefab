@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 9061215443949643543}
   - component: {fileID: 1395323971963812710}
   - component: {fileID: 9041987385286134137}
+  - component: {fileID: 2371371318893526656}
   - component: {fileID: 2977459851763967986}
   m_Layer: 7
   m_Name: PLAYER
@@ -188,6 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthSlider: {fileID: 0}
+  limbStatusText: {fileID: 0}
   defaultHealthColor: {r: 0, g: 0.8627451, b: 1, a: 1}
   dangerHealthColor: {r: 1, g: 0.19433957, b: 0.19433957, a: 1}
   maxHealth: 100
@@ -285,6 +287,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 1
+--- !u!114 &2371371318893526656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454641893840355991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a9b29b826b6cfd4989618b6e34c3ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equippedLimbs: []
+  baseWalkSpeed: 8
+  baseSprintSpeed: 12
+  baseAttackDamage: 100
+  moveSpeedMultiplier: 1
+  attackDamageMultiplier: 1
 --- !u!208 &2977459851763967986
 NavMeshObstacle:
   m_ObjectHideFlags: 0

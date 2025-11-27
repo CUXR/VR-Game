@@ -94,7 +94,7 @@ public class PlayerBackpack : MonoBehaviour
         return -1;
     }
 
-    bool AddItem(GameObject item)
+    public bool AddItem(GameObject item)
     {
         int slotIndex = FindSmallestOpenSlot();
 
@@ -251,6 +251,7 @@ public class PlayerBackpack : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Collectible collectible))
         {
+            if (collectible is Limb) return;
             if (AddItem(collectible.ToUIObject()))
             {
                 Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack

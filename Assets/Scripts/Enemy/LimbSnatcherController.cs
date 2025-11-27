@@ -36,6 +36,18 @@ public class LimbSnatcherController : EnemyController
     private float currentProgress = 0f;
     private float lastAttackTime;
 
+    [Header("Limb Storage")]
+    private Limb.LimbType snatchedLimbType = Limb.LimbType.Arm;
+    private bool hasSnatchedLimb = false;
+    private string snatchedLimbName = "";
+    private string snatchedLimbDescription = "";
+    private bool snatchedLimbIsSingleUse = false;
+    private UnityEngine.UI.Image snatchedLimbIcon;
+    private float snatchedLimbBatteryUsage = 0f;
+    private float snatchedLimbTimeToSteal = 0f;
+    private Collectible.Actions[] snatchedLimbActions;
+    public GameObject limbPrefab;
+
     protected override void Start()
     {
         base.Start();
@@ -117,14 +129,14 @@ public class LimbSnatcherController : EnemyController
         fsm.AddTransition(
             "Patrol",
             "Investigate",
-            t => vision.PlayerInvestigate() || hearing.HeardSound()
+            t => (vision.PlayerInvestigate() || hearing.HeardSound()) && !hasSnatchedLimb
         );
 
         // Patrol -> Chase
-        fsm.AddTransition("Patrol", "Chase", t => vision.PlayerVisible());
+        fsm.AddTransition("Patrol", "Chase", t => vision.PlayerVisible() && !hasSnatchedLimb);
 
         // Investigate -> Chase
-        fsm.AddTransition("Investigate", "Chase", t => vision.PlayerVisible());
+        fsm.AddTransition("Investigate", "Chase", t => vision.PlayerVisible() && !hasSnatchedLimb);
 
         // Investigate -> Patrol
         fsm.AddTransition(
@@ -136,11 +148,15 @@ public class LimbSnatcherController : EnemyController
         // Chase -> Investigate
         fsm.AddTransition("Chase", "Investigate", t => Time.time - startChaseTime >= chaseTime);
 
-        // Chase -> Attack
-        fsm.AddTransition("Chase", "Attack", t => IsPlayerInAttackRange() && Time.time - lastAttackTime >= attackCooldown);
+        // Chase -> Attack 
+        fsm.AddTransition("Chase", "Attack", t => !hasSnatchedLimb && IsPlayerInAttackRange() && Time.time - lastAttackTime >= attackCooldown);
         
-        // Attack -> Chase
-        fsm.AddTransition("Attack", "Chase", t => !IsPlayerInAttackRange() || currentProgress >= timeNeededToSnatch);
+        // Attack -> Patrol
+        fsm.AddTransition("Attack", "Patrol", t => hasSnatchedLimb);
+
+        // Attack -> Chase 
+        fsm.AddTransition("Attack", "Chase", t => (!IsPlayerInAttackRange() || currentProgress >= timeNeededToSnatch) && !hasSnatchedLimb);
+        
         // [ANY STATE] -> Dead
         fsm.AddTransitionFromAny("Dead", t => !health.isAlive);
     }
@@ -246,9 +262,48 @@ public class LimbSnatcherController : EnemyController
     }
 
     private void CompleteSnatchAttempt()
-    {        
+    {   
+        if (player == null)
+        {
+            currentProgress = 0f;
+            lastAttackTime = Time.time;
+            return;
+        }
+
+        var playerLimb = player.GetComponent<PlayerLimb>();
         var playerHealth = player.GetComponent<PlayerHealth>();
-        playerHealth?.DepleteHealthFixed(10f);
+
+        if (playerLimb != null)
+        {
+            if (!hasSnatchedLimb && playerLimb.TryRemoveLimb(out Limb removed))
+            {
+                if (removed != null)
+                {
+                    snatchedLimbType = removed.limbType;
+                    snatchedLimbName = removed.itemName;
+                    snatchedLimbDescription = removed.itemDescription;
+                    snatchedLimbIsSingleUse = removed.isSingleUse;
+                    snatchedLimbBatteryUsage = removed.batteryUsage;
+                    snatchedLimbTimeToSteal = removed.timeToSteal;
+                    snatchedLimbActions = removed.collectibleActions;
+                    hasSnatchedLimb = true;
+                }
+                playerHealth?.DepleteHealthFixed(10f);
+            }
+            else if (hasSnatchedLimb)
+            {
+                playerHealth?.DepleteHealthFixed(10f);
+            }
+            else
+            {
+                // didn't remove limb (player has no limbs left)
+                playerHealth?.DepleteHealthFixed(10f);
+            }
+        }
+        else
+        {
+            playerHealth?.DepleteHealthFixed(10f);
+        }
 
         currentProgress = 0f;
         lastAttackTime = Time.time;
@@ -259,13 +314,47 @@ public class LimbSnatcherController : EnemyController
         agent.isStopped = true;
 
         if (GameController.Instance != null)
-        {
             GameController.Instance.RemoveEnemy(this);
+
+        if (health.outline != null)
+            health.outline.enabled = false;
+
+        DropSnatchedLimbs();
+
+        Destroy(gameObject);
+    }
+
+    private void DropSnatchedLimbs()
+    {
+        if (!hasSnatchedLimb)
+            return;
+
+        Vector3 dropPosition = transform.position;
+
+        GameObject limbObj = Instantiate(limbPrefab, dropPosition, Quaternion.identity);
+
+        Limb limbComponent = limbObj.GetComponent<Limb>();
+
+        limbComponent.limbType = snatchedLimbType;
+        limbComponent.isEquipped = false;
+        limbComponent.batteryUsage = snatchedLimbBatteryUsage;
+        limbComponent.timeToSteal = snatchedLimbTimeToSteal;
+        
+        if (snatchedLimbName != null && snatchedLimbName != "")
+        {
+            limbComponent.itemName = snatchedLimbName;
+            limbComponent.itemDescription = snatchedLimbDescription;
+            limbComponent.isSingleUse = snatchedLimbIsSingleUse;
+            limbComponent.collectibleActions = snatchedLimbActions;
+        }
+        else
+        {
+            limbComponent.itemName = $"{snatchedLimbType}";
+            limbComponent.itemDescription = $"A {snatchedLimbType.ToString().ToLower()} that can be attached to your body";
         }
 
-        ToggleRagdoll(true);
-
-        gameObject.AddComponent<Holdable>();
+        limbComponent.gameObject.AddComponent<Holdable>();
+        hasSnatchedLimb = false;
     }
 
     protected void SetInitialPatrolPosition()

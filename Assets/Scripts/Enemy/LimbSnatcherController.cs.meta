@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: db066eacb447aeb4d88d095b8f177e55
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - hearing: {instanceID: 0}
+  - limbPrefab: {fileID: 2185609230610823027, guid: cc428a471798443d4bcbf4daf49bbec7,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Linq;
 
 public class PlayerBackpack : MonoBehaviour
 {
@@ -24,8 +24,8 @@ public class PlayerBackpack : MonoBehaviour
     public TMP_Text itemNameText;
     public TMP_Text itemDescriptionText;
 
-    [HideInInspector] public GameObject selectedItem;
-
+    [HideInInspector]
+    public GameObject selectedItem;
 
     void Start()
     {
@@ -94,7 +94,7 @@ public class PlayerBackpack : MonoBehaviour
         return -1;
     }
 
-    bool AddItem(GameObject item)
+    public bool AddItem(GameObject item)
     {
         int slotIndex = FindSmallestOpenSlot();
 
@@ -105,8 +105,13 @@ public class PlayerBackpack : MonoBehaviour
         }
 
         item.transform.SetParent(backpackSlots[slotIndex].transform);
-        backpackSlots[slotIndex].GetComponent<Button>().onClick.AddListener(() => ToggleDropdown(item));
-        backpackSlots[slotIndex].transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        backpackSlots[slotIndex]
+            .GetComponent<Button>()
+            .onClick.AddListener(() => ToggleDropdown(item));
+        backpackSlots[slotIndex]
+            .transform.GetChild(0)
+            .GetComponent<RectTransform>()
+            .anchoredPosition = Vector2.zero;
 
         return true;
     }
@@ -115,17 +120,20 @@ public class PlayerBackpack : MonoBehaviour
     {
         for (int i = 0; i < backpackSlots.Length; i++)
         {
-            if (backpackSlots[i].transform.childCount > 0 && backpackSlots[i].transform.GetChild(0).gameObject == item)
+            if (
+                backpackSlots[i].transform.childCount > 0
+                && backpackSlots[i].transform.GetChild(0).gameObject == item
+            )
             {
                 backpackSlots[i].GetComponent<Button>().onClick.RemoveAllListeners();
-                
+
                 dropdownUI.transform.SetParent(backpackUI.transform); // Reset the dropdown's parent to the backpack UI
                 dropdownUI.ClearOptions();
                 dropdownVisible = false;
 
                 isInspecting = false;
                 selectedItem = null;
-                
+
                 Destroy(item);
                 return true;
             }
@@ -135,7 +143,8 @@ public class PlayerBackpack : MonoBehaviour
 
     void ExtendBackpack(int newSize)
     {
-        if (newSize <= numSlots) return;
+        if (newSize <= numSlots)
+            return;
 
         GameObject[] newSlots = new GameObject[newSize];
         for (int i = 0; i < newSize; i++)
@@ -167,7 +176,10 @@ public class PlayerBackpack : MonoBehaviour
         {
             selectedItem = item;
 
-            List<string> actions = selectedItem.GetComponent<Collectible>().collectibleActions.Select(action => action.ToString()).ToList();
+            List<string> actions = selectedItem
+                .GetComponent<Collectible>()
+                .collectibleActions.Select(action => action.ToString())
+                .ToList();
 
             dropdownUI.ClearOptions();
             dropdownUI.AddOptions(actions);
@@ -175,46 +187,52 @@ public class PlayerBackpack : MonoBehaviour
             dropdownUI.transform.SetParent(selectedItem.transform.parent);
             dropdownUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -70);
 
-            dropdownUI.onValueChanged.AddListener(delegate {
-                Collectible.Actions selectedAction = (Collectible.Actions)System.Enum.Parse(typeof(Collectible.Actions), dropdownUI.options[dropdownUI.value].text);
-                switch (selectedAction)
+            dropdownUI.onValueChanged.AddListener(
+                delegate
                 {
-                    case Collectible.Actions.NONE:
-                        isInspecting = false;
-                        break;
+                    Collectible.Actions selectedAction = (Collectible.Actions)
+                        System.Enum.Parse(
+                            typeof(Collectible.Actions),
+                            dropdownUI.options[dropdownUI.value].text
+                        );
+                    switch (selectedAction)
+                    {
+                        case Collectible.Actions.NONE:
+                            isInspecting = false;
+                            break;
 
-                    case Collectible.Actions.USE:
-                        print(selectedItem.transform.parent);
-                        print(selectedItem);
-                        selectedItem.GetComponent<Collectible>().Use();
-                        print(selectedItem);
+                        case Collectible.Actions.USE:
+                            print(selectedItem.transform.parent);
+                            print(selectedItem);
+                            selectedItem.GetComponent<Collectible>().Use();
+                            print(selectedItem);
 
-                        if (selectedItem.GetComponent<Collectible>().isSingleUse)
-                        {
+                            if (selectedItem.GetComponent<Collectible>().isSingleUse)
+                            {
+                                RemoveItem(selectedItem);
+                            }
+
+                            isInspecting = false;
+
+                            break;
+
+                        // TODO: Add cases for equipping, unequipping, and inspecting items
+
+                        case Collectible.Actions.INSPECT:
+                            InspectItem();
+                            break;
+
+                        case Collectible.Actions.REMOVE:
                             RemoveItem(selectedItem);
-                        }
+                            break;
 
-                        isInspecting = false;
-
-                        break;
-
-                    // TODO: Add cases for equipping, unequipping, and inspecting items
-
-                    case Collectible.Actions.INSPECT:
-                        InspectItem();
-                        break;
-
-                    case Collectible.Actions.REMOVE:
-                        RemoveItem(selectedItem);
-                        break;
-
-                    default:
-                        Debug.Log("No action selected for item: " + selectedItem.name);
-                        break;
+                        default:
+                            Debug.Log("No action selected for item: " + selectedItem.name);
+                            break;
+                    }
                 }
-            });
+            );
         }
-
         else
         {
             selectedItem = null;
@@ -233,6 +251,7 @@ public class PlayerBackpack : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Collectible collectible))
         {
+            if (collectible is Limb) return;
             if (AddItem(collectible.ToUIObject()))
             {
                 Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack

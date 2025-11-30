@@ -48,12 +48,23 @@ public class Holdable : MonoBehaviour, Interactable
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        size = gameObject.GetComponent<Renderer>().bounds.size;
+        
+        Renderer rend = GetComponent<Renderer>();
+        if (rend == null)
+            rend = GetComponentInChildren<Renderer>();
+
+        if (rend != null)
+        {
+            size = rend.bounds.size;
+        }
+
         playerCollider = GameObject.FindWithTag("Player").GetComponent<Collider>();
     }
 
     public bool IsHoldable()
     {
+        if (GetComponent<Limb>() != null)
+            return false;
         return true;
     }
 
@@ -64,6 +75,14 @@ public class Holdable : MonoBehaviour, Interactable
 
     public void InteractWith()
     {
+
+        Limb limb = GetComponent<Limb>();
+        if (limb != null)
+        {
+            limb.InteractWith();
+            return;
+        }
+
         // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);
         // Calculates an offset based off of holdPosition so that the object is held in player view

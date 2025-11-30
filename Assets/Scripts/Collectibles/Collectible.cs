@@ -9,7 +9,12 @@ public abstract class Collectible : MonoBehaviour
     public string itemDescription;
     public bool isSingleUse;
     public Sprite itemIcon;
-    public Actions[] collectibleActions;
+    public Actions[] collectibleActions = new Actions[]
+    {
+        Actions.NONE,
+        Actions.INSPECT,
+        Actions.REMOVE,
+    };
 
     public enum Actions
     {
@@ -18,7 +23,7 @@ public abstract class Collectible : MonoBehaviour
         EQUIP,
         UNEQUIP,
         INSPECT,
-        REMOVE
+        REMOVE,
     }
 
     public virtual GameObject ToUIObject()
@@ -43,12 +48,24 @@ public abstract class Collectible : MonoBehaviour
     public virtual void Use()
     {
         // Default implementation for using the collectible
-        Debug.Log($"Using {itemName}");
+        print($"Using {itemName}");
+    }
+
+    public virtual void Equip()
+    {
+        // Default implementation for equipping the collectible
+        print($"Equipping {itemName}");
+    }
+
+    public virtual void Unequip()
+    {
+        // Default implementation for unequipping the collectible
+        print($"Unequipping {itemName}");
     }
 
     public virtual void Inspect()
     {
         // Default implementation for inspecting the collectible
-        Debug.Log($"Inspecting {itemName}: {itemDescription}");
+        print($"Inspecting {itemName}: {itemDescription}");
     }
 }

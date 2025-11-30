@@ -5,6 +5,10 @@ using UnityEngine.AI;
 
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("Health Settings")]
+    public float maxHealth = 100f;
+    public float currentHealth;
+
     public bool isAlive = true;
     public Outline outline;
     public Color outlineColor = Color.red;
@@ -12,15 +16,28 @@ public class EnemyHealth : MonoBehaviour
 
     void Start()
     {
+        currentHealth = maxHealth;
         outline = gameObject.AddComponent<Outline>();
         outline.enabled = false;
         outline.OutlineColor = outlineColor;
         outline.OutlineWidth = outlineWidth;
     }
 
-    public void Stab()
+    public void TakeDamage(float damage)
     {
-        isAlive = false;
-        outline.enabled = false;
+        if (!isAlive) return;
+
+        currentHealth = Mathf.Max(0f, currentHealth - damage);
+        
+        if (currentHealth <= 0f)
+        {
+            isAlive = false;
+            outline.enabled = false;
+        }
+    }
+
+    public void Stab(float damage)
+    {
+        TakeDamage(damage);
     }
 }

@@ -30,19 +30,32 @@ public class PlayerCombat : MonoBehaviour
             return;
         }
 
-        if (hit.transform.root.TryGetComponent(out EnemyHealth enemy)
-            && enemy.isAlive
-            && !enemy.GetComponent<EnemyVision>().PlayerVisible()
-            && !enemy.GetComponent<EnemyVision>().PlayerInvestigate())
+        if (hit.transform.GetComponentInParent<EnemyHealth>() is EnemyHealth enemy
+            && enemy.isAlive)
+            // && !enemy.GetComponent<EnemyVision>().PlayerVisible()
+            // && !enemy.GetComponent<EnemyVision>().PlayerInvestigate())
         {
             enemy.outline.enabled = true;
             currentEnemy = enemy;
 
-            if (InputController.Instance.GetStabDown())
+            var playerLimb = GetComponent<PlayerLimb>();
+            bool canAttack = playerLimb == null || playerLimb.CurrentArmCount > 0;
+
+            if (canAttack && InputController.Instance.GetStabDown())
             {
-                enemy.Stab();
+                float damage;
+                if (playerLimb != null)
+                {
+                    damage = playerLimb.GetAttackDamage();
+                    Debug.Log("Damage calculated: " + damage);
+                }
+                else
+                {
+                    damage = 10f;
+                }
+
+                enemy.Stab(damage);
                 enemy.outline.enabled = false;
-                enemy.GetComponent<EnemyHealth>().isAlive = false;
             }
         }
     }

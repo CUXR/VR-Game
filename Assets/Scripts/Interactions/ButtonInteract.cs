@@ -1,14 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ButtonInteract : MonoBehaviour, InteractableInterface
 {
-    [SerializeField] public GameObject interactableObject;
+    [SerializeField] public List<GameObject> interactableObject;
     public void Interact()
     {
-        if (interactableObject!=null)
+        if (interactableObject.Count!=0)
         {
-            InteractableInterface interactable = interactableObject.GetComponent<InteractableInterface>();
-            interactable.Interact();
+            foreach (GameObject obj in interactableObject) {
+                InteractableInterface interactable = obj.GetComponent<InteractableInterface>();
+                interactable.Interact();
+            }
         }
     }
 }

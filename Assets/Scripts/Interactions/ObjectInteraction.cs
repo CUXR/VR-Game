@@ -40,11 +40,6 @@ public class ObjectInteraction : MonoBehaviour
                                 held = holdableObject;
                             }
                         }
-                        if (hit.rigidbody.gameObject.TryGetComponent(out Door obj))
-                        // If the object has Door script
-                        {
-                            obj.InteractWith();
-                        }
                     }
                 }
             }

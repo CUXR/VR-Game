@@ -3,9 +3,9 @@ using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Door : MonoBehaviour, Interactable
+public class Door : MonoBehaviour, InteractableInterface
 {
-    public String keyName; //set keyName to "none" if the door doesn't have a key, otherwise match name of collectible object
+    public string keyName; //set keyName to "none" if the door doesn't have a key, otherwise match name of collectible object
     private Transform door;
     //public SoundPlayer openEffect;
     public Vector3 closedPos;
@@ -82,7 +82,7 @@ public class Door : MonoBehaviour, Interactable
     //what does this mean?
     //
     //how door reacts in different states and key collection progress to player interaction (press E)
-    public void InteractWith()
+    public void Interact()
     {
         //no reaction if door is in process of opening/closing
         if(opening || closing)

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Collectible : MonoBehaviour
+public abstract class Collectible : MonoBehaviour, InteractableInterface
 {
     public string itemName;
     public string itemDescription;
@@ -75,5 +75,10 @@ public abstract class Collectible : MonoBehaviour
     public static implicit operator Collectible(GameObject v)
     {
         throw new NotImplementedException();
+    }
+
+    public void Interact()
+    {
+        throw new System.NotImplementedException();
     }
 }

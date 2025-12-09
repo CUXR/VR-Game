@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class Holdable : MonoBehaviour, Interactable
+public class Holdable : MonoBehaviour, ThrowableInterface
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;
@@ -68,12 +68,7 @@ public class Holdable : MonoBehaviour, Interactable
         return true;
     }
 
-    public bool IsThrowable()
-    {
-        return true;
-    }
-
-    public void InteractWith()
+    public void Interact()
     {
         Debug.Log("InteractWith triggered on " + gameObject);
         Limb limb = GetComponent<Limb>();

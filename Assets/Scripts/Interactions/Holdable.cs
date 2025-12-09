@@ -75,7 +75,7 @@ public class Holdable : MonoBehaviour, Interactable
 
     public void InteractWith()
     {
-
+        Debug.Log("InteractWith triggered on " + gameObject);
         Limb limb = GetComponent<Limb>();
         if (limb != null)
         {

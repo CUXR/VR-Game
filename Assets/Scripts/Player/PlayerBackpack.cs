@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Constraints;
 using TMPro;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +22,7 @@ public class PlayerBackpack : MonoBehaviour
     public GameObject backpackUI;
     public TMP_Dropdown dropdownUI;
     public GameObject[] backpackSlots;
+    [SerializeField] public static String[] items;
 
     [Header("Inspect References")]
     public TMP_Text itemNameText;
@@ -42,6 +46,7 @@ public class PlayerBackpack : MonoBehaviour
         itemDescriptionText.gameObject.SetActive(false);
 
         backpackSlots = new GameObject[numSlots];
+        items = new String[numSlots];
 
         // Initialize backpack slots
         for (int i = 0; i < numSlots; i++)
@@ -94,6 +99,29 @@ public class PlayerBackpack : MonoBehaviour
         return -1;
     }
 
+    public bool AddItem(GameObject item, Collectible obj)
+    {
+        int slotIndex = FindSmallestOpenSlot();
+
+        if (slotIndex == -1)
+        {
+            Debug.Log("Backpack is full!");
+            return false;
+        }
+
+        item.transform.SetParent(backpackSlots[slotIndex].transform);
+        backpackSlots[slotIndex]
+            .GetComponent<Button>()
+            .onClick.AddListener(() => ToggleDropdown(item));
+        backpackSlots[slotIndex]
+            .transform.GetChild(0)
+            .GetComponent<RectTransform>()
+            .anchoredPosition = Vector2.zero;
+
+        items[slotIndex] = obj.itemName;
+        return true;
+    }
+
     public bool AddItem(GameObject item)
     {
         int slotIndex = FindSmallestOpenSlot();
@@ -135,6 +163,7 @@ public class PlayerBackpack : MonoBehaviour
                 selectedItem = null;
 
                 Destroy(item);
+                items[i] = "";
                 return true;
             }
         }
@@ -147,6 +176,7 @@ public class PlayerBackpack : MonoBehaviour
             return;
 
         GameObject[] newSlots = new GameObject[newSize];
+        String[] newItems = new String[newSize];
         for (int i = 0; i < newSize; i++)
         {
             if (i < numSlots)
@@ -158,9 +188,11 @@ public class PlayerBackpack : MonoBehaviour
                 newSlots[i] = Instantiate(slotPrefab, backpackUI.transform);
                 newSlots[i].GetComponent<Button>().onClick.AddListener(() => ToggleDropdown(null));
             }
+            newItems[i] = items[i];
         }
 
         backpackSlots = newSlots;
+        items = newItems;
         numSlots = newSize;
     }
 
@@ -251,8 +283,10 @@ public class PlayerBackpack : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Collectible collectible))
         {
+            Collectible obj = other.gameObject.GetComponent<Collectible>();
+            //Debug.Log("result of try get component:"+other.gameObject.GetComponent<Collectible>() + "obj:"+obj);
             if (collectible is Limb) return;
-            if (AddItem(collectible.ToUIObject()))
+            if (AddItem(collectible.ToUIObject(), obj))
             {
                 Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack
             }

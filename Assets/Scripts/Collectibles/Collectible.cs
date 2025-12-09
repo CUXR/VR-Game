@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,11 +29,13 @@ public abstract class Collectible : MonoBehaviour
 
     public virtual GameObject ToUIObject()
     {
+        //Debug.Log("ToUIObject entered for " + gameObject);
         GameObject uiItem = new GameObject(itemName);
         uiItem.AddComponent<RectTransform>();
         uiItem.AddComponent<CanvasRenderer>();
         uiItem.AddComponent<Image>().sprite = itemIcon;
 
+        //Debug.Log("ToUIObject returned:" + uiItem);
         return uiItem;
     }
 
@@ -67,5 +70,10 @@ public abstract class Collectible : MonoBehaviour
     {
         // Default implementation for inspecting the collectible
         print($"Inspecting {itemName}: {itemDescription}");
+    }
+
+    public static implicit operator Collectible(GameObject v)
+    {
+        throw new NotImplementedException();
     }
 }

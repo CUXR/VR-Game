@@ -8,8 +8,8 @@ public class Door : MonoBehaviour, InteractableInterface
     public string keyName; //set keyName to "none" if the door doesn't have a key, otherwise match name of collectible object
     private Transform door;
     //public SoundPlayer openEffect;
-    public Vector3 closedPos;
-    public Vector3 openPos;
+    public Transform closedPos;
+    public Transform openPos;
     public float openingTime;
     public float holdOpen;
     private float openingComplete;
@@ -42,14 +42,14 @@ public class Door : MonoBehaviour, InteractableInterface
         }
 
         //when door finishes opening, record time taken to open, end opening state, and set the timer
-        if (opening && door.position == openPos)
+        if (opening && door.position == openPos.localPosition)
         {
             openingComplete = Time.time;
             opening = false;
             timer = 1f;
         }
         //when door finishes closing, the closing state ends and time set back to initial (ready to start over)
-        else if (closing && door.position == closedPos)
+        else if (closing && door.position == closedPos.localPosition)
         {
             opening = false;
             closing = false;
@@ -64,7 +64,7 @@ public class Door : MonoBehaviour, InteractableInterface
             timer = Mathf.Clamp(timer, 0f, openingTime);
             float t = timer / openingTime;
             // Move door
-            door.localPosition = Vector3.Lerp(closedPos, openPos, t);
+            door.localPosition = Vector3.Lerp(closedPos.localPosition, openPos.localPosition, t);
         }
 
         //checks when door has been open for holdOpen time and switches to closing state

@@ -42,14 +42,14 @@ public class Door : MonoBehaviour, InteractableInterface
         }
 
         //when door finishes opening, record time taken to open, end opening state, and set the timer
-        if (opening && door.position == openPos.localPosition)
+        if (opening && door.localPosition == openPos.localPosition)
         {
             openingComplete = Time.time;
             opening = false;
             timer = 1f;
         }
         //when door finishes closing, the closing state ends and time set back to initial (ready to start over)
-        else if (closing && door.position == closedPos.localPosition)
+        else if (closing && door.localPosition == closedPos.localPosition)
         {
             opening = false;
             closing = false;

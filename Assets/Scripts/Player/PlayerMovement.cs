@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
         WALLRUN,
         CROUCH,
         AIR,
+        CRAWL,
     }
 
     [Header("Movement")]

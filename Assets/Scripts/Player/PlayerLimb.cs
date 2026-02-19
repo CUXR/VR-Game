@@ -80,11 +80,6 @@ public class PlayerLimb : MonoBehaviour
         CurrentArmCount = armCount;
         CurrentLegCount = legCount;
         
-        var playerHealth = GetComponent<PlayerHealth>();
-        if (playerHealth != null)
-        {
-            playerHealth.UpdateLimbStatus(armCount, legCount);
-        }
     }
 
     public float GetAttackDamage()

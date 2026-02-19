@@ -274,22 +274,10 @@ public class PlayerBackpack : MonoBehaviour
     private void InspectItem()
     {
         isInspecting = true;
+        Debug.Log("I am currently inspecting: " + selectedItem.name);
+        Debug.Log("Pulled Description: " + selectedItem.GetComponent<Collectible>().itemDescription);
 
         itemNameText.text = selectedItem.GetComponent<Collectible>().itemName;
         itemDescriptionText.text = selectedItem.GetComponent<Collectible>().itemDescription;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.TryGetComponent(out Collectible collectible))
-        {
-            Collectible obj = other.gameObject.GetComponent<Collectible>();
-            //Debug.Log("result of try get component:"+other.gameObject.GetComponent<Collectible>() + "obj:"+obj);
-            if (collectible is Limb) return;
-            if (AddItem(collectible.ToUIObject(), obj))
-            {
-                Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack
-            }
-        }
     }
 }

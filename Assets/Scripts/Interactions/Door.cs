@@ -21,6 +21,8 @@ public class Door : MonoBehaviour, InteractableInterface
     private float timer;
     [SerializeField]
     private bool inDoorPath = false;
+    [SerializeField]
+    public bool isButtonDoor = false;
 
     //TODO: modify for button/buttons/keys?
     //TODO:

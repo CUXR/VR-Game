@@ -1336,6 +1336,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 5561507988135393983, guid: 78f4239ae8b794cdebdec3e241df5f4d,
+        type: 3}
+      propertyPath: isButtonDoor
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5674696052475734687, guid: 78f4239ae8b794cdebdec3e241df5f4d,
         type: 3}
       propertyPath: m_Name

@@ -52,8 +52,7 @@ public class PlayerMovement : MonoBehaviour
     public float crawlSpeed;
     public float crawlScale;
     public float crawlUpDetectionHeight;
-    public float crawlDefaultVignette,
-        crawlVignette;
+    public float crawlVignette;
     private bool crawling = false;
 
     [Header("Slope Check")]

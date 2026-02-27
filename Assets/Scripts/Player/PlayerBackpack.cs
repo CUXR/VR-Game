@@ -251,18 +251,19 @@ public class PlayerBackpack : MonoBehaviour
                             break;
 
                         case Collectible.Actions.EQUIP: 
-                            Limb limbToEquip = selectedItem.GetComponent<Limb>();
-                            if (limbToEquip != null)
+                            Legs legsToEquip = selectedItem.GetComponent<Legs>();
+                            
+                            if (legsToEquip != null)
                             {
-                                PlayerLimb playerLimb = GameObject.FindWithTag("Player").GetComponent<PlayerLimb>();
+                                PlayerLegs playerLegs = GameObject.FindWithTag("Player").GetComponent<PlayerLegs>();
                                 
-                                if (playerLimb != null && playerLimb.EquipLimb(limbToEquip))
+                                if (playerLegs != null && playerLegs.EquipLegs(legsToEquip))
                                 {
                                     RemoveItem(selectedItem);
                                 }
                                 else
                                 {
-                                    Debug.Log("Cannot equip: You already have a limb in that slot!");
+                                    Debug.Log("Cannot equip: You already have your legs attached!");
                                 }
                             }
                             else
@@ -273,6 +274,30 @@ public class PlayerBackpack : MonoBehaviour
                             isInspecting = false;
                             dropdownVisible = false;
                             break;
+
+                        // case Collectible.Actions.EQUIP: 
+                        //     Limb limbToEquip = selectedItem.GetComponent<Limb>();
+                        //     if (limbToEquip != null)
+                        //     {
+                        //         PlayerLimb playerLimb = GameObject.FindWithTag("Player").GetComponent<PlayerLimb>();
+                                
+                        //         if (playerLimb != null && playerLimb.EquipLimb(limbToEquip))
+                        //         {
+                        //             RemoveItem(selectedItem);
+                        //         }
+                        //         else
+                        //         {
+                        //             Debug.Log("Cannot equip: You already have a limb in that slot!");
+                        //         }
+                        //     }
+                        //     else
+                        //     {
+                        //         selectedItem.GetComponent<Collectible>().Equip();
+                        //     }
+
+                        //     isInspecting = false;
+                        //     dropdownVisible = false;
+                        //     break;
 
                         // TODO: Add cases for unequipping, and inspecting items
 

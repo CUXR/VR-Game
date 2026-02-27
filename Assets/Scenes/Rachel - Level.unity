@@ -33765,6 +33765,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 8902b042bb2307147bd9af389e607ff5,
         type: 3}
+    - target: {fileID: 3845465210573115682, guid: 0dfff4bd980db1343949ed3e36306440,
+        type: 3}
+      propertyPath: 'collectibleActions.Array.data[4]'
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4935692657897021812, guid: 0dfff4bd980db1343949ed3e36306440,
         type: 3}
       propertyPath: m_LocalPosition.x

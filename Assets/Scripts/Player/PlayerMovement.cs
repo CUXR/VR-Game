@@ -174,7 +174,6 @@ public class PlayerMovement : MonoBehaviour
                     crouchScale,
                     transform.localScale.z
                 );
-                return;
             }
             else if (InputController.Instance.GetCrawlDown())
             {
@@ -185,7 +184,8 @@ public class PlayerMovement : MonoBehaviour
                 }
             } else if (crawling)
             {
-                Crawl();
+                movementState = MovementState.CRAWL;
+                moveSpeed = crawlSpeed;
             }
             else
             {
@@ -292,7 +292,15 @@ public class PlayerMovement : MonoBehaviour
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed;
-            }
+            } else if (movementState == MovementState.CRAWL)
+{
+    transform.localScale = new Vector3(
+        transform.localScale.x,
+        crawlScale,
+        transform.localScale.z
+    );
+    vignette.intensity.value = crawlVignette;
+}
             else
             {
                 movementState = MovementState.IDLE;
@@ -313,6 +321,8 @@ public class PlayerMovement : MonoBehaviour
         if (crawling)
         {
             movementState = MovementState.CRAWL;
+            moveSpeed = crawlSpeed;
+            Debug.Log(crawlSpeed);
             vignette.intensity.value = crawlVignette;
         }
 
@@ -429,7 +439,7 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale.x,
             crawlScale,
             transform.localScale.z);
-            rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         }
     }
 

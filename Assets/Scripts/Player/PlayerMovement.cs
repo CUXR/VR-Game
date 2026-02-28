@@ -30,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Jump")]
     public float jumpForce;
+    public float airSpeed;
     public float airMultiplier;
     public float coyoteTime;
     public float jumpBuffer;
@@ -224,6 +225,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovementState()
     {
+        Debug.Log(movementState);
         if (!Grounded)
         {
             if (isWallRunning)
@@ -234,6 +236,7 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 movementState = MovementState.AIR;
+                moveSpeed = airSpeed;
             }
         }
         else

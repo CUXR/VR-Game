@@ -200,6 +200,7 @@ MonoBehaviour:
   defaultDecayRate: 0.2
   stealthMultiplier: 2
   aggressiveMultiplier: 4
+  crawlMultiplier: 0.1
   currentHealth: 0
   currentDecayRate: 1
 --- !u!114 &2712823474666779349
@@ -235,6 +236,7 @@ MonoBehaviour:
   isWallRunning: 0
   movementState: 0
   jumpForce: 12
+  airSpeed: 2.5
   airMultiplier: 0.4
   coyoteTime: 0.2
   jumpBuffer: 0.2

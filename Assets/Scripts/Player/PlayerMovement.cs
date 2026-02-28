@@ -155,7 +155,6 @@ public class PlayerMovement : MonoBehaviour
                 jumpBufferCounter = 0f;
                 return;
             }
-
             if (InputController.Instance.GetCrouchDown())
             {
                 Crouch();
@@ -178,6 +177,13 @@ public class PlayerMovement : MonoBehaviour
                 return;
             }
             else if (InputController.Instance.GetCrawlDown())
+            {
+                crawling = !crawling;
+                if (!crawling)
+                {
+                    
+                }
+            } else if (crawling)
             {
                 Crawl();
             }
@@ -400,8 +406,6 @@ public class PlayerMovement : MonoBehaviour
     }
     void Crawl()
     {
-        // switch crawling states
-        crawling = !crawling;
         // if not enough room to stand up and state switched to not crawling,
         // then stay crawling
         if (Physics.Raycast(

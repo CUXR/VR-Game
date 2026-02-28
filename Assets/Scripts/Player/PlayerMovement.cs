@@ -293,14 +293,14 @@ public class PlayerMovement : MonoBehaviour
                 radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed;
             } else if (movementState == MovementState.CRAWL)
-{
-    transform.localScale = new Vector3(
-        transform.localScale.x,
-        crawlScale,
-        transform.localScale.z
-    );
-    vignette.intensity.value = crawlVignette;
-}
+            {
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crawlScale,
+                    transform.localScale.z
+                );
+                vignette.intensity.value = crawlVignette;
+            }
             else
             {
                 movementState = MovementState.IDLE;
@@ -316,14 +316,6 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             vignette.intensity.value = defaultVignette;
-        }
-
-        if (crawling)
-        {
-            movementState = MovementState.CRAWL;
-            moveSpeed = crawlSpeed;
-            Debug.Log(crawlSpeed);
-            vignette.intensity.value = crawlVignette;
         }
 
         float limbMultiplier = playerLimb != null ? playerLimb.moveSpeedMultiplier : 1f;

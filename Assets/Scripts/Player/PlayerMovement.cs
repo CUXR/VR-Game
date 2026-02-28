@@ -151,7 +151,6 @@ public class PlayerMovement : MonoBehaviour
             )
             {
                 Jump();
-
                 // Reset jump buffer to prevent jumping again
                 jumpBufferCounter = 0f;
                 return;
@@ -159,6 +158,20 @@ public class PlayerMovement : MonoBehaviour
             if (InputController.Instance.GetCrouchDown())
             {
                 Crouch();
+                return;
+            }
+            else if (
+                Physics.Raycast(
+                    transform.position,
+                    Vector3.up,
+                    playerHeight * 0.5f + crawlUpDetectionHeight))
+            {
+                // Crawling threshold, stay crawling if under object too low
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crouchScale,
+                    transform.localScale.z
+                );
                 return;
             }
             else if (
@@ -178,15 +191,10 @@ public class PlayerMovement : MonoBehaviour
             }
             else if (InputController.Instance.GetCrawlDown())
             {
+                // If crawling pressed, toggle crawling state
                 crawling = !crawling;
-                if (!crawling)
-                {
-                    
-                }
-            } else if (crawling)
-            {
-                movementState = MovementState.CRAWL;
-                moveSpeed = crawlSpeed;
+                Crawl();
+                return;
             }
             else
             {
@@ -225,7 +233,6 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovementState()
     {
-        Debug.Log(movementState);
         if (!Grounded)
         {
             if (isWallRunning)
@@ -295,14 +302,15 @@ public class PlayerMovement : MonoBehaviour
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed;
-            } else if (movementState == MovementState.CRAWL)
+            } else if (crawling)
             {
+                movementState = MovementState.CRAWL;
+                moveSpeed = crawlSpeed;
                 transform.localScale = new Vector3(
                     transform.localScale.x,
                     crawlScale,
                     transform.localScale.z
                 );
-                vignette.intensity.value = crawlVignette;
             }
             else
             {
@@ -316,7 +324,10 @@ public class PlayerMovement : MonoBehaviour
         {
             vignette.intensity.value = crouchVignette;
         }
-        else
+        else if (movementState == MovementState.CRAWL)
+        {
+            vignette.intensity.value = crawlVignette;
+        } else
         {
             vignette.intensity.value = defaultVignette;
         }

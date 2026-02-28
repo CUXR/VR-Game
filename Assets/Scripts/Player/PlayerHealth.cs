@@ -23,6 +23,7 @@ public class PlayerHealth : MonoBehaviour
     public float defaultDecayRate = 1f;
     public float stealthMultiplier = 2f;
     public float aggressiveMultiplier = 4f;
+    public float crawlMultiplier = 0.1f;
 
     [HideInInspector]
     public float currentHealth;
@@ -64,6 +65,9 @@ public class PlayerHealth : MonoBehaviour
             case PlayerMovement.MovementState.WALLRUN:
             case PlayerMovement.MovementState.AIR:
                 currentDecayRate = defaultDecayRate * aggressiveMultiplier;
+                break;
+            case PlayerMovement.MovementState.CRAWL:
+                currentDecayRate = crawlMultiplier;
                 break;
         }
 

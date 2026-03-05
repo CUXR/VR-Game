@@ -20,27 +20,6 @@ public class Limb : Collectible
     [Header("Stealing Settings")]
     public float timeToSteal;
 
-    public void CopyLimbDataTo(Limb targetLimb)
-    {
-        targetLimb.limbSlot = limbSlot;
-        targetLimb.isEquipped = isEquipped;
-        targetLimb.batteryUsage = batteryUsage;
-        targetLimb.timeToSteal = timeToSteal;
-        
-        CopyCollectibleData(targetLimb);
-    }
-
-    public override GameObject ToUIObject()
-    {
-        GameObject uiObject = base.ToUIObject();
-        Limb limb = uiObject.AddComponent<Limb>();
-        uiObject.name = itemName;
-
-        CopyLimbDataTo(limb);
-
-        return uiObject;
-    }
-
     public void InteractWith(GameObject playerObj)
     {
         if (playerObj == null) return; 

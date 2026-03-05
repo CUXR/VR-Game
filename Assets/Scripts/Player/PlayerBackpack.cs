@@ -208,8 +208,9 @@ public class PlayerBackpack : MonoBehaviour
         {
             selectedItem = item;
 
-            List<string> actions = selectedItem
-                .GetComponent<Collectible>()
+            Collectible hiddenItem = selectedItem.GetComponent<InventorySlot>().itemReference;
+
+            List<string> actions = hiddenItem
                 .collectibleActions.Select(action => action.ToString())
                 .ToList();
 
@@ -236,18 +237,14 @@ public class PlayerBackpack : MonoBehaviour
                             break;
 
                         case Collectible.Actions.USE:
-                            print(selectedItem.transform.parent);
-                            print(selectedItem);
-                            selectedItem.GetComponent<Collectible>().Use();
-                            print(selectedItem);
+                            hiddenItem.Use();
 
-                            if (selectedItem.GetComponent<Collectible>().isSingleUse)
+                            if (hiddenItem.isSingleUse)
                             {
                                 RemoveItem(selectedItem);
                             }
 
                             isInspecting = false;
-
                             break;
 
                         case Collectible.Actions.EQUIP: 
@@ -267,7 +264,7 @@ public class PlayerBackpack : MonoBehaviour
                             }
                             else
                             {
-                                selectedItem.GetComponent<Collectible>().Equip();
+                                hiddenItem.Equip();
                             }
 
                             isInspecting = false;
@@ -281,6 +278,7 @@ public class PlayerBackpack : MonoBehaviour
                             break;
 
                         case Collectible.Actions.REMOVE:
+                            hiddenItem.Drop(GameObject.FindWithTag("Player").transform);
                             RemoveItem(selectedItem);
                             break;
 
@@ -301,7 +299,9 @@ public class PlayerBackpack : MonoBehaviour
     {
         isInspecting = true;
 
-        itemNameText.text = selectedItem.GetComponent<Collectible>().itemName;
-        itemDescriptionText.text = selectedItem.GetComponent<Collectible>().itemDescription;
+        Collectible hiddenItem = selectedItem.GetComponent<InventorySlot>().itemReference;
+
+        itemNameText.text = hiddenItem.itemName;
+        itemDescriptionText.text = hiddenItem.itemDescription;
     }
 }

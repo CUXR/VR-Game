@@ -31,16 +31,10 @@ public class PlayerHealth : MonoBehaviour
     public float currentDecayRate;
 
     private PlayerMovement playerMovement;
-    private PlayerLimb playerLimb;
 
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
-        playerLimb = GetComponent<PlayerLimb>();
-
-        if (playerLimb == null)
-            Debug.LogWarning("PlayerLimb reference not found for PlayerHealth; limb UI won't update.", this);
-
         currentHealth = 100f;
         currentDecayRate = defaultDecayRate;
         SyncSliderHealth();

@@ -4,10 +4,7 @@ public class Limb : Collectible
 {
     public enum LimbSlot
     {
-        LeftArm, 
-        RightArm, 
-        LeftLeg, 
-        RightLeg
+        Legs
     }
 
     [Header("Limb Settings")]

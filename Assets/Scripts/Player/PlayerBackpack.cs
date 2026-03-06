@@ -278,7 +278,7 @@ public class PlayerBackpack : MonoBehaviour
                             break;
 
                         case Collectible.Actions.REMOVE:
-                            hiddenItem.Drop(GameObject.FindWithTag("Player").transform);
+                            // hiddenItem.Drop(GameObject.FindWithTag("Player").transform);
                             RemoveItem(selectedItem);
                             break;
 

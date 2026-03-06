@@ -4,8 +4,8 @@ using UnityEngine;
 [System.Serializable]
 public class AttachedLimbData
 {
-    public float batteryUsage;
-    public float timeToSteal;
+    public float batteryUsage = 10f;
+    public float timeToSteal = 2.5f;
 }
 
 public class PlayerLimb : MonoBehaviour

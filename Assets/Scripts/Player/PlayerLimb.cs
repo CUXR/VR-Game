@@ -1,10 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class AttachedLimbData
+{
+    public float batteryUsage;
+    public float timeToSteal;
+}
+
 public class PlayerLimb : MonoBehaviour
 {
     [Header("Current Limbs")]
-    public List<Limb> equippedLimbs = new List<Limb> { };
+    public Dictionary<Limb.LimbSlot, AttachedLimbData> equippedLimbs = new Dictionary<Limb.LimbSlot, AttachedLimbData>();
 
     [Header("Stats")]
     public float baseWalkSpeed = 8f;
@@ -17,74 +24,76 @@ public class PlayerLimb : MonoBehaviour
     public int CurrentArmCount { get; private set; }
     public int CurrentLegCount { get; private set; }
 
-    private Limb.LimbType? lastSnatchedType = null;
+    private readonly List<Limb.LimbSlot> stealPriority = new List<Limb.LimbSlot>
+    {
+        Limb.LimbSlot.LeftArm,  // Most expendable
+        Limb.LimbSlot.RightArm,
+        Limb.LimbSlot.RightLeg,
+        Limb.LimbSlot.LeftLeg   // Least expendable
+    };
 
     void Start()
     {
-        if (equippedLimbs == null || equippedLimbs.Count == 0)
-        {
-            equippedLimbs = new List<Limb>();
-            
-            for (int i = 0; i < 2; i++)
-            {
-                GameObject armObj = new GameObject();
-                armObj.hideFlags = HideFlags.HideAndDontSave;
-                Limb arm = armObj.AddComponent<Limb>();
-                arm.limbType = Limb.LimbType.Arm;
-                arm.isEquipped = true;
-                equippedLimbs.Add(arm);
-            }
-            
-            for (int i = 0; i < 2; i++)
-            {
-                GameObject legObj = new GameObject();
-                legObj.hideFlags = HideFlags.HideAndDontSave;
-                Limb leg = legObj.AddComponent<Limb>();
-                leg.limbType = Limb.LimbType.Leg;
-                leg.isEquipped = true;
-                equippedLimbs.Add(leg);
-            }
-        }
+        InitializeStartingLimbs();
+    }
+
+    private void InitializeStartingLimbs()
+    {
+        equippedLimbs.Clear();
+
+        // Player starts out missing their left leg
+        equippedLimbs.Add(Limb.LimbSlot.LeftArm, new AttachedLimbData());
+        equippedLimbs.Add(Limb.LimbSlot.RightArm, new AttachedLimbData());
+        equippedLimbs.Add(Limb.LimbSlot.RightLeg, new AttachedLimbData());
 
         RecalculateStats();
     }
 
+    public bool IsMissingLimb(Limb.LimbSlot slot)
+    {
+        return !equippedLimbs.ContainsKey(slot);
+    }
+
+    public bool EquipLimb(Limb limbItem)
+    {
+        if (!IsMissingLimb(limbItem.limbSlot)) return false;
+
+        AttachedLimbData newLimbData = new AttachedLimbData
+        {
+            batteryUsage = limbItem.batteryUsage,
+            timeToSteal = limbItem.timeToSteal
+        };
+
+        equippedLimbs.Add(limbItem.limbSlot, newLimbData);
+        RecalculateStats();
+        
+        return true;
+    }
+
     public void RecalculateStats()
     {
-        int legCount = 0;
-        int armCount = 0;
+        CurrentArmCount = 0;
+        CurrentLegCount = 0;
 
-        foreach (var limb in equippedLimbs)
-        {
-            if (limb == null) continue;
-            if (limb.limbType == Limb.LimbType.Leg)
-                legCount++;
-            else if (limb.limbType == Limb.LimbType.Arm)
-                armCount++;
-        }
+        if (equippedLimbs.ContainsKey(Limb.LimbSlot.LeftArm)) CurrentArmCount++;
+        if (equippedLimbs.ContainsKey(Limb.LimbSlot.RightArm)) CurrentArmCount++;
+        
+        if (equippedLimbs.ContainsKey(Limb.LimbSlot.LeftLeg)) CurrentLegCount++;
+        if (equippedLimbs.ContainsKey(Limb.LimbSlot.RightLeg)) CurrentLegCount++;
 
-        if (legCount >= 2)
+        if (CurrentLegCount >= 2)
             moveSpeedMultiplier = 1f;
-        else if (legCount == 1)
+        else if (CurrentLegCount == 1)
             moveSpeedMultiplier = 0.45f;
         else
             moveSpeedMultiplier = 0f;
 
-        if (armCount >= 2)
+        if (CurrentArmCount >= 2)
             attackDamageMultiplier = 1f;
-        else if (armCount == 1)
+        else if (CurrentArmCount == 1)
             attackDamageMultiplier = 0.6f;
         else
             attackDamageMultiplier = 0f;
-
-        CurrentArmCount = armCount;
-        CurrentLegCount = legCount;
-        
-        var playerHealth = GetComponent<PlayerHealth>();
-        if (playerHealth != null)
-        {
-            playerHealth.UpdateLimbStatus(armCount, legCount);
-        }
     }
 
     public float GetAttackDamage()
@@ -92,58 +101,21 @@ public class PlayerLimb : MonoBehaviour
         return baseAttackDamage * attackDamageMultiplier;
     }
 
-    public bool TryRemoveLimb(out Limb removed)
+    public Limb.LimbSlot? TryStealLeastInconvenientLimb(out AttachedLimbData stolenData)
     {
-        removed = null;
+       stolenData = null;
+        if (equippedLimbs.Count == 0) return null;
 
-        if (equippedLimbs == null || equippedLimbs.Count == 0)
-            return false;
-
-        Limb.LimbType targetType = DetermineTargetLimbType();
-
-        for (int i = 0; i < equippedLimbs.Count; i++)
+        foreach (Limb.LimbSlot slot in stealPriority)
         {
-            if (equippedLimbs[i] != null && equippedLimbs[i].limbType == targetType)
+            if (equippedLimbs.ContainsKey(slot))
             {
-                removed = equippedLimbs[i];
-                equippedLimbs.RemoveAt(i);
-                break;
+                stolenData = equippedLimbs[slot];
+                equippedLimbs.Remove(slot);
+                RecalculateStats();
+                return slot;
             }
         }
-
-        if (removed == null && equippedLimbs.Count > 0)
-        {
-            removed = equippedLimbs[0];
-            equippedLimbs.RemoveAt(0);
-        }
-
-        if (removed != null)
-        {
-            removed.isEquipped = false;
-            lastSnatchedType = removed.limbType;
-            RecalculateStats();
-            return true;
-        }
-
-        return false;
-    }
-
-    private Limb.LimbType DetermineTargetLimbType()
-    {
-        int availableArms = CurrentArmCount;
-        int availableLegs = CurrentLegCount;
-
-        if (lastSnatchedType == null)
-            return availableArms > 0 ? Limb.LimbType.Arm : Limb.LimbType.Leg;
-
-        Limb.LimbType nextType = lastSnatchedType == Limb.LimbType.Arm 
-            ? Limb.LimbType.Leg 
-            : Limb.LimbType.Arm;
-
-        if ((nextType == Limb.LimbType.Arm && availableArms > 0) ||
-            (nextType == Limb.LimbType.Leg && availableLegs > 0))
-            return nextType;
-
-        return availableArms > 0 ? Limb.LimbType.Arm : Limb.LimbType.Leg;
+        return null;
     }
 }

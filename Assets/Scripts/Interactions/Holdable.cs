@@ -74,7 +74,10 @@ public class Holdable : MonoBehaviour, ThrowableInterface
         Limb limb = GetComponent<Limb>();
         if (limb != null)
         {
-            limb.InteractWith();
+            if (playerCollider != null)
+            {
+                limb.InteractWith(playerCollider.gameObject);
+            }
             return;
         }
 

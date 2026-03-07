@@ -33,7 +33,15 @@ public class ObjectInteraction : MonoBehaviour
                         if (hit.rigidbody.gameObject.TryGetComponent(out InteractableInterface interactableObject))
                         // If the object hit has an Interactable component
                         {
-                            interactableObject.Interact();
+                            if (hit.rigidbody.gameObject.TryGetComponent(out Door door))
+                            {
+                                //makes it so button doors can't be opened by just interacting
+                                if (!door.isButtonDoor) {interactableObject.Interact();}
+                            }
+                            else
+                            {
+                                interactableObject.Interact();
+                            }
 
                             if (interactableObject is Holdable holdableObject)
                             {

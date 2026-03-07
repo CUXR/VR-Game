@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
         WALLRUN,
         CROUCH,
         AIR,
+        CRAWL,
     }
 
     [Header("Movement")]
@@ -29,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Jump")]
     public float jumpForce;
+    public float airSpeed;
     public float airMultiplier;
     public float coyoteTime;
     public float jumpBuffer;
@@ -46,6 +48,13 @@ public class PlayerMovement : MonoBehaviour
     private float defaultScale;
     private Vignette vignette;
     private float radiusToDraw;
+
+    [Header("Crawl")]
+    public float crawlSpeed;
+    public float crawlScale;
+    public float crawlUpDetectionHeight;
+    public float crawlVignette;
+    private bool crawling = false;
 
     [Header("Slope Check")]
     public float maxSlopeAngle;
@@ -142,15 +151,27 @@ public class PlayerMovement : MonoBehaviour
             )
             {
                 Jump();
-
                 // Reset jump buffer to prevent jumping again
                 jumpBufferCounter = 0f;
                 return;
             }
-
             if (InputController.Instance.GetCrouchDown())
             {
                 Crouch();
+                return;
+            }
+            else if (
+                Physics.Raycast(
+                    transform.position,
+                    Vector3.up,
+                    playerHeight * 0.5f + crawlUpDetectionHeight))
+            {
+                // Crawling threshold, stay crawling if under object too low
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crouchScale,
+                    transform.localScale.z
+                );
                 return;
             }
             else if (
@@ -167,6 +188,12 @@ public class PlayerMovement : MonoBehaviour
                     crouchScale,
                     transform.localScale.z
                 );
+            }
+            else if (InputController.Instance.GetCrawlDown())
+            {
+                // If crawling pressed, toggle crawling state
+                crawling = !crawling;
+                Crawl();
                 return;
             }
             else
@@ -216,6 +243,7 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 movementState = MovementState.AIR;
+                moveSpeed = airSpeed;
             }
         }
         else
@@ -274,6 +302,15 @@ public class PlayerMovement : MonoBehaviour
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed;
+            } else if (crawling)
+            {
+                movementState = MovementState.CRAWL;
+                moveSpeed = crawlSpeed;
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crawlScale,
+                    transform.localScale.z
+                );
             }
             else
             {
@@ -287,7 +324,10 @@ public class PlayerMovement : MonoBehaviour
         {
             vignette.intensity.value = crouchVignette;
         }
-        else
+        else if (movementState == MovementState.CRAWL)
+        {
+            vignette.intensity.value = crawlVignette;
+        } else
         {
             vignette.intensity.value = defaultVignette;
         }
@@ -379,6 +419,34 @@ public class PlayerMovement : MonoBehaviour
 
         // Apply downward force so doesn't float
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+    }
+    void Crawl()
+    {
+        // if not enough room to stand up and state switched to not crawling,
+        // then stay crawling
+        if (Physics.Raycast(
+            transform.position,
+            Vector3.up,
+            playerHeight * 0.5f + crawlUpDetectionHeight
+            ) && !crawling)
+        {
+            crawling = !crawling;
+        } else if (!crawling)
+        {
+            // otherwise, there is enough room to stand
+             transform.localScale = new Vector3(
+                transform.localScale.x,
+                defaultScale,
+                transform.localScale.z);
+        } else
+        {
+            // transition into crawling
+            transform.localScale = new Vector3(
+            transform.localScale.x,
+            crawlScale,
+            transform.localScale.z);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        }
     }
 
     void Jump()

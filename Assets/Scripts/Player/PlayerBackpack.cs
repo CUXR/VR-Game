@@ -154,8 +154,8 @@ public class PlayerBackpack : MonoBehaviour
             )
             {
                 backpackSlots[i].GetComponent<Button>().onClick.RemoveAllListeners();
-
-                dropdownUI.transform.SetParent(backpackUI.transform); // Reset the dropdown's parent to the backpack UI
+                dropdownUI.onValueChanged.RemoveAllListeners(); 
+                dropdownUI.transform.SetParent(backpackUI.transform); 
                 dropdownUI.ClearOptions();
                 dropdownVisible = false;
 
@@ -219,6 +219,8 @@ public class PlayerBackpack : MonoBehaviour
             dropdownUI.transform.SetParent(selectedItem.transform.parent);
             dropdownUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -70);
 
+            dropdownUI.onValueChanged.RemoveAllListeners();    
+
             dropdownUI.onValueChanged.AddListener(
                 delegate
                 {
@@ -248,7 +250,31 @@ public class PlayerBackpack : MonoBehaviour
 
                             break;
 
-                        // TODO: Add cases for equipping, unequipping, and inspecting items
+                        case Collectible.Actions.EQUIP: 
+                            Limb limbToEquip = selectedItem.GetComponent<Limb>();
+                            if (limbToEquip != null)
+                            {
+                                PlayerLimb playerLimb = GameObject.FindWithTag("Player").GetComponent<PlayerLimb>();
+                                
+                                if (playerLimb != null && playerLimb.EquipLimb(limbToEquip))
+                                {
+                                    RemoveItem(selectedItem);
+                                }
+                                else
+                                {
+                                    Debug.Log("Cannot equip: You already have a limb in that slot!");
+                                }
+                            }
+                            else
+                            {
+                                selectedItem.GetComponent<Collectible>().Equip();
+                            }
+
+                            isInspecting = false;
+                            dropdownVisible = false;
+                            break;
+
+                        // TODO: Add cases for unequipping, and inspecting items
 
                         case Collectible.Actions.INSPECT:
                             InspectItem();
@@ -277,19 +303,5 @@ public class PlayerBackpack : MonoBehaviour
 
         itemNameText.text = selectedItem.GetComponent<Collectible>().itemName;
         itemDescriptionText.text = selectedItem.GetComponent<Collectible>().itemDescription;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.TryGetComponent(out Collectible collectible))
-        {
-            Collectible obj = other.gameObject.GetComponent<Collectible>();
-            //Debug.Log("result of try get component:"+other.gameObject.GetComponent<Collectible>() + "obj:"+obj);
-            if (collectible is Limb) return;
-            if (AddItem(collectible.ToUIObject(), obj))
-            {
-                Destroy(other.gameObject); // Destroy the collectible object after adding it to the backpack
-            }
-        }
     }
 }

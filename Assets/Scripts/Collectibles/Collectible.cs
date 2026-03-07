@@ -79,6 +79,18 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
 
     public void Interact()
     {
-        throw new System.NotImplementedException();
+        PlayerBackpack playerBackpack = GameObject.FindWithTag("Player").GetComponent<PlayerBackpack>();
+
+        if (playerBackpack != null)
+        {
+            GameObject icon = ToUIObject();
+
+            bool success = playerBackpack.AddItem(icon, this);
+
+            if (success)
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 }

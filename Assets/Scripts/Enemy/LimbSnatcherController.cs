@@ -37,15 +37,9 @@ public class LimbSnatcherController : EnemyController
     private float lastAttackTime;
 
     [Header("Limb Storage")]
-    private Limb.LimbType snatchedLimbType = Limb.LimbType.Arm;
+    private Limb.LimbSlot snatchedLimbSlot;
+    private AttachedLimbData snatchedLimbData; 
     private bool hasSnatchedLimb = false;
-    private string snatchedLimbName = "";
-    private string snatchedLimbDescription = "";
-    private bool snatchedLimbIsSingleUse = false;
-    private UnityEngine.UI.Image snatchedLimbIcon;
-    private float snatchedLimbBatteryUsage = 0f;
-    private float snatchedLimbTimeToSteal = 0f;
-    private Collectible.Actions[] snatchedLimbActions;
     public GameObject limbPrefab;
 
     protected override void Start()
@@ -265,46 +259,34 @@ public class LimbSnatcherController : EnemyController
     {   
         if (player == null)
         {
-            currentProgress = 0f;
-            lastAttackTime = Time.time;
+            ResetAttackState();
             return;
         }
 
         var playerLimb = player.GetComponent<PlayerLimb>();
         var playerHealth = player.GetComponent<PlayerHealth>();
 
-        if (playerLimb != null)
+        // Always deal 10 damage upon a completed attack, regardless of limbs stolen
+        playerHealth?.DepleteHealthFixed(10f);
+
+        // Attempt to snatch a limb if we don't already have one
+        if (playerLimb != null && !hasSnatchedLimb)
         {
-            if (!hasSnatchedLimb && playerLimb.TryRemoveLimb(out Limb removed))
+            Limb.LimbSlot? targetSlot = playerLimb.TryStealLeastInconvenientLimb(out AttachedLimbData stolenData);
+            
+            if (targetSlot != null)
             {
-                if (removed != null)
-                {
-                    snatchedLimbType = removed.limbType;
-                    snatchedLimbName = removed.itemName;
-                    snatchedLimbDescription = removed.itemDescription;
-                    snatchedLimbIsSingleUse = removed.isSingleUse;
-                    snatchedLimbBatteryUsage = removed.batteryUsage;
-                    snatchedLimbTimeToSteal = removed.timeToSteal;
-                    snatchedLimbActions = removed.collectibleActions;
-                    hasSnatchedLimb = true;
-                }
-                playerHealth?.DepleteHealthFixed(10f);
+                snatchedLimbSlot = targetSlot.Value;
+                snatchedLimbData = stolenData;
+                hasSnatchedLimb = true;
             }
-            else if (hasSnatchedLimb)
-            {
-                playerHealth?.DepleteHealthFixed(10f);
-            }
-            else
-            {
-                // didn't remove limb (player has no limbs left)
-                playerHealth?.DepleteHealthFixed(10f);
-            }
-        }
-        else
-        {
-            playerHealth?.DepleteHealthFixed(10f);
         }
 
+        ResetAttackState();
+    }
+
+    private void ResetAttackState()
+    {
         currentProgress = 0f;
         lastAttackTime = Time.time;
     }
@@ -326,37 +308,26 @@ public class LimbSnatcherController : EnemyController
 
     private void DropSnatchedLimbs()
     {
-        if (!hasSnatchedLimb)
-            return;
+        if (!hasSnatchedLimb) return;
 
-        Vector3 dropPosition = transform.position;
-
-        GameObject limbObj = Instantiate(limbPrefab, dropPosition, Quaternion.identity);
-
+        GameObject limbObj = Instantiate(limbPrefab, transform.position, Quaternion.identity);
         Limb limbComponent = limbObj.GetComponent<Limb>();
 
-        limbComponent.limbType = snatchedLimbType;
+        limbComponent.limbSlot = snatchedLimbSlot;
         limbComponent.isEquipped = false;
-        limbComponent.batteryUsage = snatchedLimbBatteryUsage;
-        limbComponent.timeToSteal = snatchedLimbTimeToSteal;
-        
-        if (snatchedLimbName != null && snatchedLimbName != "")
+
+        if (snatchedLimbData != null)
         {
-            limbComponent.itemName = snatchedLimbName;
-            limbComponent.itemDescription = snatchedLimbDescription;
-            limbComponent.isSingleUse = snatchedLimbIsSingleUse;
-            limbComponent.collectibleActions = snatchedLimbActions;
+            limbComponent.batteryUsage = snatchedLimbData.batteryUsage;
+            limbComponent.timeToSteal = snatchedLimbData.timeToSteal;
         }
-        else
-        {
-            limbComponent.itemName = $"{snatchedLimbType}";
-            limbComponent.itemDescription = $"A {snatchedLimbType.ToString().ToLower()} that can be attached to your body";
-        }
+
+        limbComponent.itemName = snatchedLimbSlot.ToString();
+        limbComponent.itemDescription = $"A {snatchedLimbSlot.ToString().ToLower()} that can be attached to your body";
 
         limbComponent.gameObject.AddComponent<Holdable>();
         hasSnatchedLimb = false;
     }
-
     protected void SetInitialPatrolPosition()
     {
         GameObject startPatrolPoint = new GameObject(gameObject.name + ": Waypoint 0");

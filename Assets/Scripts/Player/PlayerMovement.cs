@@ -294,14 +294,6 @@ public class PlayerMovement : MonoBehaviour
                 AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 radiusToDraw = sprintingVolumeRadius;
                 moveSpeed = sprintSpeed;
-            }
-            else if (InputController.Instance.GetWalkDirection().magnitude > 0)
-            {
-                movementState = MovementState.WALK;
-                // Sound produced by walking
-                AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
-                radiusToDraw = walkingVolumeRadius;
-                moveSpeed = walkSpeed;
             } else if (crawling)
             {
                 movementState = MovementState.CRAWL;
@@ -311,6 +303,14 @@ public class PlayerMovement : MonoBehaviour
                     crawlScale,
                     transform.localScale.z
                 );
+            }
+            else if (InputController.Instance.GetWalkDirection().magnitude > 0)
+            {
+                movementState = MovementState.WALK;
+                // Sound produced by walking
+                AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
+                radiusToDraw = walkingVolumeRadius;
+                moveSpeed = walkSpeed;
             }
             else
             {

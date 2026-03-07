@@ -6,7 +6,7 @@ public class ButtonTriggerpublic  : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("OnTriggerEnter");
+        //Debug.Log("OnTriggerEnter");
         if (other.CompareTag("Player") || other.CompareTag("Holdable"))
         {
             button.pressed = true;
@@ -16,7 +16,7 @@ public class ButtonTriggerpublic  : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        Debug.Log("OnTriggerExit");
+        //Debug.Log("OnTriggerExit");
         if (other.CompareTag("Player") || other.CompareTag("Holdable"))
         {
             button.Release();

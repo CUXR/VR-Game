@@ -7,12 +7,14 @@ public class Door : MonoBehaviour, InteractableInterface
 {
     public string keyName; //set keyName to "none" if the door doesn't have a key, otherwise match name of collectible object
     private Transform door;
-    //public SoundPlayer openEffect;
-    public Transform closedPos;
-    public Transform openPos;
-    public float openingTime;
-    public float holdOpen;
-    private float openingComplete;
+    public Animator anim;
+    // public SoundPlayer openEffect;
+    // public Transform closedPos;
+    // public Transform openPos;
+    // public float openingTime;
+    // public float holdOpen;
+    // private float openingComplete;
+    //
     [SerializeField] 
     private bool opening = false;
     [SerializeField] 
@@ -35,47 +37,61 @@ public class Door : MonoBehaviour, InteractableInterface
         timer = 0f;
     }
 
+    public void toggleOpen()
+    {
+       if (anim.GetBool("open"))
+        {
+            Debug.Log("open set false");
+            anim.SetBool("open", false);
+        }
+        else
+        {
+            anim.SetBool("open", true);
+        }
+    }
+
     void Update()
     {
         //makes it so the door won't close on you
-        if (closing && inDoorPath)
+        if (!anim.GetBool("open") && inDoorPath)
         {
+            anim.SetBool("open", true);
             return;
         }
 
         //when door finishes opening, record time taken to open, end opening state, and set the timer
-        if (opening && door.localPosition == openPos.localPosition)
-        {
-            openingComplete = Time.time;
-            opening = false;
-            timer = 1f;
-        }
+        // if (opening && door.localPosition == openPos.localPosition)
+        // {
+        //     openingComplete = Time.time;
+        //     opening = false;
+        //     timer = 1f;
+        // }
         //when door finishes closing, the closing state ends and time set back to initial (ready to start over)
-        else if (closing && door.localPosition == closedPos.localPosition)
-        {
-            opening = false;
-            closing = false;
-            timer = 0f;
-        }
+        // else if (closing && door.localPosition == closedPos.localPosition)
+        // {
+        //     opening = false;
+        //     closing = false;
+        //     timer = 0f;
+        // }
         //if in process of opening or closing, move the door accordingly
-        else if (opening || closing)
-        {
-            if(opening) {timer += Time.deltaTime;}
-            if(closing) {timer -= Time.deltaTime;}
+        // else if (opening || closing)
+        // {
+        //     if(opening) {timer += Time.deltaTime;}
+        //     if(closing) {timer -= Time.deltaTime;}
 
-            timer = Mathf.Clamp(timer, 0f, openingTime);
-            float t = timer / openingTime;
-            // Move door
-            door.localPosition = Vector3.Lerp(closedPos.localPosition, openPos.localPosition, t);
-        }
+        //     timer = Mathf.Clamp(timer, 0f, openingTime);
+        //     float t = timer / openingTime;
+        //     // Move door
+        //     door.localPosition = Vector3.Lerp(closedPos.localPosition, openPos.localPosition, t);
+        // }
 
-        //checks when door has been open for holdOpen time and switches to closing state
-        if (openingComplete > 0 && Time.time > openingComplete + holdOpen)
-        {
-            openingComplete = -1f;
-            opening = false;
-            closing = true;
-        }
+        // //checks when door has been open for holdOpen time and switches to closing state
+        // if (openingComplete > 0 && Time.time > openingComplete + holdOpen)
+        // {
+        //     openingComplete = -1f;
+        //     opening = false;
+        //     closing = true;
+        // }
     }
 
     //"applied only if the player is not currently holding an object"
@@ -86,18 +102,20 @@ public class Door : MonoBehaviour, InteractableInterface
     //how door reacts in different states and key collection progress to player interaction (press E)
     public void Interact()
     {
+        Debug.Log("entered door interact");
         //no reaction if door is in process of opening/closing
-        if(opening || closing)
-        {
-            return;
-        }
+        // if(opening || closing)
+        // {
+        //     return;
+        // }
         //Debug.Log("entered interact with");
         //if no key needed for door, start opening
         if(keyName == "none")
         {
             //Debug.Log("entered key is null");
-            closing = false;
-            opening = true;
+            // closing = false;
+            // opening = true;
+            anim.SetBool("open", true);
             return;
         }
 
@@ -129,7 +147,7 @@ public class Door : MonoBehaviour, InteractableInterface
     //detects if player is in way of door closing
     public void OnTriggerEnter(Collider collider)
     {
-        //Debug.Log("entered ontriggerenter");
+        Debug.Log("entered ontriggerenter");
         if (collider.CompareTag("Player") || collider.CompareTag("Holdable"))
         {
             inDoorPath = true;
@@ -139,9 +157,10 @@ public class Door : MonoBehaviour, InteractableInterface
     //detects if player steps out of way of door closing
     public void OnTriggerExit(Collider collider)
     {
-        //Debug.Log("entered ontriggerexit");
+        Debug.Log("entered ontriggerexit");
         if (collider.CompareTag("Player") || collider.CompareTag("Holdable"))
         {
+            anim.SetBool("open", false);
             inDoorPath = false;
         }
     }

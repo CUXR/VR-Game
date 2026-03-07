@@ -249,7 +249,7 @@ MonoBehaviour:
   upDetectionHeight: 0.5
   defaultVignette: 0
   crouchVignette: 0.5
-  crawlSpeed: 1
+  crawlSpeed: 7
   crawlScale: 0.2
   crawlUpDetectionHeight: 0.9
   crawlVignette: 0.6

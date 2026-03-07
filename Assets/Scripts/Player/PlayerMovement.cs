@@ -136,6 +136,7 @@ public class PlayerMovement : MonoBehaviour
 
     void GetInput()
     {
+        // Check input and set scales
         Vector2 movement = InputController.Instance.GetWalkDirection();
         horizontalInput = movement.x;
         verticalInput = movement.y;
@@ -147,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
                 coyoteTimeCounter > 0f
                 && jumpBufferCounter > 0f
                 && movementState != MovementState.CROUCH
+                && movememntState != MovementState.CRAWL
                 && hasBatteryForJumpAndSprint
             )
             {
@@ -154,56 +156,61 @@ public class PlayerMovement : MonoBehaviour
                 // Reset jump buffer to prevent jumping again
                 jumpBufferCounter = 0f;
                 return;
-            }
-            if (InputController.Instance.GetCrouchDown())
-            {
-                Crouch();
-                return;
-            }
-            else if (
-                Physics.Raycast(
+            } else if (
+            Physics.Raycast(
                     transform.position,
                     Vector3.up,
                     playerHeight * 0.5f + crawlUpDetectionHeight))
             {
-                // Crawling threshold, stay crawling if under object too low
+                // First, check for something above player (crawlDetection)
+                // If true, then force into crawling state
+                crawling = true;
                 transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
-                return;
-            }
-            else if (
-                InputController.Instance.GetCrouchHold()
-                || Physics.Raycast(
-                    transform.position,
-                    Vector3.up,
-                    playerHeight * 0.5f + upDetectionHeight
-                )
-            )
-            {
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
+                transform.localScale.x,
+                crawlScale,
+                transform.localScale.z);
+                rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
             }
             else if (InputController.Instance.GetCrawlDown())
             {
-                // If crawling pressed, toggle crawling state
+                // Else if crawling pressed, toggle crawling state
                 crawling = !crawling;
-                Crawl();
-                return;
+                if (crawling)
+                {
+                    Crawl();
+                } else
+                {
+                    transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    defaultScale,
+                    transform.localScale.z);
+                }
+            }
+            else if (InputController.Instance.GetCrouchDown() ||
+            InputController.Instance.GetCrouchHold() ||
+            Physics.Raycast(
+                    transform.position,
+                    Vector3.up,
+                    playerHeight * 0.5f + upDetectionHeight))
+            {
+                // if crouch held or something above player, then crouch
+                // Shrink to crouch size
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crouchScale,
+                    transform.localScale.z
+                );
+
+                // Apply downward force so doesn't float
+                rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+                        return;
             }
             else
             {
                 transform.localScale = new Vector3(
                     transform.localScale.x,
                     defaultScale,
-                    transform.localScale.z
-                );
-                return;
+                    transform.localScale.z);
             }
         }
     }
@@ -233,6 +240,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovementState()
     {
+        // set movement state and other variables
         if (!Grounded)
         {
             if (isWallRunning)
@@ -248,8 +256,35 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            if (crawling)
+            {
+                // First check crawling
+                movementState = MovementState.CRAWL;
+                moveSpeed = crawlSpeed;
+                transform.localScale = new Vector3(
+                    transform.localScale.x,
+                    crawlScale,
+                    transform.localScale.z
+                );
+            } 
             // Something above and below
-            if (
+            else if (
+                Physics.Raycast(
+                    transform.position,
+                    Vector3.up,
+                    playerHeight * 0.5f + crawlUpDetectionHeight
+                )
+                && Physics.Raycast(
+                    transform.position,
+                    Vector3.down,
+                    playerHeight * 0.5f + downDetectionHeight
+                )
+            )
+            {
+                movementState = MovementState.CRAWL;
+                moveSpeed = crawlSpeed;
+            }
+            else if (
                 Physics.Raycast(
                     transform.position,
                     Vector3.up,
@@ -264,12 +299,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 movementState = MovementState.CROUCH;
                 moveSpeed = crouchSpeed;
-
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
             }
             else if (
                 (InputController.Instance.GetCrouchHold() && Grounded)
@@ -294,15 +323,6 @@ public class PlayerMovement : MonoBehaviour
                 AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 radiusToDraw = sprintingVolumeRadius;
                 moveSpeed = sprintSpeed;
-            } else if (crawling)
-            {
-                movementState = MovementState.CRAWL;
-                moveSpeed = crawlSpeed;
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crawlScale,
-                    transform.localScale.z
-                );
             }
             else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
@@ -405,47 +425,6 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 clampedVelocity = rawVelocity.normalized * moveSpeed;
                 rb.linearVelocity = new Vector3(clampedVelocity.x, rb.linearVelocity.y, clampedVelocity.z);
             }
-        }
-    }
-
-    public void Crouch()
-    {
-        // Shrink to crouch size
-        transform.localScale = new Vector3(
-            transform.localScale.x,
-            crouchScale,
-            transform.localScale.z
-        );
-
-        // Apply downward force so doesn't float
-        rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-    }
-    void Crawl()
-    {
-        // if not enough room to stand up and state switched to not crawling,
-        // then stay crawling
-        if (Physics.Raycast(
-            transform.position,
-            Vector3.up,
-            playerHeight * 0.5f + crawlUpDetectionHeight
-            ) && !crawling)
-        {
-            crawling = !crawling;
-        } else if (!crawling)
-        {
-            // otherwise, there is enough room to stand
-             transform.localScale = new Vector3(
-                transform.localScale.x,
-                defaultScale,
-                transform.localScale.z);
-        } else
-        {
-            // transition into crawling
-            transform.localScale = new Vector3(
-            transform.localScale.x,
-            crawlScale,
-            transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         }
     }
 

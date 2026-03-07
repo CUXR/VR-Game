@@ -15,12 +15,12 @@ public class Door : MonoBehaviour, InteractableInterface
     // public float holdOpen;
     // private float openingComplete;
     //
-    [SerializeField] 
-    private bool opening = false;
-    [SerializeField] 
-    private bool closing = false;
+    // [SerializeField] 
+    // private bool opening = false;
+    // [SerializeField] 
+    // private bool closing = false;
     //[SerializeField]
-    private float timer;
+    //private float timer;
     [SerializeField]
     private bool inDoorPath = false;
     [SerializeField]
@@ -34,7 +34,7 @@ public class Door : MonoBehaviour, InteractableInterface
         //get the current position of the door
         door = gameObject.transform;
         //initialize timer
-        timer = 0f;
+        //timer = 0f;
     }
 
     public void toggleOpen()
@@ -124,8 +124,9 @@ public class Door : MonoBehaviour, InteractableInterface
         //checks for required key in backpack
         if (Array.IndexOf(PlayerBackpack.items, keyName) != -1)
         {
-            closing = false;
-            opening = true;
+            // closing = false;
+            // opening = true;
+            anim.SetBool("open", true);
         }
         else {
             Debug.Log("key required");

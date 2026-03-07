@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Limb
   - Holdable
+  - Wire
   layers:
   - Default
   - TransparentFX

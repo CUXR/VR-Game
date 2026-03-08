@@ -166,11 +166,11 @@ public class PlayerMovement : MonoBehaviour
                 // If true, then force into crawling state
                 crawling = true;
                 transform.localScale = new Vector3(
-                transform.localScale.x,
-                crawlScale,
-                transform.localScale.z);
+                    transform.localScale.x,
+                    crawlScale,
+                    transform.localScale.z);
                 rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-            }
+            } else if (GetInput.)
             else if (InputController.Instance.GetCrawlDown())
             {
                 // Else if crawling pressed, toggle crawling state

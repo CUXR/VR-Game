@@ -59,7 +59,6 @@ public class PlayerHealth : MonoBehaviour
                 currentDecayRate = defaultDecayRate * stealthMultiplier;
                 break;
             case PlayerMovement.MovementState.SPRINT:
-            case PlayerMovement.MovementState.WALLRUN:
             case PlayerMovement.MovementState.AIR:
                 currentDecayRate = defaultDecayRate * aggressiveMultiplier;
                 break;

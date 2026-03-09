@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
         IDLE,
         WALK,
         SPRINT,
-        WALLRUN,
         CROUCH,
         AIR,
         CRAWL,
@@ -24,7 +23,6 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed;
     public float wallRunSpeed;
     public float groundDrag;
-    public bool isWallRunning;
     public MovementState movementState;
     private float moveSpeed;
 
@@ -136,75 +134,67 @@ public class PlayerMovement : MonoBehaviour
 
     void GetInput()
     {
+        // Check input and set scales/movement state
         Vector2 movement = InputController.Instance.GetWalkDirection();
         horizontalInput = movement.x;
         verticalInput = movement.y;
         PreJumpCheck();
-
-        if (Grounded)
-        {
-            if (
+        // if player does not have two legs or does not have enough
+        // space above to get out of crawl, then crawl
+        bool mustCrawl = playerLimb.CurrentLegCount != 2 || Physics.Raycast(
+            transform.position,
+            Vector3.up,
+            playerHeight * 0.5f + crawlUpDetectionHeight
+        );
+        // if player does not have two legs or does not have enough
+        // space above to get out of crawl, then crawl
+        if (Grounded) {
+            if (mustCrawl)
+            {
+                crawling = true;  
+            } else if (InputController.Instance.GetCrawlDown())
+            {
+                // toggle crawling
+                crawling = !crawling;
+            } else if (
                 coyoteTimeCounter > 0f
                 && jumpBufferCounter > 0f
                 && movementState != MovementState.CROUCH
+                && movementState != MovementState.CRAWL
                 && hasBatteryForJumpAndSprint
             )
             {
                 Jump();
                 // Reset jump buffer to prevent jumping again
                 jumpBufferCounter = 0f;
-                return;
             }
-            if (InputController.Instance.GetCrouchDown())
-            {
-                Crouch();
-                return;
-            }
-            else if (
-                Physics.Raycast(
+            else if (!crawling && (Physics.Raycast(
                     transform.position,
                     Vector3.up,
-                    playerHeight * 0.5f + crawlUpDetectionHeight))
+                    playerHeight * 0.5f + upDetectionHeight) ||
+                    InputController.Instance.GetCrouchDown() ||
+                    InputController.Instance.GetCrouchHold()))
             {
-                // Crawling threshold, stay crawling if under object too low
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
-                return;
-            }
-            else if (
-                InputController.Instance.GetCrouchHold()
-                || Physics.Raycast(
-                    transform.position,
-                    Vector3.up,
-                    playerHeight * 0.5f + upDetectionHeight
-                )
-            )
+                // something above player or crouching, then crouch
+                    movementState = MovementState.CROUCH;
+            } else if (InputController.Instance.GetSprint() &&
+                InputController.Instance.GetWalkDirection().magnitude > 0 &&
+                hasBatteryForJumpAndSprint)
             {
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
-            }
-            else if (InputController.Instance.GetCrawlDown())
+                movementState = MovementState.SPRINT;
+            } else if (InputController.Instance.GetWalkDirection().magnitude > 0)
             {
-                // If crawling pressed, toggle crawling state
-                crawling = !crawling;
-                Crawl();
-                return;
-            }
-            else
+                movementState = MovementState.WALK;
+            } else
             {
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    defaultScale,
-                    transform.localScale.z
-                );
-                return;
+                movementState = MovementState.IDLE;
             }
+            if (crawling)
+            {
+                movementState = MovementState.CRAWL;
+            }
+        } else {
+            movementState = MovementState.AIR;
         }
     }
 
@@ -233,103 +223,52 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovementState()
     {
-        if (!Grounded)
+        // set variables based on movement state
+        if (movementState == MovementState.AIR)
         {
-            if (isWallRunning)
-            {
-                movementState = MovementState.WALLRUN;
-                moveSpeed = wallRunSpeed;
-            }
-            else
-            {
-                movementState = MovementState.AIR;
-                moveSpeed = airSpeed;
-            }
-        }
-        else
+            moveSpeed = airSpeed;
+        } else if (movementState == MovementState.CRAWL)
         {
-            // Something above and below
-            if (
-                Physics.Raycast(
-                    transform.position,
-                    Vector3.up,
-                    playerHeight * 0.5f + upDetectionHeight
-                )
-                && Physics.Raycast(
-                    transform.position,
-                    Vector3.down,
-                    playerHeight * 0.5f + downDetectionHeight
-                )
-            )
+            radiusToDraw = 0;
+            moveSpeed = crawlSpeed;
+            vignette.intensity.value = crawlVignette;
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                crawlScale,
+                transform.localScale.z);
+        } else if (movementState == MovementState.CROUCH)
+        {
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                crouchScale,
+                transform.localScale.z);
+            radiusToDraw = 0;
+            moveSpeed = crouchSpeed;
+            vignette.intensity.value = crouchVignette;
+        } else
+        {
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                defaultScale,
+                transform.localScale.z);
+            vignette.intensity.value = defaultVignette;
+            if (movementState == MovementState.SPRINT)
             {
-                movementState = MovementState.CROUCH;
-                moveSpeed = crouchSpeed;
-
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crouchScale,
-                    transform.localScale.z
-                );
-            }
-            else if (
-                (InputController.Instance.GetCrouchHold() && Grounded)
-                // Crouching and something above
-                || movementState == MovementState.CROUCH
-                    && !InputController.Instance.GetCrouchHold()
-                    && Physics.Raycast(
-                        transform.position,
-                        Vector3.up,
-                        playerHeight * 0.5f + upDetectionHeight
-                    )
-            )
-            {
-                movementState = MovementState.CROUCH;
-                radiusToDraw = 0;
-                moveSpeed = crouchSpeed;
-            }
-            else if (InputController.Instance.GetSprint() && InputController.Instance.GetWalkDirection().magnitude > 0 && hasBatteryForJumpAndSprint)
-            {
-                movementState = MovementState.SPRINT;
                 // Sound produced by sprinting
                 AudioUtility.SoundProduced(new Sound(transform.position, sprintingVolumeRadius, sprintingLoudness, sprintingVolumeDecay));
                 radiusToDraw = sprintingVolumeRadius;
                 moveSpeed = sprintSpeed;
-            }
-            else if (InputController.Instance.GetWalkDirection().magnitude > 0)
+            } else if (movementState == MovementState.WALK)
             {
-                movementState = MovementState.WALK;
                 // Sound produced by walking
                 AudioUtility.SoundProduced(new Sound(transform.position, walkingVolumeRadius, walkingLoudness, walkingVolumeDecay));
                 radiusToDraw = walkingVolumeRadius;
                 moveSpeed = walkSpeed;
-            } else if (crawling)
-            {
-                movementState = MovementState.CRAWL;
-                moveSpeed = crawlSpeed;
-                transform.localScale = new Vector3(
-                    transform.localScale.x,
-                    crawlScale,
-                    transform.localScale.z
-                );
-            }
-            else
-            {
-                movementState = MovementState.IDLE;
+            } else {
+                // idle
                 moveSpeed = 0;
                 radiusToDraw = 0;
             }
-        }
-
-        if (movementState == MovementState.CROUCH)
-        {
-            vignette.intensity.value = crouchVignette;
-        }
-        else if (movementState == MovementState.CRAWL)
-        {
-            vignette.intensity.value = crawlVignette;
-        } else
-        {
-            vignette.intensity.value = defaultVignette;
         }
 
         float limbMultiplier = playerLimb != null ? playerLimb.moveSpeedMultiplier : 1f;
@@ -352,7 +291,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.AddForce(
                     Vector3.down
-                        * (movementState == MovementState.CROUCH ? 40f : 80f)
+                        * ((movementState == MovementState.CROUCH || 
+                        movementState == MovementState.CRAWL) ? 40f : 80f)
                        ,
                     ForceMode.Force
                 );
@@ -371,9 +311,6 @@ public class PlayerMovement : MonoBehaviour
                 ForceMode.Force
             );
         }
-
-        // Disable gravity while on slope to avoid slipping
-        rb.useGravity = !OnSlope() && !isWallRunning;
     }
 
     void SetDrag()
@@ -405,47 +342,6 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 clampedVelocity = rawVelocity.normalized * moveSpeed;
                 rb.linearVelocity = new Vector3(clampedVelocity.x, rb.linearVelocity.y, clampedVelocity.z);
             }
-        }
-    }
-
-    public void Crouch()
-    {
-        // Shrink to crouch size
-        transform.localScale = new Vector3(
-            transform.localScale.x,
-            crouchScale,
-            transform.localScale.z
-        );
-
-        // Apply downward force so doesn't float
-        rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-    }
-    void Crawl()
-    {
-        // if not enough room to stand up and state switched to not crawling,
-        // then stay crawling
-        if (Physics.Raycast(
-            transform.position,
-            Vector3.up,
-            playerHeight * 0.5f + crawlUpDetectionHeight
-            ) && !crawling)
-        {
-            crawling = !crawling;
-        } else if (!crawling)
-        {
-            // otherwise, there is enough room to stand
-             transform.localScale = new Vector3(
-                transform.localScale.x,
-                defaultScale,
-                transform.localScale.z);
-        } else
-        {
-            // transition into crawling
-            transform.localScale = new Vector3(
-            transform.localScale.x,
-            crawlScale,
-            transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         }
     }
 
@@ -514,11 +410,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         return new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-    }
-
-    public MovementState GetMovementState()
-    {
-        return movementState;
     }
     
     private void OnDrawGizmos()

@@ -141,7 +141,7 @@ public class PlayerMovement : MonoBehaviour
         PreJumpCheck();
         // if player does not have two legs or does not have enough
         // space above to get out of crawl, then crawl
-        bool mustCrawl = playerLimb.CurrentLegCount != 2 || Physics.Raycast(
+        bool mustCrawl = playerLimb.equippedLimbs.Count == 2 || Physics.Raycast(
             transform.position,
             Vector3.up,
             playerHeight * 0.5f + crawlUpDetectionHeight

@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     private LayerMask enemyLayer;
     private int environmentLayerInt;
     private bool isPaused;
+    public GameObject pauseOverlay;
 
     private void Awake()
     {
@@ -38,8 +39,8 @@ public class GameController : MonoBehaviour
     {
         if (InputController.Instance.GetPauseDown()) {
             isPaused = !isPaused;
-
             Time.timeScale = isPaused ? 0f : 1f;
+            pauseOverlay.SetActive(isPaused);
         }
     }
 

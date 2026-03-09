@@ -4,8 +4,8 @@ using UnityEngine;
 [System.Serializable]
 public class AttachedLimbData
 {
-    public float batteryUsage;
-    public float timeToSteal;
+    public float batteryUsage = 10f;
+    public float timeToSteal = 2.5f;
 }
 
 public class PlayerLimb : MonoBehaviour
@@ -16,20 +16,13 @@ public class PlayerLimb : MonoBehaviour
     [Header("Stats")]
     public float baseWalkSpeed = 8f;
     public float baseSprintSpeed = 12f;
-    public float baseAttackDamage = 100f; // 2 arms = one-shot, 1 arm = two-shot 
 
     public float moveSpeedMultiplier = 1f;
     public float attackDamageMultiplier = 1f;
 
-    public int CurrentArmCount { get; private set; }
-    public int CurrentLegCount { get; private set; }
-
     private readonly List<Limb.LimbSlot> stealPriority = new List<Limb.LimbSlot>
     {
-        Limb.LimbSlot.LeftArm,  // Most expendable
-        Limb.LimbSlot.RightArm,
-        Limb.LimbSlot.RightLeg,
-        Limb.LimbSlot.LeftLeg   // Least expendable
+        Limb.LimbSlot.Legs
     };
 
     void Start()
@@ -41,10 +34,7 @@ public class PlayerLimb : MonoBehaviour
     {
         equippedLimbs.Clear();
 
-        // Player starts out missing their left leg
-        equippedLimbs.Add(Limb.LimbSlot.LeftArm, new AttachedLimbData());
-        equippedLimbs.Add(Limb.LimbSlot.RightArm, new AttachedLimbData());
-        equippedLimbs.Add(Limb.LimbSlot.RightLeg, new AttachedLimbData());
+        // Player starts out with no legs
 
         RecalculateStats();
     }
@@ -72,36 +62,13 @@ public class PlayerLimb : MonoBehaviour
 
     public void RecalculateStats()
     {
-        CurrentArmCount = 0;
-        CurrentLegCount = 0;
-
-        if (equippedLimbs.ContainsKey(Limb.LimbSlot.LeftArm)) CurrentArmCount++;
-        if (equippedLimbs.ContainsKey(Limb.LimbSlot.RightArm)) CurrentArmCount++;
-        
-        if (equippedLimbs.ContainsKey(Limb.LimbSlot.LeftLeg)) CurrentLegCount++;
-        if (equippedLimbs.ContainsKey(Limb.LimbSlot.RightLeg)) CurrentLegCount++;
-
-        if (CurrentLegCount >= 2)
-            moveSpeedMultiplier = 1f;
-        else if (CurrentLegCount == 1)
+        if (equippedLimbs.ContainsKey(Limb.LimbSlot.Legs))
+            moveSpeedMultiplier = 1f; 
+        else 
             moveSpeedMultiplier = 0.45f;
-        else
-            moveSpeedMultiplier = 0f;
-
-        if (CurrentArmCount >= 2)
-            attackDamageMultiplier = 1f;
-        else if (CurrentArmCount == 1)
-            attackDamageMultiplier = 0.6f;
-        else
-            attackDamageMultiplier = 0f;
     }
-
-    public float GetAttackDamage()
-    {
-        return baseAttackDamage * attackDamageMultiplier;
-    }
-
-    public Limb.LimbSlot? TryStealLeastInconvenientLimb(out AttachedLimbData stolenData)
+    
+    public Limb.LimbSlot? TryStealLimb(out AttachedLimbData stolenData)
     {
        stolenData = null;
         if (equippedLimbs.Count == 0) return null;

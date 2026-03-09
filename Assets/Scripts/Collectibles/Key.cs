@@ -7,16 +7,16 @@ public class Key : Collectible
     public bool collected = false; 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     
-    public override GameObject ToUIObject()
-    {
-        GameObject uiObject = base.ToUIObject();
-        Key key = uiObject.AddComponent<Key>();
+    // public override GameObject ToUIObject()
+    // {
+    //     GameObject uiObject = base.ToUIObject();
+    //     Key key = uiObject.AddComponent<Key>();
 
-        uiObject.name = itemName;
-        CopyCollectibleData(key);
+    //     uiObject.name = itemName;
+    //     CopyCollectibleData(key);
 
-        return uiObject;
-    }
+    //     return uiObject;
+    // }
     
     void Start()
     {

@@ -32,16 +32,10 @@ public class PlayerHealth : MonoBehaviour
     public float currentDecayRate;
 
     private PlayerMovement playerMovement;
-    private PlayerLimb playerLimb;
 
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
-        playerLimb = GetComponent<PlayerLimb>();
-
-        if (playerLimb == null)
-            Debug.LogWarning("PlayerLimb reference not found for PlayerHealth; limb UI won't update.", this);
-
         currentHealth = 100f;
         currentDecayRate = defaultDecayRate;
         SyncSliderHealth();
@@ -59,7 +53,6 @@ public class PlayerHealth : MonoBehaviour
                 currentDecayRate = defaultDecayRate * stealthMultiplier;
                 break;
             case PlayerMovement.MovementState.SPRINT:
-            case PlayerMovement.MovementState.WALLRUN:
             case PlayerMovement.MovementState.AIR:
                 currentDecayRate = defaultDecayRate * aggressiveMultiplier;
                 break;

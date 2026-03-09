@@ -83,7 +83,6 @@ public class PlayerMovement : MonoBehaviour
     float horizontalInput,
         verticalInput;
     private PlayerLimb playerLimb;
-    private bool wasCrawling;
 
     void Start()
     {
@@ -230,15 +229,6 @@ public class PlayerMovement : MonoBehaviour
             moveSpeed = airSpeed;
         } else if (movementState == MovementState.CRAWL)
         {
-            Debug.Log("crawling");
-            if (!wasCrawling)
-            {
-                rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-                wasCrawling = true;
-            } else
-            {
-                wasCrawling = false; 
-            }
             radiusToDraw = 0;
             moveSpeed = crawlSpeed;
             vignette.intensity.value = crawlVignette;
@@ -246,14 +236,12 @@ public class PlayerMovement : MonoBehaviour
                 transform.localScale.x,
                 crawlScale,
                 transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         } else if (movementState == MovementState.CROUCH)
         {
             transform.localScale = new Vector3(
                 transform.localScale.x,
                 crouchScale,
                 transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
             radiusToDraw = 0;
             moveSpeed = crouchSpeed;
             vignette.intensity.value = crouchVignette;
@@ -303,7 +291,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.AddForce(
                     Vector3.down
-                        * (movementState == MovementState.CROUCH ? 40f : 80f)
+                        * ((movementState == MovementState.CROUCH || 
+                        movementState == MovementState.CRAWL) ? 40f : 80f)
                        ,
                     ForceMode.Force
                 );

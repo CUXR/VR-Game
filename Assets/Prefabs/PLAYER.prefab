@@ -236,7 +236,6 @@ MonoBehaviour:
   walkSpeed: 10
   wallRunSpeed: 10
   groundDrag: 5
-  isWallRunning: 0
   movementState: 0
   jumpForce: 12
   airSpeed: 7
@@ -244,12 +243,12 @@ MonoBehaviour:
   coyoteTime: 0.2
   jumpBuffer: 0.2
   volume: {fileID: 0}
-  crouchSpeed: 2.5
+  crouchSpeed: 5
   crouchScale: 0.6
   upDetectionHeight: 0.5
   defaultVignette: 0
   crouchVignette: 0.5
-  crawlSpeed: 7
+  crawlSpeed: 3
   crawlScale: 0.2
   crawlUpDetectionHeight: 0.9
   crawlVignette: 0.6

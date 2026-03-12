@@ -42,4 +42,13 @@ public class TutorialController : MonoBehaviour
         uiTextElement.text = newItem.text;
     }
 
+    public void HideHint(string itemId)
+    {
+        if (currentItem != null && currentItem.id == hintIdToHide)
+        {
+            uiTextElement.text = "";
+            currentItem = null;
+        }
+    }
+
 }

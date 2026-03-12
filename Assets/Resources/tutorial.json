@@ -1,0 +1,29 @@
+{
+  "tutorial": [
+    {
+      "id": "generator_broken",
+      "text": "Looks like you need to fix the generator.",
+      "priority": 2
+    },
+    {
+      "id": "wire",
+      "text": "Press [E] to pick up the wire.",
+      "priority": 2
+    },
+    {
+      "id": "interactable",
+      "text": "Press [E] to pick up this item.",
+      "priority": 2
+    },
+    {
+      "id": "try_throwing",
+      "text": "Click to try throwing.",
+      "priority": 2
+    },
+    {
+      "id": "door",
+      "text": "Press [E] to try opening this door.",
+      "priority": 2
+    }
+  ]
+}

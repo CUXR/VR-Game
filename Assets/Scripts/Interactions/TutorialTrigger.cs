@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class TutorialTrigger  : MonoBehaviour
 {
@@ -8,7 +11,7 @@ public class TutorialTrigger  : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            TutorialManager.Instance.ShowItem(tutorialID);
+            TutorialController.Instance.ShowText(tutorialID);
         }
     }
 
@@ -16,7 +19,7 @@ public class TutorialTrigger  : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            TutorialManager.Instance.HideItem(tutorialID);
+            TutorialController.Instance.HideText(tutorialID);
         }
     }
 }

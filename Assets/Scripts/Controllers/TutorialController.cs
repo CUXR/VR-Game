@@ -23,11 +23,20 @@ public class TutorialController : MonoBehaviour
     void LoadFromJSON()
     {
         TextAsset jsonText = Resources.Load<TextAsset>("tutorial");
+        if (jsonText != null)
+        {
+            TutorialData db = JsonUtility.FromJson<TutorialData>(jsonText.text);
+            foreach (var tutorial in db.tutorials)
+            {
+                tutorialDict.Add(tutorial.id, tutorial);
+            }
+        }
     }
 
-    public void ShowItem(string itemId)
+    public void ShowText(string itemId)
     {
         if (!tutorialDict.ContainsKey(itemId)) {
+            Debug.Log("i can't find item with id " + itemId);
             return;
         }
 
@@ -42,9 +51,9 @@ public class TutorialController : MonoBehaviour
         uiTextElement.text = newItem.text;
     }
 
-    public void HideHint(string itemId)
+    public void HideText(string itemId)
     {
-        if (currentItem != null && currentItem.id == hintIdToHide)
+        if (currentItem != null && currentItem.id == itemId)
         {
             uiTextElement.text = "";
             currentItem = null;

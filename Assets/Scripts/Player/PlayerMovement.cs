@@ -144,8 +144,9 @@ public class PlayerMovement : MonoBehaviour
         bool mustCrawl = playerLimb.equippedLimbs.Count == 2 || Physics.Raycast(
             transform.position,
             Vector3.up,
-            playerHeight * 0.5f + crawlUpDetectionHeight
-        );
+            playerHeight * 0.5f + crawlUpDetectionHeight,
+            ~0, 
+            QueryTriggerInteraction.Ignore); // ignores trigger collisions
         // if player does not have two legs or does not have enough
         // space above to get out of crawl, then crawl
         if (Grounded) {
@@ -168,12 +169,15 @@ public class PlayerMovement : MonoBehaviour
                 // Reset jump buffer to prevent jumping again
                 jumpBufferCounter = 0f;
             }
+
             else if (!crawling && (Physics.Raycast(
-                    transform.position,
-                    Vector3.up,
-                    playerHeight * 0.5f + upDetectionHeight) ||
-                    InputController.Instance.GetCrouchDown() ||
-                    InputController.Instance.GetCrouchHold()))
+                transform.position,
+                Vector3.up,
+                playerHeight * 0.5f + upDetectionHeight,
+                ~0,
+                QueryTriggerInteraction.Ignore) ||
+                InputController.Instance.GetCrouchDown() ||
+                InputController.Instance.GetCrouchHold()))
             {
                 // something above player or crouching, then crouch
                     movementState = MovementState.CROUCH;

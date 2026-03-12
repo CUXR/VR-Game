@@ -1,5 +1,5 @@
 {
-  "tutorial": [
+  "tutorials": [
     {
       "id": "generator_broken",
       "text": "Looks like you need to fix the generator.",

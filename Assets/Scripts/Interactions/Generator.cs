@@ -8,12 +8,16 @@ public class Generator : MonoBehaviour
     private int numWires = 0;
     public int requiredWires = 3;
     public Door door;
+    public Door left;
+    public Door right;
     public List<GameObject> markers = new List<GameObject>();
 
     void Start()
     {
         Assert.IsTrue(markers.Count==requiredWires);
         door.isButtonDoor = true;
+        left.isButtonDoor = true;
+        right.isButtonDoor = true;
         for (int i = 0; i < markers.Count; i++)
         {
             markers[i].SetActive(false);
@@ -34,6 +38,8 @@ public class Generator : MonoBehaviour
             if (numWires == requiredWires)
             {
                 door.isButtonDoor = false;
+                right.isButtonDoor = false;
+                left.isButtonDoor = false;
             }
             Destroy(obj.gameObject);
         }

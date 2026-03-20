@@ -30,13 +30,23 @@ public class ObjectInteraction : MonoBehaviour
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
                     {
-                        if (hit.rigidbody.gameObject.TryGetComponent(out InteractableInterface interactableObject))
+                        if (rb.gameObject.TryGetComponent(out InteractableInterface interactableObject))
                         // If the object hit has an Interactable component
                         {
-                            if (hit.rigidbody.gameObject.TryGetComponent(out Door door))
+                            if (rb.gameObject.TryGetComponent(out Door door))
                             {
                                 //makes it so button doors can't be opened by just interacting
-                                if (!door.isButtonDoor) {interactableObject.Interact();}
+                                if (!door.isButtonDoor) 
+                                {
+                                    interactableObject.Interact();
+                                }
+                                else 
+                                {
+                                    if (TutorialController.Instance != null)
+                                    {
+                                        TutorialController.Instance.ShowText("door_locked");
+                                    }
+                                }
                             }
                             else
                             {

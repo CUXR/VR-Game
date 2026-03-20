@@ -1,11 +1,6 @@
 {
   "tutorials": [
     {
-      "id": "generator_broken",
-      "text": "Looks like you need to fix the generator.",
-      "priority": 2
-    },
-    {
       "id": "wire",
       "text": "Press [E] to pick up the wire.",
       "priority": 2
@@ -16,14 +11,29 @@
       "priority": 2
     },
     {
-      "id": "try_throwing",
-      "text": "Click to try throwing.",
+      "id": "interactable_holding",
+      "text": "Click to throw or press [E] to release.",
       "priority": 2
     },
     {
       "id": "door",
-      "text": "Press [E] to try opening this door.",
+      "text": "Press [E] to try opening the door.",
       "priority": 2
+    },
+    {
+      "id": "door_locked",
+      "text": "Looks like you need to fix the generator first.",
+      "priority": 1.9
+    },
+    {
+      "id": "generator",
+      "text": "The generator is missing some crucial wires.",
+      "priority": 2
+    },
+    {
+      "id": "generator_fixed",
+      "text": "The generator seems to have started up.",
+      "priority": 1.5
     }
   ]
 }

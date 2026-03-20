@@ -96,10 +96,13 @@ public class Holdable : MonoBehaviour, ThrowableInterface
         targetPos = holdPosition.TransformPoint(holdOffset);
         rb.MovePosition(targetPos);
         holding = true;
+
+        TutorialController.Instance.ShowText("interactable_holding");
     }
 
     public void Release()
     {
+        TutorialController.Instance.HideText("interactable_holding");
         // This implementation of Release drops the object (InteractInterface)
         transform.SetParent(null);
         rb.useGravity = true;
@@ -109,6 +112,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface
 
     public void Throw()
     {
+        TutorialController.Instance.HideText("interactable_holding");
         // This function is called when the player is holding an object and presses the left mouse
         // button. The object is sent in a direction away from the player at a velocity determined by
         // a throwForce variable.

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4395414874416246074}
   - component: {fileID: 2313540737595868548}
   - component: {fileID: 7379670576039071046}
+  - component: {fileID: 8985705513107903290}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -48,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprintKey: 304
   crouchKey: 306
+  crawlKey: 99
   altCrouchKey: 310
   jumpKey: 32
   interactKey: 101
@@ -67,6 +69,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemies: []
+  maxHearingRange: 15
+  pauseOverlay: {fileID: 0}
+--- !u!114 &8985705513107903290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3735919714756444862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01d0647f7c3e66347a080a83aed77cd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialController
+  uiTextElement: {fileID: 0}
 --- !u!1 &5532172147794311262
 GameObject:
   m_ObjectHideFlags: 0

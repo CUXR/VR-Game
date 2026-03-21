@@ -13184,6 +13184,11 @@ PrefabInstance:
       propertyPath: volume
       value: 
       objectReference: {fileID: 625099538}
+    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
+        type: 3}
+      propertyPath: sprintSpeed
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -272,7 +272,7 @@ public class LimbSnatcherController : EnemyController
         // Attempt to snatch a limb if we don't already have one
         if (playerLimb != null && !hasSnatchedLimb)
         {
-            Limb.LimbSlot? targetSlot = playerLimb.TryStealLeastInconvenientLimb(out AttachedLimbData stolenData);
+            Limb.LimbSlot? targetSlot = playerLimb.TryStealLimb(out AttachedLimbData stolenData);
             
             if (targetSlot != null)
             {

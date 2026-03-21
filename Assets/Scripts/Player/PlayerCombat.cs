@@ -38,23 +38,9 @@ public class PlayerCombat : MonoBehaviour
             enemy.outline.enabled = true;
             currentEnemy = enemy;
 
-            var playerLimb = GetComponent<PlayerLimb>();
-            bool canAttack = playerLimb == null || playerLimb.CurrentArmCount > 0;
-
-            if (canAttack && InputController.Instance.GetStabDown())
+            if (InputController.Instance.GetStabDown())
             {
-                float damage;
-                if (playerLimb != null)
-                {
-                    damage = playerLimb.GetAttackDamage();
-                    Debug.Log("Damage calculated: " + damage);
-                }
-                else
-                {
-                    damage = 10f;
-                }
-
-                enemy.Stab(damage);
+                enemy.Stab(10f);
                 enemy.outline.enabled = false;
             }
         }

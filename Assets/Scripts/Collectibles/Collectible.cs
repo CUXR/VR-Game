@@ -29,29 +29,20 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
 
     public virtual GameObject ToUIObject()
     {
-        //Debug.Log("ToUIObject entered for " + gameObject);
-        GameObject uiItem = new GameObject(itemName);
+        GameObject uiItem = new GameObject(itemName + "_ui");
         uiItem.AddComponent<RectTransform>();
         uiItem.AddComponent<CanvasRenderer>();
         uiItem.AddComponent<Image>().sprite = itemIcon;
 
-        //Debug.Log("ToUIObject returned:" + uiItem);
-        return uiItem;
-    }
+        InventorySlot slot = uiItem.AddComponent<InventorySlot>();
+        slot.Setup(this);
 
-    public void CopyCollectibleData(Collectible newCollectible)
-    {
-        newCollectible.itemName = itemName;
-        newCollectible.itemDescription = itemDescription;
-        newCollectible.isSingleUse = isSingleUse;
-        newCollectible.itemIcon = itemIcon;
-        newCollectible.collectibleActions = collectibleActions;
+        return uiItem;
     }
 
     public virtual void Use()
     {
-        // Default implementation for using the collectible
-        print($"Using {itemName}");
+        if (isSingleUse) { Destroy(gameObject); }
     }
 
     public virtual void Equip()
@@ -72,6 +63,13 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
         print($"Inspecting {itemName}: {itemDescription}");
     }
 
+    public virtual void Drop(Transform dropLocation)
+    {
+        transform.position = dropLocation.position;
+        transform.SetParent(null);
+        gameObject.SetActive(true);
+    }
+
     public static implicit operator Collectible(GameObject v)
     {
         throw new NotImplementedException();
@@ -79,6 +77,23 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
 
     public void Interact()
     {
-        throw new System.NotImplementedException();
+        PlayerBackpack playerBackpack = GameObject.FindWithTag("Player").GetComponent<PlayerBackpack>();
+
+        if (playerBackpack != null)
+        {
+            GameObject icon = ToUIObject();
+
+            bool success = playerBackpack.AddItem(icon, this);
+
+            if (success)
+            {
+                transform.SetParent(playerBackpack.transform);
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                Destroy(icon);
+            }
+        }
     }
 }

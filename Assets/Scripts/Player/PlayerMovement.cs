@@ -292,7 +292,7 @@ public class PlayerMovement : MonoBehaviour
                 rb.AddForce(
                     Vector3.down
                         * ((movementState == MovementState.CROUCH || 
-                        movementState == MovementState.CRAWL) ? 40f : 80f)
+                        movementState == MovementState.CRAWL) ? 10f : 20f)
                        ,
                     ForceMode.Force
                 );

@@ -248,7 +248,7 @@ MonoBehaviour:
   upDetectionHeight: 0.5
   defaultVignette: 0
   crouchVignette: 0.5
-  crawlSpeed: 3
+  crawlSpeed: 5
   crawlScale: 0.2
   crawlUpDetectionHeight: 0.9
   crawlVignette: 0.6
@@ -282,7 +282,7 @@ MonoBehaviour:
   backpackSlots: []
   itemNameText: {fileID: 0}
   itemDescriptionText: {fileID: 0}
-  selectedItem: {fileID: 0}
+  selectedSlot: {fileID: 0}
 --- !u!114 &9041987385286134137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,7 +310,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseWalkSpeed: 8
   baseSprintSpeed: 12
-  baseAttackDamage: 100
   moveSpeedMultiplier: 1
   attackDamageMultiplier: 1
 --- !u!208 &2977459851763967986

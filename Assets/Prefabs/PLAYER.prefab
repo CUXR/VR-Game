@@ -237,7 +237,7 @@ MonoBehaviour:
   wallRunSpeed: 10
   groundDrag: 5
   movementState: 0
-  jumpForce: 12
+  jumpForce: 14
   airSpeed: 7
   airMultiplier: 0.4
   coyoteTime: 0.2

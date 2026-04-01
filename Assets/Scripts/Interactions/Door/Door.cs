@@ -6,18 +6,11 @@ using UnityEngine.AI;
 public class Door : MonoBehaviour, InteractableInterface
 {
     public string keyName; //set keyName to "none" if the door doesn't have a key, otherwise match name of collectible object
-    private Transform door;
     public Animator anim;
     [SerializeField]
     private bool inDoorPath = false;
     [SerializeField]
     public bool isButtonDoor = false;
-
-    void Start()
-    {
-        //get the current position of the door
-        door = gameObject.transform;
-    }
 
     public void toggleOpen()
     {
@@ -64,16 +57,6 @@ public class Door : MonoBehaviour, InteractableInterface
         else {
             Debug.Log("key required");
         }
-    }
-
-    public void Release()
-    {
-        //doesn't apply to door
-    }
-
-    public bool IsHoldable()
-    {
-        return false;
     }
 
     //detects if player is in way of door closing

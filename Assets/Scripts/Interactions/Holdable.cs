@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class Holdable : MonoBehaviour, ThrowableInterface
+public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;
@@ -59,13 +59,6 @@ public class Holdable : MonoBehaviour, ThrowableInterface
         }
 
         playerCollider = GameObject.FindWithTag("Player").GetComponent<Collider>();
-    }
-
-    public bool IsHoldable()
-    {
-        if (GetComponent<Limb>() != null)
-            return false;
-        return true;
     }
 
     public void Interact()

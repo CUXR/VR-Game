@@ -5,15 +5,11 @@ public class ObjectInteraction : MonoBehaviour
     // Range is a float indicating the range in which the player can interact with an object
     public float range = 3;
 
+    // Scale for how much force to push a movable object
+    public float pushForce;
+
     // Object currently being held; if nothing, is null
     private Holdable held = null;
-
-    private Collider playerCollider;
-
-    void Start()
-    {
-        playerCollider = gameObject.GetComponent<Collider>();
-    }
 
     void Update()
     {
@@ -33,16 +29,12 @@ public class ObjectInteraction : MonoBehaviour
                         if (hit.rigidbody.gameObject.TryGetComponent(out InteractableInterface interactableObject))
                         // If the object hit has an Interactable component
                         {
-                            // if (hit.rigidbody.gameObject.TryGetComponent(out Door door))
-                            // {
-                            //     //makes it so button doors can't be opened by just interacting
-                            //     if (!door.isButtonDoor) {interactableObject.Interact();}
-                            // }
-                            // else
-                            // {
-                            //     interactableObject.Interact();
-                            // }
-
+                            Debug.Log("interact");
+                            if (interactableObject is Movable movableObject)
+                            {
+                                Debug.Log("Set Interactor");
+                                movableObject.SetInteractor(gameObject.transform, pushForce);
+                            }
                             interactableObject.Interact();
 
                             if (interactableObject is Holdable holdableObject)

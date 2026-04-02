@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 3
+  pushForce: 5
 --- !u!114 &9061215443949643543
 MonoBehaviour:
   m_ObjectHideFlags: 0

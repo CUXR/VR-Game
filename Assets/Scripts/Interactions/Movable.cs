@@ -10,16 +10,27 @@ public class Movable : MonoBehaviour, InteractableInterface
     private float objectVolumeRadius = 7f;
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
+    private float pushForce;
+    private Rigidbody rb;
+    private Transform currentInteractor;
+
+    void Start()
+    {
+        rb = gameObject.GetComponent<Rigidbody>();
+    }
+
+    public void SetInteractor(Transform interactor, float force)
+    {
+        currentInteractor = interactor;
+        pushForce = force;
+    }
 
     public void Interact()
     {
-       
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, radiusToDraw);
+        if (currentInteractor == null) return;
+        Debug.Log("Push");
+        Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
+        rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
     }
 
 }

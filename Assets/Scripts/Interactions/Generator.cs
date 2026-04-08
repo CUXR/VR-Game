@@ -7,20 +7,20 @@ public class Generator : MonoBehaviour
 {
     private int numWires = 0;
     public int requiredWires = 3;
-    public Door door;
-    public Door left;
-    public Door right;
+    public List<Door> doors = new List<Door>();
     public List<GameObject> markers = new List<GameObject>();
 
     void Start()
     {
         Assert.IsTrue(markers.Count==requiredWires);
-        door.isButtonDoor = true;
-        left.isButtonDoor = true;
-        right.isButtonDoor = true;
-        for (int i = 0; i < markers.Count; i++)
+        for (int i = 0; i < doors.Count; i++)
         {
-            markers[i].SetActive(false);
+            doors[i].isButtonDoor = true;
+        }
+
+        for (int j = 0; j < markers.Count; j++)
+        {
+            markers[j].SetActive(false);
         }
     }
 
@@ -37,9 +37,10 @@ public class Generator : MonoBehaviour
             markers[numWires-1].SetActive(true);
             if (numWires == requiredWires)
             {
-                door.isButtonDoor = false;
-                right.isButtonDoor = false;
-                left.isButtonDoor = false;
+                for (int i = 0; i < doors.Count; i++)
+                {
+                    doors[i].isButtonDoor = false;
+                }
             }
             Destroy(obj.gameObject);
         }

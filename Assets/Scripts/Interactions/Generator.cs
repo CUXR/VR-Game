@@ -8,19 +8,23 @@ public class Generator : MonoBehaviour
     private int numWires = 0;
     public int requiredWires = 3;
     public List<Door> doors = new List<Door>();
-    public List<GameObject> markers = new List<GameObject>();
+    public List<GameObject> wires = new List<GameObject>();
+    public GameObject button;
+    public Material buttonMat;
+    public List<GameObject> cylinders = new List<GameObject>();
+    public List<Material> cylinderMats = new List<Material>();
 
     void Start()
     {
-        Assert.IsTrue(markers.Count==requiredWires);
+        Assert.IsTrue(wires.Count==requiredWires);
         for (int i = 0; i < doors.Count; i++)
         {
             doors[i].isButtonDoor = true;
         }
 
-        for (int j = 0; j < markers.Count; j++)
+        for (int j = 0; j < wires.Count; j++)
         {
-            markers[j].SetActive(false);
+            wires[j].SetActive(false);
         }
     }
 
@@ -34,9 +38,11 @@ public class Generator : MonoBehaviour
         if (obj.CompareTag("Wire"))
         {
             numWires++;
-            markers[numWires-1].SetActive(true);
+            wires[numWires-1].SetActive(true);
+            cylinders[numWires-1].GetComponent<MeshRenderer>().material = cylinderMats[numWires-1];
             if (numWires == requiredWires)
             {
+                button.GetComponent<MeshRenderer>().material = buttonMat;
                 for (int i = 0; i < doors.Count; i++)
                 {
                     doors[i].isButtonDoor = false;

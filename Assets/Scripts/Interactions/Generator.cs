@@ -54,5 +54,6 @@ public class Generator : MonoBehaviour
     void OnTriggerExit(Collider obj)
     {
         TutorialController.Instance.HideText("generator");
+        TutorialController.Instance.HideText("generator_fixed");
     }
 }

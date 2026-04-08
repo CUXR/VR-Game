@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4395414874416246074}
   - component: {fileID: 2313540737595868548}
   - component: {fileID: 7379670576039071046}
-  - component: {fileID: 8985705513107903290}
+  - component: {fileID: 389648329049571824}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -71,7 +71,7 @@ MonoBehaviour:
   enemies: []
   maxHearingRange: 15
   pauseOverlay: {fileID: 0}
---- !u!114 &8985705513107903290
+--- !u!114 &389648329049571824
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

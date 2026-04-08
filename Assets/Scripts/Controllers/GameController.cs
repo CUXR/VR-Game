@@ -32,6 +32,7 @@ public class GameController : MonoBehaviour
 
         Application.targetFrameRate = 60;
         isPaused = false;
+        pauseOverlay.SetActive(isPaused);
     }
 
     // Update is called once per frame

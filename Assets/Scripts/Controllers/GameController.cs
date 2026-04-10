@@ -20,7 +20,7 @@ public class GameController : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -31,8 +31,12 @@ public class GameController : MonoBehaviour
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
 
         Application.targetFrameRate = 60;
+        Time.timeScale = 1f;
         isPaused = false;
         pauseOverlay.SetActive(isPaused);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame

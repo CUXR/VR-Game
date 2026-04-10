@@ -18,12 +18,15 @@ public class InputController : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("More than one InputController in scene");
+            Destroy(gameObject);
         }
-
-        Instance = this;
+        else
+        {
+            Instance = this;
+            // DontDestroyOnLoad(gameObject);
+        }
     }
 
     public Vector2 GetWalkDirection()

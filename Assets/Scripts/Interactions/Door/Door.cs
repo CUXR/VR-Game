@@ -12,27 +12,27 @@ public class Door : MonoBehaviour, InteractableInterface
     [SerializeField]
     public bool isButtonDoor = false;
 
-    public void toggleOpen()
+    void Start()
     {
-       if (anim.GetBool("open"))
-        {
-            Debug.Log("open set false");
-            anim.SetBool("open", false);
-        }
-        else
-        {
-            anim.SetBool("open", true);
-        }
+        //get the current position of the door
+        door = gameObject.transform;
+    }
+
+    public void setOpenFalse()
+    {
+        anim.SetBool("open", false);
     }
 
     void Update()
     {
         //makes it so the door won't close on you
-        if (!anim.GetBool("open") && inDoorPath)
+        anim.SetBool("inDoorPath", inDoorPath);
+
+        if (inDoorPath)
         {
             anim.SetBool("open", true);
-            return;
         }
+       
     }
 
     public void Interact()
@@ -60,12 +60,12 @@ public class Door : MonoBehaviour, InteractableInterface
     }
 
     //detects if player is in way of door closing
-    public void OnTriggerEnter(Collider collider)
+    public void OnTriggerStay(Collider collider)
     {
-        Debug.Log("entered ontriggerenter");
+        Debug.Log("entered ontriggerstay");
         if (collider.CompareTag("Player") || collider.CompareTag("Holdable"))
         {
-            anim.SetBool("open", true);
+            //anim.SetBool("open", true);
             inDoorPath = true;
         }
     }

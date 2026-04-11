@@ -17,7 +17,10 @@ public class TutorialController : MonoBehaviour
         if (Instance == null) Instance = this; 
         
         LoadFromJSON();
-        uiTextElement.text = "";
+        if (uiTextElement!=null)
+        {
+            uiTextElement.text = "";
+        }
     }
 
     void LoadFromJSON()
@@ -55,8 +58,11 @@ public class TutorialController : MonoBehaviour
     {
         if (currentItem != null && currentItem.id == itemId)
         {
-            uiTextElement.text = "";
+            if (uiTextElement!=null)
+            {
+                uiTextElement.text = "";
             currentItem = null;
+            }
         }
     }
 

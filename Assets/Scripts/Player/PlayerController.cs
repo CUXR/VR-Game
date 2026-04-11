@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
             playerMovement.hasBatteryForJumpAndSprint = true; // Enable jump and sprint if not in danger
         }
 
-        if (playerBackpack.isOpen)
+        if (playerBackpack.isOpen || GameController.Instance.isPaused)
         {
             cameraFollow.enabled = false;
             playerMovement.enabled = false;

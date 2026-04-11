@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     public float maxHearingRange = 15f;
     private LayerMask enemyLayer;
     private int environmentLayerInt;
-    private bool isPaused;
+    public bool isPaused;
     public GameObject pauseOverlay;
 
     private void Awake()
@@ -20,7 +20,7 @@ public class GameController : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -31,7 +31,12 @@ public class GameController : MonoBehaviour
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
 
         Application.targetFrameRate = 60;
+        Time.timeScale = 1f;
         isPaused = false;
+        pauseOverlay.SetActive(isPaused);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -41,6 +46,15 @@ public class GameController : MonoBehaviour
             isPaused = !isPaused;
             Time.timeScale = isPaused ? 0f : 1f;
             pauseOverlay.SetActive(isPaused);
+
+            if (isPaused) {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            } 
+            else {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
     }
 

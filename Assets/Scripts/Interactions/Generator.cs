@@ -50,5 +50,16 @@ public class Generator : MonoBehaviour
             }
             Destroy(obj.gameObject);
         }
+        
+        if (numWires != requiredWires) {
+            TutorialController.Instance.ShowText("generator");
+        }
+        else {TutorialController.Instance.ShowText("generator_fixed");};
+    }
+
+    void OnTriggerExit(Collider obj)
+    {
+        TutorialController.Instance.HideText("generator");
+        TutorialController.Instance.HideText("generator_fixed");
     }
 }

@@ -26,7 +26,7 @@ public class ObjectInteraction : MonoBehaviour
                 {
                     if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
                     {
-                        if (hit.rigidbody.gameObject.TryGetComponent(out InteractableInterface interactableObject))
+                        if (rb.gameObject.TryGetComponent(out InteractableInterface interactableObject))
                         // If the object hit has an Interactable component
                         {
                             Debug.Log("interact");

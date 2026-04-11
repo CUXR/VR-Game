@@ -17,7 +17,6 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     private Vector3 endPos;
     public GameObject pressedPos;
 
-    public bool playerPressable = true;
     public bool pressed = false;
     [SerializeField] public List<GameObject> interactableObject;
 
@@ -30,7 +29,7 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     //only for when player clicks
     public void Interact()
     {
-        Debug.Log("called button interact");
+        Debug.Log("button interacted with");
         if (interactableObject.Count!=0)
         {
             Debug.Log("there are interactable objects");

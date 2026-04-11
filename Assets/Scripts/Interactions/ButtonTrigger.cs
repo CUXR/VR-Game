@@ -1,17 +1,8 @@
 using UnityEngine;
 
-public class ButtonTriggerpublic  : MonoBehaviour, InteractableInterface
+public class ButtonTriggerpublic  : MonoBehaviour
 {
     public ButtonInteract button;
-
-    public void Interact()
-    {
-        Debug.Log("entered button trigger interact");
-        if (button.playerPressable)
-        {
-            button.Interact();
-        }
-    }
 
     void OnTriggerEnter(Collider other)
     {

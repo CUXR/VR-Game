@@ -853,7 +853,7 @@ GameObject:
   - component: {fileID: 82771216}
   - component: {fileID: 82771215}
   m_Layer: 5
-  m_Name: Button 2
+  m_Name: Restart Level Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -922,7 +922,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 82771216}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1391442615}
+        m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
+        m_MethodName: ReloadCurrentScene
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &82771216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3525,6 +3537,40 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 3.0345962
   m_Center: {x: 0, y: 7.181358, z: 0}
+--- !u!114 &410809541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 410809532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddc1759a0248fd749bcc70ce503f71f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableGlow
+  viewAngle: 35
+  outline: {fileID: 0}
+  glowColor: {r: 0, g: 1, b: 0, a: 1}
+  glowWidth: 12
+--- !u!114 &410809542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 410809532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!4 &419073932 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5855048604864363001, guid: 870563fb5d6a743f8a7477415d2c60b8,
@@ -4197,7 +4243,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button 2
+  m_text: Restart Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7767,6 +7813,14 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 410809533}
+    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 410809541}
+    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 410809542}
   m_SourcePrefab: {fileID: 100100000, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
 --- !u!1001 &857223958
 PrefabInstance:

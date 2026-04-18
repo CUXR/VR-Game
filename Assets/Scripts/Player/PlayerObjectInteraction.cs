@@ -51,6 +51,10 @@ public class ObjectInteraction : MonoBehaviour
                         held = null;
                     }
                 }
+            } else
+            {
+                lastHighlighted?.SetGlow(false);
+                lastHighlighted=null;
             }
 
         }

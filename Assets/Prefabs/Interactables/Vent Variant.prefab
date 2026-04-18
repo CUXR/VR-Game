@@ -1,91 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &4442251720652321095
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 4209111625070227787}
-    m_Modifications:
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.010803552
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.3710526
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.8758953
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5706900717145536735, guid: 0773780d1aaf34192969f9e0764ddd18,
-        type: 3}
-      propertyPath: m_Name
-      value: Outline
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0773780d1aaf34192969f9e0764ddd18, type: 3}
---- !u!114 &1753924676905545522 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2734033880144567925, guid: 0773780d1aaf34192969f9e0764ddd18,
-    type: 3}
-  m_PrefabInstance: {fileID: 4442251720652321095}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
---- !u!4 &8181497844115303695 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5488912225785912392, guid: 0773780d1aaf34192969f9e0764ddd18,
-    type: 3}
-  m_PrefabInstance: {fileID: 4442251720652321095}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8474694973823808053
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -197,7 +111,7 @@ PrefabInstance:
         type: 3}
       propertyPath: outline
       value: 
-      objectReference: {fileID: 1753924676905545522}
+      objectReference: {fileID: 4405542454306148424}
     - target: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_Name
@@ -295,11 +209,11 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8220920145782183390}
-    - targetCorrespondingSourceObject: {fileID: 5117063023227608476, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8181497844115303695}
-    m_AddedComponents: []
+      addedObject: {fileID: 4405542454306148424}
   m_SourcePrefab: {fileID: 100100000, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
 --- !u!4 &4209111625070227787 stripped
 Transform:
@@ -307,3 +221,27 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 9037230274626432215}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7298698861618643374 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
+    type: 3}
+  m_PrefabInstance: {fileID: 9037230274626432215}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4405542454306148424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7298698861618643374}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  outlineWidth: 6
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

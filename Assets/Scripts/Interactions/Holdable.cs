@@ -212,6 +212,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
     public void SetGlow(bool state)
     {
+        Debug.Log(state);
         outline.enabled = state;
     }
 

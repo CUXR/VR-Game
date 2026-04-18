@@ -103,4 +103,9 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
         // }
         // timeElapsed = 0;
     }
+
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
 }

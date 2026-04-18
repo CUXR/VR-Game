@@ -45,6 +45,8 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
 
+    public Outline outline; // outline settings
+
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
@@ -206,6 +208,11 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
                 Release();
             }
         }
+    }
+
+    public void SetGlow(bool state)
+    {
+        outline.enabled = state;
     }
 
     private void OnDrawGizmos()

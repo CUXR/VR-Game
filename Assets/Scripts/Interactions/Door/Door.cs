@@ -51,5 +51,10 @@ public class Door : MonoBehaviour, InteractableInterface
             inDoorPath = false;
         }
     }
+
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
     
 }

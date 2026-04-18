@@ -32,4 +32,9 @@ public class ButtonTriggerpublic  : MonoBehaviour, InteractableInterface
             button.pressed = false;
         }
     }
+
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
 }

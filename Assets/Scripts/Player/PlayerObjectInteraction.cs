@@ -11,44 +11,46 @@ public class ObjectInteraction : MonoBehaviour
     // Object currently being held; if nothing, is null
     private Holdable held = null;
 
+    // Object last highlighted
+    private InteractableInterface lastHighlighted;
+
     void Update()
     {
-        if (InputController.Instance.GetInteractDown())
+        // The ray is determined by the camera position, the hit variable is where the
+        // information about what the ray hits will be stored, and the range variable represents
+        // the numerical range in which an object can be interacted with
+        if (Physics.Raycast(Camera.main.gameObject.transform.position,
+            Camera.main.gameObject.transform.forward, out RaycastHit hit, range))
+            // If an object is within the range, is hit by the raycast
         {
-            if (held == null)
+            if (hit.collider.gameObject.TryGetComponent(out InteractableInterface interactableObject))
+                // If the object hit has an Interactable component
             {
-                // The ray is determined by the camera position, the hit variable is where the
-                // information about what the ray hits will be stored, and the range variable represents
-                // the numerical range in which an object can be interacted with
-                if (Physics.Raycast(Camera.main.gameObject.transform.position,
-                Camera.main.gameObject.transform.forward, out RaycastHit hit, range))
-                // If an object is within the range, is hit by the raycast, and has Interact component
+                if (lastHighlighted != interactableObject)
                 {
-                    if (hit.collider.gameObject.TryGetComponent(out Rigidbody rb))
+                    lastHighlighted?.SetGlow(false);
+                    interactableObject.SetGlow(true);
+                    lastHighlighted = interactableObject;
+                }
+                if (InputController.Instance.GetInteractDown())
+                {
+                    if (interactableObject is Movable movableObject)
                     {
-                        if (rb.gameObject.TryGetComponent(out InteractableInterface interactableObject))
-                        // If the object hit has an Interactable component
-                        {
-                            Debug.Log("interact");
-                            if (interactableObject is Movable movableObject)
-                            {
-                                Debug.Log("Set Interactor");
-                                movableObject.SetInteractor(gameObject.transform, pushForce);
-                            }
-                            interactableObject.Interact();
-
-                            if (interactableObject is Holdable holdableObject)
-                            {
-                                held = holdableObject;
-                            }
-                        }
+                        movableObject.SetInteractor(gameObject.transform, pushForce);
+                    }
+                    if (held == null && interactableObject is Holdable holdableObject)
+                    {
+                        held = holdableObject;
+                    }
+                    interactableObject.Interact();
+                } else
+                {
+                    if (held!=null)
+                    {
+                        held.Release();
+                        held = null;
                     }
                 }
-            }
-            else
-            {
-                held.Release();
-                held = null;
             }
 
         }

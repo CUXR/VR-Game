@@ -11,4 +11,9 @@ public class DoorBlock : MonoBehaviour, InteractableInterface
             door.Interact();
         }
     }
+
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 public class Holdable : MonoBehaviour, ThrowableInterface
@@ -48,7 +47,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        
+
         Renderer rend = GetComponent<Renderer>();
         if (rend == null)
             rend = GetComponentInChildren<Renderer>();

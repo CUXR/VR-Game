@@ -5,11 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Demo.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/Level Design - George.unity
+    guid: d8b89f41aaf59fa4d8e4a8c0d6e387a8
   m_configObjects:
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b16fd409e1ddea246a55cf82d240004a,
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: ca62f8f33fdec4ac480dc5e9fabaff05,
       type: 2}
-    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: b38334d68ca4f694c95846987ebf3dd2,
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 1089419f8edd241fbaf73dbbcbf72dad,
       type: 2}
+  m_UseUCBPForAssetBundles: 0

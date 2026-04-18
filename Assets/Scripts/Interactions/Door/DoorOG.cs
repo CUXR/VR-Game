@@ -1,5 +1,4 @@
 using System;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,9 +12,9 @@ public class DoorOG : MonoBehaviour, InteractableInterface
     public float openingTime;
     public float holdOpen;
     private float openingComplete;
-    [SerializeField] 
+    [SerializeField]
     private bool opening = false;
-    [SerializeField] 
+    [SerializeField]
     private bool closing = false;
     //[SerializeField]
     private float timer;
@@ -60,8 +59,8 @@ public class DoorOG : MonoBehaviour, InteractableInterface
         //if in process of opening or closing, move the door accordingly
         else if (opening || closing)
         {
-            if(opening) {timer += Time.deltaTime;}
-            if(closing) {timer -= Time.deltaTime;}
+            if (opening) { timer += Time.deltaTime; }
+            if (closing) { timer -= Time.deltaTime; }
 
             timer = Mathf.Clamp(timer, 0f, openingTime);
             float t = timer / openingTime;
@@ -87,13 +86,13 @@ public class DoorOG : MonoBehaviour, InteractableInterface
     public void Interact()
     {
         //no reaction if door is in process of opening/closing
-        if(opening || closing)
+        if (opening || closing)
         {
             return;
         }
         //Debug.Log("entered interact with");
         //if no key needed for door, start opening
-        if(keyName == "none")
+        if (keyName == "none")
         {
             //Debug.Log("entered key is null");
             closing = false;
@@ -109,7 +108,8 @@ public class DoorOG : MonoBehaviour, InteractableInterface
             closing = false;
             opening = true;
         }
-        else {
+        else
+        {
             Debug.Log("key required");
         }
     }
@@ -145,5 +145,5 @@ public class DoorOG : MonoBehaviour, InteractableInterface
             inDoorPath = false;
         }
     }
-    
+
 }

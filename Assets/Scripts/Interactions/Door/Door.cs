@@ -1,5 +1,4 @@
 using System;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -39,7 +38,7 @@ public class Door : MonoBehaviour, InteractableInterface
 
     public void toggleOpen()
     {
-       if (anim.GetBool("open"))
+        if (anim.GetBool("open"))
         {
             Debug.Log("open set false");
             anim.SetBool("open", false);
@@ -110,7 +109,7 @@ public class Door : MonoBehaviour, InteractableInterface
         // }
         //Debug.Log("entered interact with");
         //if no key needed for door, start opening
-        if(keyName == "none")
+        if (keyName == "none")
         {
             //Debug.Log("entered key is null");
             // closing = false;
@@ -128,7 +127,8 @@ public class Door : MonoBehaviour, InteractableInterface
             // opening = true;
             anim.SetBool("open", true);
         }
-        else {
+        else
+        {
             Debug.Log("key required");
         }
     }
@@ -165,5 +165,5 @@ public class Door : MonoBehaviour, InteractableInterface
             inDoorPath = false;
         }
     }
-    
+
 }

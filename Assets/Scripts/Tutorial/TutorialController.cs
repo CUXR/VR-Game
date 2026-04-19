@@ -16,9 +16,9 @@ public class TutorialController : MonoBehaviour
     }
 
     // Displays tutorial text
-    public void DisplayText(string tutorialText)
+    public void DisplayText(InteractableInterface interactableObject)
     {
-        uiTextElement.text = tutorialText;
+        uiTextElement.text = interactableObject.GetTutorialText();
     }
 
     // Clears current tutorial text

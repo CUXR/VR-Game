@@ -88,9 +88,6 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         targetPos = holdPosition.TransformPoint(holdOffset);
         rb.MovePosition(targetPos);
         holding = true;
-        if (tutorialText!="") {
-            TutorialController.Instance.DisplayText(tutorialText);
-        }
     }
 
     public void Release()
@@ -209,6 +206,11 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     public void SetGlow(bool state)
     {
         outline.enabled = state;
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 
     private void OnDrawGizmos()

@@ -38,18 +38,20 @@ public class ObjectInteraction : MonoBehaviour
                     {
                         movableObject.SetInteractor(gameObject.transform, pushForce);
                     }
-                    if (held == null && interactableObject is Holdable holdableObject)
+                    if (interactableObject is Holdable holdableObject)
                     {
-                        held = holdableObject;
+                        if (held==null)
+                        {
+                            held = holdableObject;
+                        } else
+                        {
+                            TutorialController.Instance.ClearText();
+                            held.Release();
+                            held = null;
+                            return;
+                        }
                     }
                     interactableObject.Interact();
-                } else
-                {
-                    if (held!=null)
-                    {
-                        held.Release();
-                        held = null;
-                    }
                 }
             } else
             {

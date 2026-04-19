@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 3974806353755794553}
   - component: {fileID: 7039151427356269103}
   - component: {fileID: 7376680513483142337}
+  - component: {fileID: 5776730142172932732}
   m_Layer: 0
   m_Name: Push Box
   m_TagString: Untagged
@@ -414,3 +415,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d807a04acc8e64f7c8c08db240124ad6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movable
+  outline: {fileID: 5776730142172932732}
+--- !u!114 &5776730142172932732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8636230450222540552}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  outlineWidth: 6
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

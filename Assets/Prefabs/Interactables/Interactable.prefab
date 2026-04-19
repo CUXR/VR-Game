@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 180216422519779544}
   - component: {fileID: 1195375400323775992}
   - component: {fileID: 6739110043792189177}
+  - component: {fileID: 4370575428391161021}
   m_Layer: 0
   m_Name: Interactable
   m_TagString: Holdable
@@ -403,6 +404,7 @@ MonoBehaviour:
   horizontalOffset: 1.1
   verticalOffset: 0.2
   forwardOffset: 1.5
+  outline: {fileID: 4370575428391161021}
 --- !u!208 &6739110043792189177
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -419,3 +421,21 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &4370575428391161021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738564263377661305}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  outlineWidth: 6
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

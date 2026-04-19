@@ -52,14 +52,17 @@ public class Generator : MonoBehaviour
         }
         
         if (numWires != requiredWires) {
-            TutorialController.Instance.ShowText("generator");
+            //TutorialController.Instance.ShowText("generator");
         }
-        else {TutorialController.Instance.ShowText("generator_fixed");};
+        else {
+            //TutorialController.Instance.ShowText("generator_fixed");
+            // 
+        };
     }
 
     void OnTriggerExit(Collider obj)
     {
-        TutorialController.Instance.HideText("generator");
-        TutorialController.Instance.HideText("generator_fixed");
+        //TutorialController.Instance.HideText("generator");
+        //TutorialController.Instance.HideText("generator_fixed");
     }
 }

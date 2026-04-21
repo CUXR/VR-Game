@@ -7767,12 +7767,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b8e9340295914b05b5a8e27647f1632, type: 3}
---- !u!1 &408537142 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-    type: 3}
-  m_PrefabInstance: {fileID: 1044109576}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &410729560
 Mesh:
   m_ObjectHideFlags: 0
@@ -10972,6 +10966,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: outline
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15359,6 +15358,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: outline
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16461,7 +16465,7 @@ PrefabInstance:
     - target: {fileID: 3595437157185852828, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3097
+      value: 3100
       objectReference: {fileID: 0}
     - target: {fileID: 4209111625070227787, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}
@@ -16682,6 +16686,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: outline
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16756,7 +16765,7 @@ PrefabInstance:
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 87.1
+      value: 88.72
       objectReference: {fileID: 0}
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
@@ -16766,7 +16775,7 @@ PrefabInstance:
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 45.76
+      value: 53.25
       objectReference: {fileID: 0}
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4,
         type: 3}
@@ -17064,18 +17073,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: outline
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: tutorialText
+      value: Press [E] to interact
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1557422298}
-    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1557422297}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
 --- !u!4 &951576000 stripped
 Transform:
@@ -18381,18 +18392,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7419773020869456886, guid: 870563fb5d6a743f8a7477415d2c60b8,
+        type: 3}
+      propertyPath: tutorialText
+      value: Press [E] to pick up
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1044109584}
-    - targetCorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1044109583}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
 --- !u!4 &1044109577 stripped
 Transform:
@@ -18400,40 +18408,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1044109576}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1044109583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 408537142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddc1759a0248fd749bcc70ce503f71f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableGlow
-  viewAngle: 35
-  outline: {fileID: 0}
-  glowColor: {r: 0, g: 1, b: 0, a: 1}
-  glowWidth: 4
---- !u!114 &1044109584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 408537142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!43 &1056013684
 Mesh:
   m_ObjectHideFlags: 0
@@ -28282,7 +28256,7 @@ PrefabInstance:
     - target: {fileID: 5516696264962357579, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3016
+      value: 3019
       objectReference: {fileID: 0}
     - target: {fileID: 7258197574252160643, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
@@ -29109,46 +29083,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &1557422291 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8,
-    type: 3}
-  m_PrefabInstance: {fileID: 951575999}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1557422297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557422291}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddc1759a0248fd749bcc70ce503f71f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableGlow
-  viewAngle: 35
-  outline: {fileID: 0}
-  glowColor: {r: 0, g: 1, b: 0, a: 1}
-  glowWidth: 4
---- !u!114 &1557422298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1557422291}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Outline
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!43 &1572052071
 Mesh:
   m_ObjectHideFlags: 0
@@ -31923,7 +31857,7 @@ PrefabInstance:
     - target: {fileID: 5516696264962357579, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3019
+      value: 3022
       objectReference: {fileID: 0}
     - target: {fileID: 7258197574252160643, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
@@ -32801,7 +32735,7 @@ PrefabInstance:
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 253
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 7692291576190097354, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}
@@ -39096,6 +39030,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: 8288416722514653559, guid: 4b8e9340295914b05b5a8e27647f1632,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8395480275371934164, guid: 4b8e9340295914b05b5a8e27647f1632,
         type: 3}
       propertyPath: playerPressable
@@ -39588,6 +39527,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 840635306}
     m_Modifications:
+    - target: {fileID: 1195375400323775992, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
+        type: 3}
+      propertyPath: tutorialText
+      value: Press [E] to pick up
+      objectReference: {fileID: 0}
     - target: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_Name
@@ -39656,7 +39600,7 @@ PrefabInstance:
     - target: {fileID: 5516696264962357579, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3019
+      value: 3022
       objectReference: {fileID: 0}
     - target: {fileID: 7258197574252160643, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
@@ -39741,6 +39685,11 @@ PrefabInstance:
         type: 3}
       propertyPath: isButtonDoor
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3711644366344284242, guid: 78f4239ae8b794cdebdec3e241df5f4d,
+        type: 3}
+      propertyPath: tutorialText
+      value: This door seems to be out of power
       objectReference: {fileID: 0}
     - target: {fileID: 8026914501657015140, guid: 78f4239ae8b794cdebdec3e241df5f4d,
         type: 3}
@@ -40613,7 +40562,7 @@ PrefabInstance:
     - target: {fileID: 3595437157185852828, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 3100
+      value: 3103
       objectReference: {fileID: 0}
     - target: {fileID: 4209111625070227787, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}
@@ -40856,7 +40805,12 @@ PrefabInstance:
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 259
+      value: 262
+      objectReference: {fileID: 0}
+    - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
+        type: 3}
+      propertyPath: tutorialText
+      value: Press [E] to push
       objectReference: {fileID: 0}
     - target: {fileID: 7692291576190097354, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}

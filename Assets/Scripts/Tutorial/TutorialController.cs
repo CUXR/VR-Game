@@ -18,6 +18,7 @@ public class TutorialController : MonoBehaviour
     // Displays tutorial text
     public void DisplayText(InteractableInterface interactableObject)
     {
+        Debug.Log("display");
         uiTextElement.text = interactableObject.GetTutorialText();
     }
 

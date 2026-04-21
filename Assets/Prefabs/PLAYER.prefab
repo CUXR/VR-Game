@@ -247,11 +247,11 @@ MonoBehaviour:
   crouchScale: 0.6
   upDetectionHeight: 0.5
   defaultVignette: 0
-  crouchVignette: 0.5
+  crouchVignette: 0.2
   crawlSpeed: 5
   crawlScale: 0.2
   crawlUpDetectionHeight: 0.9
-  crawlVignette: 0.6
+  crawlVignette: 0.3
   maxSlopeAngle: 35
   stepClimbEnabled: 0
   rayLower: {fileID: 4184299469740010181}

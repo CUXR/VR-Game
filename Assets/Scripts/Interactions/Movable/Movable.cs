@@ -14,6 +14,7 @@ public class Movable : MonoBehaviour, InteractableInterface
     private Rigidbody rb;
     private Transform currentInteractor;
     public Outline outline; // outline settings
+    public string tutorialText = ""; // tutorial text, empty if nothing
 
     void Start()
     {
@@ -37,6 +38,11 @@ public class Movable : MonoBehaviour, InteractableInterface
     public void SetGlow(bool state)
     {
         outline.enabled = state;
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 
 }

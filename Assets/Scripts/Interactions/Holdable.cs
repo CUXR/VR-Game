@@ -75,11 +75,13 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
         // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);
+        float forwardDist = Mathf.Min(size.z, 1.0f);
+        float sideDist = Mathf.Min(size.y, 1.0f);
         // Calculates an offset based off of holdPosition so that the object is held in player view
         holdOffset = holdPosition.InverseTransformVector(
             (holdPosition.right * horizontalOffset)
-                + (holdPosition.forward * size.z * forwardOffset)
-                + (holdPosition.up * size.y * verticalOffset)
+                + (holdPosition.forward * forwardDist * forwardOffset)
+                + (holdPosition.up * sideDist * verticalOffset)
         );
         rb.useGravity = false;
         rb.freezeRotation = true;
@@ -178,6 +180,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
             rangeTimer += Time.fixedDeltaTime;
             if (rangeTimer > maxRangeTime)
             {
+                Debug.Log("toofar away");
                 Release();
             }
         }

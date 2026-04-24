@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4395414874416246074}
   - component: {fileID: 2313540737595868548}
   - component: {fileID: 7379670576039071046}
-  - component: {fileID: 389648329049571824}
+  - component: {fileID: 4083543623728500615}
   m_Layer: 0
   m_Name: GAME MANAGER
   m_TagString: Untagged
@@ -70,8 +70,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemies: []
   maxHearingRange: 15
+  isPaused: 0
   pauseOverlay: {fileID: 0}
---- !u!114 &389648329049571824
+--- !u!114 &4083543623728500615
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -80,10 +81,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3735919714756444862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01d0647f7c3e66347a080a83aed77cd9, type: 3}
+  m_Script: {fileID: 11500000, guid: a6bbd21f8c4aa1b45872c4302404687c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TutorialController
-  uiTextElement: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::SceneController
 --- !u!1 &5532172147794311262
 GameObject:
   m_ObjectHideFlags: 0

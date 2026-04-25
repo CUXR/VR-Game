@@ -3,17 +3,18 @@ using UnityEngine;
 [RequireComponent(typeof(Outline))]
 public class InteractableGlow : MonoBehaviour
 {
-    public float viewAngle = 35f; 
+    public float viewAngle = 35f; // angle that the player has to be looking for glow to activate
 
-    public Outline outline;
+    public Outline outline; // outline settings
     public Color glowColor = Color.green;
     public float glowWidth = 4f;
 
-    private Camera mainCamera; 
+    private Camera mainCamera; // camera and player interaction necessary to only activate glow when player is near
     private ObjectInteraction playerInteraction;
 
     private bool isGlowing = false;
 
+    // initializes glow, glow is initially off
     void Start()
     {
         outline = GetComponent<Outline>();
@@ -30,6 +31,7 @@ public class InteractableGlow : MonoBehaviour
         }
     }
 
+    // updates glow if state changes
     private void SetGlow(bool state)
     {
         if (isGlowing == state) return; 
@@ -38,6 +40,7 @@ public class InteractableGlow : MonoBehaviour
         outline.enabled = state;
     }
 
+    // calculates distance to object and viewing angle. if both are within range, turns on glow.
     void Update()
     {
         if (mainCamera == null || playerInteraction == null) return;

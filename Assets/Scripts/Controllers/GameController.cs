@@ -20,10 +20,10 @@ public class GameController : MonoBehaviour
         else
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject);
         }
     }
 
+    // Initializes audio settings, game starts unpaused with overlay hidden, locks and hides mouse cursor
     private void Start()
     {
         enemyLayer = LayerMask.GetMask("Enemy");
@@ -39,7 +39,7 @@ public class GameController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // Update is called once per frame
+    // Listens for the pause button to be pressed, pauses or unpauses depending on state
     void Update()
     {
         if (InputController.Instance.GetPauseDown()) {
@@ -58,6 +58,7 @@ public class GameController : MonoBehaviour
         }
     }
 
+    // Adds enemy to list of current enemies in scene
     public void AddEnemy(EnemyController enemy)
     {
         if (enemy != null && !enemies.Contains(enemy))
@@ -66,6 +67,7 @@ public class GameController : MonoBehaviour
         }
     }
 
+    // Removes enemy from list of current enemies in scene
     public void RemoveEnemy(EnemyController enemy)
     {
         if (enemy != null && enemies.Contains(enemy))

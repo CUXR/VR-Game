@@ -40594,7 +40594,7 @@ PrefabInstance:
     - target: {fileID: 7925317859659108655, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}
       propertyPath: tutorialText
-      value: Click [E] to interact
+      value: Click [E] to grab
       objectReference: {fileID: 0}
     - target: {fileID: 9014833408061646805, guid: f2bacc3b0fc234248a65e507c4a4f73e,
         type: 3}

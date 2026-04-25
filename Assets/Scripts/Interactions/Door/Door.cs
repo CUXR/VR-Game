@@ -10,6 +10,7 @@ public class Door : MonoBehaviour, InteractableInterface
     private bool inDoorPath = false;
     [SerializeField]
     public bool isButtonDoor = false;
+    public string tutorialText = ""; // tutorial text, empty if nothing
 
     public void setOpenFalse()
     {
@@ -50,6 +51,16 @@ public class Door : MonoBehaviour, InteractableInterface
             anim.SetBool("open", false);
             inDoorPath = false;
         }
+    }
+
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
     
 }

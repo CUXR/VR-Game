@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
@@ -45,6 +41,10 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
 
+    [Header("Display")]
+    public Outline outline; // outline settings
+    public string tutorialText = ""; // tutorial text, empty if nothing
+
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
@@ -63,7 +63,6 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
     public void Interact()
     {
-        Debug.Log("InteractWith triggered on " + gameObject);
         Limb limb = GetComponent<Limb>();
         if (limb != null)
         {
@@ -76,11 +75,13 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
         // This implementation of InteractWith allows the player to grab and hold the object (InteractInterface)
         holdPosition = Camera.main.transform.GetChild(0);
+        float forwardDist = Mathf.Min(size.z, 1.0f);
+        float sideDist = Mathf.Min(size.y, 1.0f);
         // Calculates an offset based off of holdPosition so that the object is held in player view
         holdOffset = holdPosition.InverseTransformVector(
             (holdPosition.right * horizontalOffset)
-                + (holdPosition.forward * size.z * forwardOffset)
-                + (holdPosition.up * size.y * verticalOffset)
+                + (holdPosition.forward * forwardDist * forwardOffset)
+                + (holdPosition.up * sideDist * verticalOffset)
         );
         rb.useGravity = false;
         rb.freezeRotation = true;
@@ -89,13 +90,10 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         targetPos = holdPosition.TransformPoint(holdOffset);
         rb.MovePosition(targetPos);
         holding = true;
-
-        TutorialController.Instance.ShowText("interactable_holding");
     }
 
     public void Release()
     {
-        TutorialController.Instance.HideText("interactable_holding");
         // This implementation of Release drops the object (InteractInterface)
         transform.SetParent(null);
         rb.useGravity = true;
@@ -105,7 +103,6 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
     public void Throw()
     {
-        TutorialController.Instance.HideText("interactable_holding");
         // This function is called when the player is holding an object and presses the left mouse
         // button. The object is sent in a direction away from the player at a velocity determined by
         // a throwForce variable.
@@ -183,6 +180,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
             rangeTimer += Time.fixedDeltaTime;
             if (rangeTimer > maxRangeTime)
             {
+                Debug.Log("toofar away");
                 Release();
             }
         }
@@ -206,6 +204,16 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
                 Release();
             }
         }
+    }
+
+    public void SetGlow(bool state)
+    {
+        outline.enabled = state;
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 
     private void OnDrawGizmos()

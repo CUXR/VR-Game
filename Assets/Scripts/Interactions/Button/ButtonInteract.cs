@@ -6,13 +6,6 @@ using System.Collections.Generic;
 
 public class ButtonInteract : MonoBehaviour, InteractableInterface
 {
-    //Stuff used to lerp button (gave up on lerp didn't work out)
-    //public float moveAmount = 0.1f;
-    //public float duration = 1f;
-    //public float shift = 0.5f;
-    //[SerializeField] private float timeElapsed = 0f;
-    //[SerializeField] private bool pressing = false;
-    //[SerializeField] private bool releasing = false;
     private Vector3 startPos;
     private Vector3 endPos;
     public GameObject pressedPos;
@@ -20,6 +13,7 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     public bool playerPressable = true;
     public bool pressed = false;
     [SerializeField] public List<GameObject> interactableObject;
+    public string tutorialText = ""; // tutorial text, empty if nothing
 
     void Start()
     {
@@ -30,27 +24,24 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     //only for when player clicks
     public void Interact()
     {
-        Debug.Log("called button interact");
-        if (interactableObject.Count!=0)
+        if (playerPressable)
         {
-            Debug.Log("there are interactable objects");
-            foreach (GameObject obj in interactableObject) {
-                InteractableInterface interactable = obj.GetComponent<InteractableInterface>();
-                interactable.Interact();
+            if (interactableObject.Count!=0)
+            {
+                Press();
             }
-        }
-
-        if (!pressed)
-        {
-            StartCoroutine(PressRoutine());
-            pressed = false;
+            if (!pressed)
+            {
+                StartCoroutine(PressRoutine());
+                pressed = false;
+            }
         }
     }
 
     IEnumerator PressRoutine() {
         transform.localPosition = endPos;
         pressed = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
         transform.localPosition = startPos;
         pressed = false;
     }
@@ -60,47 +51,43 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
         transform.localPosition = endPos;
         if (interactableObject.Count!=0)
         {
-            Debug.Log("there are interactable objects");
             foreach (GameObject obj in interactableObject) {
                 InteractableInterface interactable = obj.GetComponent<InteractableInterface>();
                 interactable.Interact();
             }
         }
-
-        // pressing = true;
-        //transform.localPosition = startPos;
-        // while (pressing)
-        // {
-        //     timeElapsed += Time.deltaTime;
-        //     float t = timeElapsed / duration;
-
-        //     transform.localPosition = Vector3.Lerp(startPos, endPos, t);
-
-        //     if (t >= 1f) {
-        //         pressing = false;
-        //     }
-        // }
-        // timeElapsed = 0;
     }
 
     public void Release()
     {
         transform.localPosition = startPos;
-    
-        //releasing = true;
-        //transform.localPosition = endPos;
+    }
 
-        // while (releasing)
-        // {
-        //     timeElapsed += Time.deltaTime;
-        //     float t = timeElapsed / duration;
+     void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") || other.CompareTag("Holdable"))
+        {
+            pressed = true;
+            Press();
+        }
+    }
 
-        //     transform.localPosition = Vector3.Lerp(endPos, startPos, t);
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player") || other.CompareTag("Holdable"))
+        {
+            pressed = false;
+            Release();
+        }
+    }
 
-        //     if (t >= 1f) {
-        //         releasing = false;
-        //     }
-        // }
-        // timeElapsed = 0;
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 }

@@ -13,6 +13,8 @@ public class Movable : MonoBehaviour, InteractableInterface
     private float pushForce;
     private Rigidbody rb;
     private Transform currentInteractor;
+    public Outline outline; // outline settings
+    public string tutorialText = ""; // tutorial text, empty if nothing
 
     void Start()
     {
@@ -31,6 +33,16 @@ public class Movable : MonoBehaviour, InteractableInterface
         Debug.Log("Push");
         Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
         rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
+    }
+
+    public void SetGlow(bool state)
+    {
+        outline.enabled = state;
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 
 }

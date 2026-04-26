@@ -12,8 +12,8 @@ public class PlayerBackpack : MonoBehaviour
 {
     [Header("Backpack State")]
     public int numSlots;
-    public bool isOpen;
-    public bool dropdownVisible;
+    public bool isOpen; //refers to whether the backpack panel is open
+    public bool dropdownVisible; //refers to whether a slot has been clicked
     public bool isInspecting;
 
     [Header("Backpack References")]
@@ -50,7 +50,7 @@ public class PlayerBackpack : MonoBehaviour
         items = new String[numSlots];
         playerLimb = GetComponent<PlayerLimb>();
 
-        // Initialize backpack slots
+        // initialize backpack slots
         for (int i = 0; i < numSlots; i++)
         {
             GameObject slot = Instantiate(slotPrefab, backpackUI.transform);
@@ -65,13 +65,15 @@ public class PlayerBackpack : MonoBehaviour
             ToggleBackpack();
         }
 
-        UpdateBackpackElementVisibility();
+        UpdateBackpackElementVisibility(); // keeps child ui elements in sync with panel 
     }
 
     private void UpdateBackpackElementVisibility()
     {
         dropdownUI.gameObject.SetActive(dropdownVisible && isOpen);
 
+        // if i am inspecting an item, i can see the name and description
+        // might want to delete at a later point if this feels unnecessary
         itemNameText.gameObject.SetActive(isInspecting);
         itemDescriptionText.gameObject.SetActive(isInspecting);
     }
@@ -111,43 +113,26 @@ public class PlayerBackpack : MonoBehaviour
             return false;
         }
 
+        //put the item in the slot and center the item
         item.transform.SetParent(backpackSlots[slotIndex].transform);
-        backpackSlots[slotIndex]
-            .GetComponent<Button>()
-            .onClick.AddListener(() => ToggleDropdown(item));
         backpackSlots[slotIndex]
             .transform.GetChild(0)
             .GetComponent<RectTransform>()
             .anchoredPosition = Vector2.zero;
+        
+        //makes the slot clickable where clicking triggers the dropdown menu
+        backpackSlots[slotIndex]
+            .GetComponent<Button>()
+            .onClick.AddListener(() => ToggleDropdown(item));
 
+        //saves into array
         items[slotIndex] = obj.itemName;
-        return true;
-    }
-
-    public bool AddItem(GameObject item)
-    {
-        int slotIndex = FindSmallestOpenSlot();
-
-        if (slotIndex == -1)
-        {
-            Debug.Log("Backpack is full!");
-            return false;
-        }
-
-        item.transform.SetParent(backpackSlots[slotIndex].transform);
-        backpackSlots[slotIndex]
-            .GetComponent<Button>()
-            .onClick.AddListener(() => ToggleDropdown(item));
-        backpackSlots[slotIndex]
-            .transform.GetChild(0)
-            .GetComponent<RectTransform>()
-            .anchoredPosition = Vector2.zero;
-
         return true;
     }
 
     bool RemoveItem(GameObject item)
     {
+        // iterates through the slots looking for the item
         for (int i = 0; i < backpackSlots.Length; i++)
         {
             if (
@@ -155,6 +140,7 @@ public class PlayerBackpack : MonoBehaviour
                 && backpackSlots[i].transform.GetChild(0).gameObject == item
             )
             {
+                // removes button clicks, hides dropdown, and turns off inspection panel
                 backpackSlots[i].GetComponent<Button>().onClick.RemoveAllListeners();
                 dropdownUI.onValueChanged.RemoveAllListeners(); 
                 dropdownUI.transform.SetParent(backpackUI.transform); 
@@ -172,6 +158,7 @@ public class PlayerBackpack : MonoBehaviour
         return false;
     }
 
+    // currently not used
     void ExtendBackpack(int newSize)
     {
         if (newSize <= numSlots)
@@ -200,12 +187,13 @@ public class PlayerBackpack : MonoBehaviour
 
     void ToggleDropdown(GameObject item)
     {
+        // if clicking a selected item, toggles off; if clicking new item, toggles on
         if (selectedSlot == item || selectedSlot == null)
         {
             dropdownVisible = !dropdownVisible;
         }
 
-        // Update the dropdown options based on the currently selected item
+        // update the dropdown options based on the currently selected item
         if (dropdownVisible)
         {
             selectedSlot = item;
@@ -214,16 +202,20 @@ public class PlayerBackpack : MonoBehaviour
 
             List<string> actions = itemData
                 .collectibleActions.Select(action => action.ToString())
-                .ToList();
+                .ToList(); // actions available can be set from the editor
 
+            // refresh with new list
             dropdownUI.ClearOptions();
             dropdownUI.AddOptions(actions);
 
+            // to make the dropdown appear slightly below the slot
             dropdownUI.transform.SetParent(selectedSlot.transform.parent);
             dropdownUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -70);
 
+            // so that the player doesn't trigger actions from a previously selected item
             dropdownUI.onValueChanged.RemoveAllListeners();    
 
+            // add new listener that triggers when player picks an option
             dropdownUI.onValueChanged.AddListener(
                 delegate
                 {
@@ -249,10 +241,12 @@ public class PlayerBackpack : MonoBehaviour
                             isInspecting = false;
                             break;
 
-                        case Collectible.Actions.EQUIP: 
+                        case Collectible.Actions.EQUIP:
+                            //checks if item is specifically a limb 
                             Limb limbToEquip = itemData.GetComponent<Limb>();
                             if (limbToEquip != null)
                             {   
+                                //attempt to equip; if successful, removes from bag
                                 if (playerLimb != null && playerLimb.EquipLimb(limbToEquip))
                                 {
                                     RemoveItem(selectedSlot);
@@ -264,20 +258,21 @@ public class PlayerBackpack : MonoBehaviour
                             }
                             else
                             {
+                                //for other non-limb items
                                 itemData.Equip();
                             }
 
+                            //clean up after equipping
                             isInspecting = false;
                             dropdownVisible = false;
                             break;
-
-                        // TODO: Add cases for unequipping, and inspecting items
 
                         case Collectible.Actions.INSPECT:
                             InspectItem();
                             break;
 
                         case Collectible.Actions.REMOVE:
+                            // for now, deletes the item entirely (does not drop it)
                             // hiddenItem.Drop(GameObject.FindWithTag("Player").transform);
                             RemoveItem(selectedSlot);
                             break;
@@ -295,6 +290,8 @@ public class PlayerBackpack : MonoBehaviour
         }
     }
 
+    // to inspect an item, show the name and description
+    // may want to remove in the future
     private void InspectItem()
     {
         isInspecting = true;

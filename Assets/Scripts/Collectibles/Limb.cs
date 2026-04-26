@@ -53,9 +53,10 @@ public class Limb : Collectible
         }
 
         GameObject uiItem = ToUIObject();
-        if (backpack.AddItem(uiItem))
+        if (backpack.AddItem(uiItem, this))
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+            transform.SetParent(playerObj.transform);
         }
         else
         {

@@ -29,17 +29,17 @@ public class PlayerController : MonoBehaviour
 
             return;
         }
-        else if (playerHealth.isPlayerInDanger())
+        else if (playerHealth.isPlayerInDanger()) // player on low health
         {
             cameraFollow.enabled = true;
             playerMovement.enabled = true;
-            playerMovement.hasBatteryForJumpAndSprint = false; // Disable jump and sprint if in danger
+            playerMovement.hasBatteryForJumpAndSprint = false; // disable jump and sprint (not enough battery)
         }
         else
         {
             cameraFollow.enabled = true;
             playerMovement.enabled = true;
-            playerMovement.hasBatteryForJumpAndSprint = true; // Enable jump and sprint if not in danger
+            playerMovement.hasBatteryForJumpAndSprint = true; // enable jump and sprint
         }
 
         if (playerBackpack.isOpen || GameController.Instance.isPaused)
@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour
             cameraFollow.enabled = false;
             playerMovement.enabled = false;
             Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState = CursorLockMode.None; // player can use mouse to select options
         }
         else
         {

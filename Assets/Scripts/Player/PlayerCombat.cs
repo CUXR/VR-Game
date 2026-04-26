@@ -8,10 +8,11 @@ public class PlayerCombat : MonoBehaviour
 {
     [SerializeField]
     private float range = 2;
-    private EnemyHealth currentEnemy;
+    private EnemyHealth currentEnemy; //the enemy the player is looking at
 
     void Update()
     {
+        // if player is not looking at an enemy but previously was, remove that enemy's outline
         if (
             !Physics.Raycast(
                 Camera.main.gameObject.transform.position,
@@ -20,8 +21,8 @@ public class PlayerCombat : MonoBehaviour
                 range
             )
         )
-        {
-            if (currentEnemy != null)
+        { 
+            if (currentEnemy != null) 
             {
                 currentEnemy.outline.enabled = false;
                 currentEnemy = null;
@@ -30,8 +31,11 @@ public class PlayerCombat : MonoBehaviour
             return;
         }
 
+        // if player is looking at an enemy and it is alive, then highlight it
+        // only in this case can a player stab the enemy 
         if (hit.transform.GetComponentInParent<EnemyHealth>() is EnemyHealth enemy
             && enemy.isAlive)
+            // these commented lines mandates the player to only hurt enemies stealthily
             // && !enemy.GetComponent<EnemyVision>().PlayerVisible()
             // && !enemy.GetComponent<EnemyVision>().PlayerInvestigate())
         {

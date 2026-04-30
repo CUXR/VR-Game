@@ -1553,54 +1553,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1752140218}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &66425695 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8636230450222540552, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
-    type: 3}
-  m_PrefabInstance: {fileID: 1752140218}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &66425705
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 66425695}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2, y: 1.3140787, z: 0.30817175}
-  m_Center: {x: 0, y: 1.4079005, z: 0.84591436}
---- !u!65 &66425706
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 66425695}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2, y: 1.334643, z: 0.30324543}
-  m_Center: {x: 0, y: 1.4153211, z: -0.8483868}
 --- !u!43 &95216844
 Mesh:
   m_ObjectHideFlags: 0
@@ -17668,20 +17620,15 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 777358025}
     m_Modifications:
-    - target: {fileID: 8943145572799461137, guid: 5303b7b67527449b884d998282c04800,
+    - target: {fileID: 3360487578984931595, guid: 5303b7b67527449b884d998282c04800,
         type: 3}
-      propertyPath: isButtonDoor
-      value: 1
+      propertyPath: m_Name
+      value: Chute
       objectReference: {fileID: 0}
     - target: {fileID: 6941550161179463191, guid: 5303b7b67527449b884d998282c04800,
         type: 3}
       propertyPath: m_IsActive
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3360487578984931595, guid: 5303b7b67527449b884d998282c04800,
-        type: 3}
-      propertyPath: m_Name
-      value: Chute
       objectReference: {fileID: 0}
     - target: {fileID: 7878963336766779377, guid: 5303b7b67527449b884d998282c04800,
         type: 3}
@@ -17737,6 +17684,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8943145572799461137, guid: 5303b7b67527449b884d998282c04800,
+        type: 3}
+      propertyPath: isButtonDoor
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -33364,7 +33316,7 @@ PrefabInstance:
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}
       propertyPath: m_VersionIndex
-      value: 259
+      value: 265
       objectReference: {fileID: 0}
     - target: {fileID: 7692291576190097354, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
         type: 3}
@@ -33376,20 +33328,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Push Box
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5670859399344885189, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
-    - {fileID: 1891656567777939767, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8636230450222540552, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 66425706}
-    - targetCorrespondingSourceObject: {fileID: 8636230450222540552, guid: 4cb1a0bc40b634a31a0f58fe678bdf49,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 66425705}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
 --- !u!43 &1777667775
 Mesh:

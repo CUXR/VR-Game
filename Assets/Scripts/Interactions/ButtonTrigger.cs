@@ -1,10 +1,8 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
-using UnityEngine.PlayerLoop;
 using System.Collections.Generic;
 
-public class ButtonInteract : MonoBehaviour, InteractableInterface
+public class ButtonTrigger  : MonoBehaviour, InteractableInterface
 {
     private Vector3 startPos;
     private Vector3 endPos;
@@ -13,17 +11,28 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     public bool playerPressable = true;
     public bool pressed = false;
     [SerializeField] public List<GameObject> interactableObject;
+    public GameObject button;
     public string tutorialText = ""; // tutorial text, empty if nothing
 
     void Start()
     {
-        startPos = transform.localPosition;
+        startPos = button.transform.localPosition;
         endPos = pressedPos.transform.localPosition;
     }
 
-    //only for when player clicks
+    public void SetGlow(bool state)
+    {
+        // Nothing for now, maybe add an effect later
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
+    }
+
     public void Interact()
     {
+        Debug.Log("entered button trigger interact");
         if (playerPressable)
         {
             if (interactableObject.Count!=0)
@@ -39,16 +48,16 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
     }
 
     IEnumerator PressRoutine() {
-        transform.localPosition = endPos;
+        button.transform.localPosition = endPos;
         pressed = true;
         yield return new WaitForSeconds(0.5f);
-        transform.localPosition = startPos;
+        button.transform.localPosition = startPos;
         pressed = false;
     }
 
     public void Press()
     {
-        transform.localPosition = endPos;
+        button.transform.localPosition = endPos;
         if (interactableObject.Count!=0)
         {
             foreach (GameObject obj in interactableObject) {
@@ -60,12 +69,13 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
 
     public void Release()
     {
-        transform.localPosition = startPos;
+        button.transform.localPosition = startPos;
     }
 
-     void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") || other.CompareTag("Holdable"))
+        //Debug.Log("OnTriggerEnter");
+        if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire"))
         {
             pressed = true;
             Press();
@@ -74,20 +84,13 @@ public class ButtonInteract : MonoBehaviour, InteractableInterface
 
     void OnTriggerExit(Collider other)
     {
+        //Debug.Log("OnTriggerExit");
         if (other.CompareTag("Player") || other.CompareTag("Holdable"))
         {
-            pressed = false;
             Release();
+            pressed = false;
         }
     }
-
-    public void SetGlow(bool state)
-    {
-        // Nothing for now, maybe add an effect later
-    }
-
-    public string GetTutorialText()
-    {
-        return tutorialText;
-    }
 }
+
+

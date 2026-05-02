@@ -35,6 +35,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     [Header("Component References")]
     private Rigidbody rb;
     private Collider playerCollider;
+    private ObjectInteraction playerObjectInteraction;
 
     [Header("Sound Variables")]
     private float objectVolumeRadius = 7f;
@@ -57,8 +58,9 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         {
             size = rend.bounds.size;
         }
-
-        playerCollider = GameObject.FindWithTag("Player").GetComponent<Collider>();
+        GameObject player = GameObject.FindWithTag("Player");
+        playerCollider = player.GetComponent<Collider>();
+        playerObjectInteraction = player.GetComponent<ObjectInteraction>();
     }
 
     public void Interact()
@@ -94,11 +96,13 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
     public void Release()
     {
+        Debug.Log("Release");
         // This implementation of Release drops the object (InteractInterface)
         transform.SetParent(null);
         rb.useGravity = true;
         rb.freezeRotation = false;
         holding = false;
+        playerObjectInteraction.clearHeld();
     }
 
     public void Throw()
@@ -112,6 +116,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
                 + Camera.main.transform.up * throwForce * 0.5f,
             ForceMode.Impulse
         );
+        playerObjectInteraction.clearHeld();
     }
 
     void OnCollisionEnter(Collision collision)

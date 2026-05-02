@@ -63,6 +63,11 @@ public class ObjectInteraction : MonoBehaviour
         }
     }
 
+    public void clearHeld()
+    {
+        held = null;
+    }
+
     private void ClearGlow()
     {
         if (lastHighlighted!=null)

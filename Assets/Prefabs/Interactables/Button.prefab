@@ -298,7 +298,6 @@ GameObject:
   - component: {fileID: 5432653371361330654}
   - component: {fileID: 1481503999770095118}
   - component: {fileID: 4133418842548589705}
-  - component: {fileID: 8395480275371934164}
   - component: {fileID: 1369325480903441200}
   - component: {fileID: 8513634105073448813}
   m_Layer: 0
@@ -382,23 +381,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8395480275371934164
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3518126083953838439}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd668eff147f14bbb9f12ec23c23ae04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pressedPos: {fileID: 2840341883854837554}
-  playerPressable: 0
-  pressed: 0
-  interactableObject:
-  - {fileID: 0}
 --- !u!54 &1369325480903441200
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -514,7 +496,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eec2b911208b2432097399410792e2ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 8395480275371934164}
+  pressedPos: {fileID: 3074089351353667968}
+  playerPressable: 1
+  pressed: 0
+  interactableObject: []
+  button: {fileID: 3074089351353667968}
+  tutorialText: 
 --- !u!54 &4771123764973298101
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -583,7 +570,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8409427761970858886}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 2
   m_Color: {r: 0.61877, g: 0.87218994, b: 0.9716981, a: 1}
   m_Intensity: 0.96
@@ -635,7 +622,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1

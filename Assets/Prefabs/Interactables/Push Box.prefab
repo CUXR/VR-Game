@@ -418,6 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d807a04acc8e64f7c8c08db240124ad6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movable
+  pushForce: 5
   outline: {fileID: 1799210021522492614}
   tutorialText: 
 --- !u!114 &1799210021522492614

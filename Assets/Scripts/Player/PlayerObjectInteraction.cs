@@ -5,9 +5,6 @@ public class ObjectInteraction : MonoBehaviour
     // Range is a float indicating the range in which the player can interact with an object
     public float range = 3;
 
-    // Scale for how much force to push a movable object
-    public float pushForce;
-
     // Object currently being held; if nothing, is null
     private Holdable held = null;
 
@@ -37,7 +34,7 @@ public class ObjectInteraction : MonoBehaviour
                 {
                     if (interactableObject is Movable movableObject)
                     {
-                        movableObject.SetInteractor(gameObject.transform, pushForce);
+                        movableObject.SetInteractor(gameObject.transform);
                     } else if (interactableObject is Holdable holdableObject)
                     {
                         held = holdableObject;

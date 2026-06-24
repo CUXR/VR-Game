@@ -218,7 +218,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 3
-  pushForce: 5
 --- !u!114 &9061215443949643543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +252,7 @@ MonoBehaviour:
   crawlUpDetectionHeight: 0.9
   crawlVignette: 0.3
   maxSlopeAngle: 35
-  stepClimbEnabled: 0
+  stepClimbEnabled: 1
   rayLower: {fileID: 4184299469740010181}
   rayUpper: {fileID: 7133631930879208874}
   stepHeight: 0.35

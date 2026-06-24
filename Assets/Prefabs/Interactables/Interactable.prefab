@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5117063023227608476}
   - component: {fileID: 7258197574252160643}
   - component: {fileID: 180216422519779544}
-  - component: {fileID: 1195375400323775992}
   - component: {fileID: 6739110043792189177}
   - component: {fileID: 4370575428391161021}
+  - component: {fileID: 3373497584068738827}
   m_Layer: 0
   m_Name: Interactable
   m_TagString: Holdable
@@ -85,26 +85,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &1195375400323775992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1738564263377661305}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79fea7f17a8ba4c44b5af1023e2cf46c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxDistance: 1.5
-  throwForce: 15
-  maxRangeTime: 1
-  horizontalOffset: 1.1
-  verticalOffset: 0.2
-  forwardOffset: 1.5
-  outline: {fileID: 4370575428391161021}
-  tutorialText: 
 --- !u!208 &6739110043792189177
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -139,3 +119,17 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &3373497584068738827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738564263377661305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d807a04acc8e64f7c8c08db240124ad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Movable
+  outline: {fileID: 4370575428391161021}
+  tutorialText: 

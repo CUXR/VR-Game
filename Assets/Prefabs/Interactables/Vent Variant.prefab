@@ -117,6 +117,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Vent Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3373497584068738827, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
+        type: 3}
+      propertyPath: outline
+      value: 
+      objectReference: {fileID: 4405542454306148424}
     - target: {fileID: 5117063023227608476, guid: 4df73e799f6694e2aaf97ef8c75dedc0,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -269,5 +274,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7487841, y: 0.8591881, z: 1}
-  m_Center: {x: 0.015409286, y: -0.014586296, z: 7.2888456e-16}
+  m_Size: {x: 0.7196929, y: 0.7162443, z: 0.4468208}
+  m_Center: {x: 0.007437053, y: -0.002650304, z: 0.12679882}

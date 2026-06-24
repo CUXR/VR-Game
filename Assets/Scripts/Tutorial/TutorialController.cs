@@ -12,7 +12,14 @@ public class TutorialController : MonoBehaviour
     // Initializes this instance
     void Awake()
     {
-        if (Instance == null) Instance = this; 
+         if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Displays tutorial text

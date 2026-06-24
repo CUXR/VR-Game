@@ -10,7 +10,7 @@ public class Movable : MonoBehaviour, InteractableInterface
     private float objectVolumeRadius = 7f;
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
-    private float pushForce;
+    public float pushForce;
     private Rigidbody rb;
     private Transform currentInteractor;
     public Outline outline; // outline settings
@@ -21,10 +21,9 @@ public class Movable : MonoBehaviour, InteractableInterface
         rb = gameObject.GetComponent<Rigidbody>();
     }
 
-    public void SetInteractor(Transform interactor, float force)
+    public void SetInteractor(Transform interactor)
     {
         currentInteractor = interactor;
-        pushForce = force;
     }
 
     public void Interact()

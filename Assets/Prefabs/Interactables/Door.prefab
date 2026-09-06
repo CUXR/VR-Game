@@ -172,6 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorBlock
   door: {fileID: 3711644366344284242}
+  tutorialText: 
 --- !u!1 &2430976008398187327
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,6 +345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorBlock
   door: {fileID: 3711644366344284242}
+  tutorialText: 
 --- !u!1 &3131961550142837605
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +413,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -3846018093981099296, guid: 5a6f1712d02a64cc1baeaf81e1e1e37f, type: 3}
+  - {fileID: 2100000, guid: 41959bb495b1b4516b2b69fb9f2c6968, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -524,7 +526,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -3846018093981099296, guid: 5a6f1712d02a64cc1baeaf81e1e1e37f, type: 3}
+  - {fileID: 2100000, guid: 41959bb495b1b4516b2b69fb9f2c6968, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -639,7 +641,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -6478536213147159724, guid: 5a6f1712d02a64cc1baeaf81e1e1e37f, type: 3}
+  - {fileID: 2100000, guid: 2bb4a3c10c4c24a059b5b329f4027650, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -798,10 +800,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dac5d90b60f14dbda58ddfea08d6132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyName: none
   anim: {fileID: 4053911764000562874}
   inDoorPath: 0
   isButtonDoor: 0
+  tutorialText: 
 --- !u!54 &9220242605930709638
 Rigidbody:
   m_ObjectHideFlags: 0

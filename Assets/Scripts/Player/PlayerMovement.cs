@@ -365,6 +365,13 @@ public class PlayerMovement : MonoBehaviour
 
     void StepClimb()
     {
+        
+        if (OnSlope())
+        return;
+
+        rayUpper.transform.position =
+        rayLower.transform.position + stepHeight * Vector3.up;
+
         Debug.DrawRay(rayLower.transform.position, rayLower.transform.forward * 0.1f, Color.red);
         Debug.DrawRay(rayUpper.transform.position, rayUpper.transform.forward * 0.2f, Color.red);
 

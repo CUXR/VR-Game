@@ -10,19 +10,20 @@ public class Movable : MonoBehaviour, InteractableInterface
     private float objectVolumeRadius = 7f;
     private float objectVolumeDecay = 0.4f;
     private float objectLoudness = 0.3f;
-    private float pushForce;
+    public float pushForce;
     private Rigidbody rb;
     private Transform currentInteractor;
+    public Outline outline; // outline settings
+    public string tutorialText = ""; // tutorial text, empty if nothing
 
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
     }
 
-    public void SetInteractor(Transform interactor, float force)
+    public void SetInteractor(Transform interactor)
     {
         currentInteractor = interactor;
-        pushForce = force;
     }
 
     public void Interact()
@@ -31,6 +32,16 @@ public class Movable : MonoBehaviour, InteractableInterface
         Debug.Log("Push");
         Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
         rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
+    }
+
+    public void SetGlow(bool state)
+    {
+        outline.enabled = state;
+    }
+
+    public string GetTutorialText()
+    {
+        return tutorialText;
     }
 
 }

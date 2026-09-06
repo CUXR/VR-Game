@@ -9,8 +9,12 @@ public class Door : MonoBehaviour, InteractableInterface
     [SerializeField]
     private bool inDoorPath = false;
     [SerializeField]
-    public bool isButtonDoor = false;
+    public bool isButtonDoor = false; //when something is not a button door that is the same as being unlocked, when something is a button door with no button thats the same as being locked
     public string tutorialText = ""; // tutorial text, empty if nothing
+    public GameObject[] lockVisuals; // what ever gameObjects need to change material when door is locked/unlocked
+    public bool displayLocked; //simply controls the color of the door
+    public Material lockedMat;
+    public Material unlockedMat;
 
     public void setOpenFalse()
     {
@@ -50,6 +54,24 @@ public class Door : MonoBehaviour, InteractableInterface
         {
             anim.SetBool("open", false);
             inDoorPath = false;
+        }
+    }
+
+    public void SetMat()
+    {
+        if (displayLocked)
+        {
+            for (int i = 0; i < lockVisuals.Length; i++)
+            {
+                lockVisuals[i].GetComponent<Renderer>().material = lockedMat;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < lockVisuals.Length; i++)
+            {
+                lockVisuals[i].GetComponent<Renderer>().material = unlockedMat;
+            }
         }
     }
 

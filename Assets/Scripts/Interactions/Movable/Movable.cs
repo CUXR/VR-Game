@@ -15,6 +15,7 @@ public class Movable : MonoBehaviour, InteractableInterface
     private Transform currentInteractor;
     public Outline outline; // outline settings
     public string tutorialText = ""; // tutorial text, empty if nothing
+    public AudioSource sound;
 
     void Start()
     {
@@ -30,6 +31,7 @@ public class Movable : MonoBehaviour, InteractableInterface
     {
         if (currentInteractor == null) return;
         Debug.Log("Push");
+        if (sound != null) sound.Play();
         Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
         rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
     }

@@ -46,6 +46,8 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     public Outline outline; // outline settings
     public string tutorialText = ""; // tutorial text, empty if nothing
 
+    public AudioSource sound;
+
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
@@ -92,6 +94,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         targetPos = holdPosition.TransformPoint(holdOffset);
         rb.MovePosition(targetPos);
         holding = true;
+        if (sound != null) sound.Play();
     }
 
     public void Release()

@@ -13,6 +13,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
     [SerializeField] public List<GameObject> interactableObject;
     public GameObject button;
     public string tutorialText = ""; // tutorial text, empty if nothing
+    public AudioSource sound;
 
     void Start()
     {
@@ -37,6 +38,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
         {
             if (interactableObject.Count!=0)
             {
+                if (sound != null) sound.Play();
                 Press();
             }
             if (!pressed)

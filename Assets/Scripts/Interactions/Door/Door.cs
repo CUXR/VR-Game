@@ -12,6 +12,8 @@ public class Door : MonoBehaviour, InteractableInterface
     public bool isButtonDoor = false;
     public string tutorialText = ""; // tutorial text, empty if nothing
 
+    public AudioSource sound;
+
     public void setOpenFalse()
     {
         anim.SetBool("open", false);
@@ -32,6 +34,7 @@ public class Door : MonoBehaviour, InteractableInterface
     public void Interact()
     {
         anim.SetBool("open", true);
+        if (sound != null) sound.Play();
     }
 
     // Detects if player is in way of door closing

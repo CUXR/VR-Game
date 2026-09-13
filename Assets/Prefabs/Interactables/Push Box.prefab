@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7908860230728258286}
   - component: {fileID: 1969589686090208523}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -600,6 +600,10 @@ PrefabInstance:
     - target: {fileID: 2697165875783097470, guid: 40c2d3dbf6f34499ca2a5d267da76943, type: 3}
       propertyPath: m_Name
       value: magnetic cart (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2697165875783097470, guid: 40c2d3dbf6f34499ca2a5d267da76943, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3325225246720198340, guid: 40c2d3dbf6f34499ca2a5d267da76943, type: 3}
       propertyPath: m_LocalScale.x

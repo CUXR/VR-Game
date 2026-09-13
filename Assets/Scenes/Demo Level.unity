@@ -32999,7 +32999,7 @@ PrefabInstance:
       objectReference: {fileID: 970775943}
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_VersionIndex
-      value: 328
+      value: 337
       objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: tutorialText

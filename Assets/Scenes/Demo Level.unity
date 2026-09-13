@@ -33101,10 +33101,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 970775943}
     - target: {fileID: 1425836031023014895, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
-      propertyPath: m_Convex
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1425836031023014895, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
@@ -33126,11 +33122,7 @@ PrefabInstance:
       objectReference: {fileID: 970775943}
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_VersionIndex
-      value: 331
-      objectReference: {fileID: 0}
-    - target: {fileID: 3974806353755794553, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
+      value: 343
       objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: tutorialText

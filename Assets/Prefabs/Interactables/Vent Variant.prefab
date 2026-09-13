@@ -72,6 +72,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: vent
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7c0c54032381847f3acbfdaf53bf0b99, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -97,6 +101,10 @@ PrefabInstance:
     - target: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
       propertyPath: m_Name
       value: Vent Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 1738564263377661305, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3373497584068738827, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
       propertyPath: outline

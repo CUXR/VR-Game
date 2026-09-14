@@ -13,6 +13,7 @@ public class Generator : MonoBehaviour
     public Material buttonMat;
     public List<GameObject> cylinders = new List<GameObject>();
     public List<Material> cylinderMats = new List<Material>();
+    public AudioSource generatorHum;
 
     void Start()
     {
@@ -46,6 +47,11 @@ public class Generator : MonoBehaviour
                 for (int i = 0; i < doors.Count; i++)
                 {
                     doors[i].isButtonDoor = false;
+                }
+
+                if (generatorHum != null && !generatorHum.isPlaying) 
+                {
+                    generatorHum.Play();
                 }
             }
             Destroy(obj.gameObject);

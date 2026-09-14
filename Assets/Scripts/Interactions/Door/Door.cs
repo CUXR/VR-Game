@@ -16,6 +16,8 @@ public class Door : MonoBehaviour, InteractableInterface
     public Material lockedMat;
     public Material unlockedMat;
 
+    public AudioSource sound;
+
     public void setOpenFalse()
     {
         anim.SetBool("open", false);
@@ -36,6 +38,7 @@ public class Door : MonoBehaviour, InteractableInterface
     public void Interact()
     {
         anim.SetBool("open", true);
+        if (sound != null) sound.Play();
     }
 
     // Detects if player is in way of door closing

@@ -17,7 +17,6 @@ GameObject:
   - component: {fileID: 3755761135282884420}
   - component: {fileID: 5432873175042709972}
   m_Layer: 0
-  m_Layer: 11
   m_Name: Wire
   m_TagString: Wire
   m_Icon: {fileID: 0}
@@ -193,7 +192,7 @@ AudioSource:
   m_GameObject: {fileID: 3079853164802308631}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -5137757907114916415, guid: 49206b89f724aae4ba94c7427778d17d, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 49b2252d3d14a3d4dac71e7cad17f003, type: 3}
   m_PlayOnAwake: 0

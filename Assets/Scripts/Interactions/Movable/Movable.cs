@@ -31,7 +31,7 @@ public class Movable : MonoBehaviour, InteractableInterface
     {
         if (currentInteractor == null) return;
         Debug.Log("Push");
-        if (sound != null) sound.Play();
+        if (sound != null && !sound.isPlaying) sound.Play();
         Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
         rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
     }

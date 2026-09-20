@@ -14,6 +14,12 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
     public GameObject button;
     public string tutorialText = ""; // tutorial text, empty if nothing
     public AudioSource sound;
+    public float pressDuration = 0.5f; // how long a player press stays down
+
+    // Colliders currently touching the button. While this is non-empty the
+    // button is held down; it only springs back once the last one leaves.
+    private readonly HashSet<Collider> occupants = new HashSet<Collider>();
+    private Coroutine playerPressRoutine;
 
     void Start()
     {
@@ -33,66 +39,68 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
 
     public void Interact()
     {
-        Debug.Log("entered button trigger interact");
         if (playerPressable)
         {
-            if (interactableObject.Count!=0)
-            {
-                if (sound != null) sound.Play();
-                Press();
-            }
-            if (!pressed)
-            {
-                StartCoroutine(PressRoutine());
-                pressed = false;
-            }
+            if (playerPressRoutine != null) StopCoroutine(playerPressRoutine);
+            playerPressRoutine = StartCoroutine(PressRoutine());
         }
     }
 
+    // A player press is momentary: down, then back up after pressDuration
+    // unless something is resting on the button by then.
     IEnumerator PressRoutine() {
-        button.transform.localPosition = endPos;
-        pressed = true;
-        yield return new WaitForSeconds(0.5f);
-        button.transform.localPosition = startPos;
-        pressed = false;
+        Press();
+        yield return new WaitForSeconds(pressDuration);
+        playerPressRoutine = null;
+        if (occupants.Count == 0) Release();
     }
 
     public void Press()
     {
+        if (sound != null) sound.Play();
         button.transform.localPosition = endPos;
-        if (interactableObject.Count!=0)
-        {
-            foreach (GameObject obj in interactableObject) {
-                InteractableInterface interactable = obj.GetComponent<InteractableInterface>();
-                interactable.Interact();
-            }
-        }
+        pressed = true;
+        TriggerTargets();
     }
 
     public void Release()
     {
         button.transform.localPosition = startPos;
+        pressed = false;
+    }
+
+    private void TriggerTargets()
+    {
+        foreach (GameObject obj in interactableObject)
+        {
+            if (obj == null) continue;
+            InteractableInterface interactable = obj.GetComponent<InteractableInterface>();
+            if (interactable != null) interactable.Interact();
+        }
+    }
+
+    private bool CanPress(Collider other)
+    {
+        return other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire");
     }
 
     void OnTriggerEnter(Collider other)
     {
-        //Debug.Log("OnTriggerEnter");
-        if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire"))
-        {
-            pressed = true;
-            Press();
-        }
+        if (!CanPress(other)) return;
+        bool wasEmpty = occupants.Count == 0;
+        if (!occupants.Add(other)) return;
+        if (wasEmpty) Press();
     }
 
     void OnTriggerExit(Collider other)
     {
-        //Debug.Log("OnTriggerExit");
-        if (other.CompareTag("Player") || other.CompareTag("Holdable"))
-        {
-            Release();
-            pressed = false;
-        }
+        if (!occupants.Remove(other)) return;
+        ReleaseIfEmpty();
+    }
+
+    private void ReleaseIfEmpty()
+    {
+        // While a player press is still running, let it do the release.
+        if (occupants.Count == 0 && playerPressRoutine == null) Release();
     }
 }
-
-

@@ -15,7 +15,8 @@ public class Movable : MonoBehaviour, InteractableInterface
     private Transform currentInteractor;
     public Outline outline; // outline settings
     public string tutorialText = ""; // tutorial text, empty if nothing
-    public AudioSource sound;
+    public AudioSource sound_moving;
+    public AudioSource sound_hit_wall;
 
     void Start()
     {
@@ -27,11 +28,31 @@ public class Movable : MonoBehaviour, InteractableInterface
         currentInteractor = interactor;
     }
 
+    void Update()
+    {
+        if (sound_moving != null && rb != null)
+        {
+            if (rb.linearVelocity.magnitude > 0.25f)
+            {
+                if (!sound_moving.isPlaying)
+                {
+                    sound_moving.Play();
+                }
+            }
+            else
+            {
+                if (sound_moving.isPlaying)
+                {
+                    sound_moving.Pause(); 
+                }
+            }
+        }
+    }
+
     public void Interact()
     {
         if (currentInteractor == null) return;
         Debug.Log("Push");
-        if (sound != null && !sound.isPlaying) sound.Play();
         Vector3 pushDir = (transform.position - currentInteractor.position).normalized;
         rb.AddForce(pushDir * pushForce * transform.localScale.magnitude, ForceMode.Impulse);
     }
@@ -46,4 +67,14 @@ public class Movable : MonoBehaviour, InteractableInterface
         return tutorialText;
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.relativeVelocity.magnitude > 2f) 
+        {
+            if (sound_hit_wall != null && !sound_hit_wall.isPlaying) 
+            {
+                sound_hit_wall.Play();
+            }
+        }
+    }
 }

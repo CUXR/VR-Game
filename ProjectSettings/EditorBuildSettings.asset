@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Old Level Designs/Demo Level.unity
     guid: fe77c66598ead4d14acf897fa1eafb3c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Old Level Designs/Summer - Demo Level.unity
     guid: 7ff0719e3e2824f409687ac4c5b30646
+  - enabled: 1
+    path: Assets/Scenes/Demo Level.unity
+    guid: ac01b937eb7f24ac6968645aefde43f5
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: a04caced1dd4a45b0ba5ac89b58737ca, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 036642225c4304e499b8cd0a2302b976, type: 2}

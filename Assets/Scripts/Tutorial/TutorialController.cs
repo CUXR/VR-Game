@@ -1,38 +1,999 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Text.RegularExpressions;
 using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class TutorialController : MonoBehaviour
 {
-    public static TutorialController Instance; 
-    
-    public TextMeshProUGUI uiTextElement; 
-
-    // Initializes this instance
-    void Awake()
+    private const float HeadsetDistance = 1.5f;
+    private const float VerticalOffset = -0.18f;
+    private const float CanvasScale = 0.00065f;
+    private const float ForegroundDepth = 0.05f;
+    private const float DesignFontSize = 118.615f;
+    private const float AnimationDuration = 0.7f;
+    private const float NewDesignWidth = 2100f;
+    private const float NewDesignHeight = 900f;
+    private const int CurveColumns = 64;
+    private const int CurveRows = 16;
+    private const float FigmaPanelX = 10407f;
+    private const float FigmaPanelY = 2618f;
+    private const float FigmaFrameX = 9604f;
+    private const float FigmaFrameY = 2235f;
+    private const float NewForegroundDepth = 0.2f;
+    // Visible ink width of the original Figma Grab PNG, measured in pixels.
+    private const float GrabReferenceInkWidth = 381f;
+    private const float TypewriterSecondsPerCharacter = 0.055f;
+    private const float TerminalScrollDuration = 0.36f;
+    private const float TerminalLinePause = 0.24f;
+    private const float TerminalBottomRowY = 1135f;
+    private const float TerminalRowSpacing = 61f;
+    private static readonly string[] TerminalLines =
     {
-         if (Instance == null)
+        ">_ GRAB MODULE — TEST ",
+        ">_ WAITING FOR TESTING",
+        ">_ ACTION DETECTED",
+        "[████████████] 100%",
+        ">_ SUCCESS!"
+    };
+    private static readonly float[] TerminalLineX =
+        { 1987f, 1987f, 1987f, 2034f, 1987f };
+
+    private static readonly Regex PromptPattern = new Regex(
+        @"^\s*Press\s+\[?([A-Za-z0-9]+)\]?\s+to\s+(.+?)\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled
+    );
+
+    public static TutorialController Instance { get; private set; }
+    public TextMeshProUGUI uiTextElement;
+    public bool useRightGripToToggle = true;
+
+    private RectTransform promptRoot;
+    private RectTransform contentRoot;
+    private RectTransform floatingRoot;
+    private Canvas promptCanvas;
+    private CanvasGroup contentGroup;
+    private RawImage backgroundImage, panelHighlightImage;
+    private Camera headsetCamera;
+    private TMP_FontAsset generatedFont;
+    private Material frostedMaterial;
+    private InputAction rightGripAction;
+    private float animationProgress;
+    private bool targetVisible;
+    private TextMeshProUGUI pressText, keyText, actionText;
+    private TextMeshProUGUI shadowPressText, shadowKeyText, shadowActionText;
+    private Mesh curvedMesh;
+    private Mesh[] foregroundMeshes;
+    private Material[] foregroundMaterials;
+    private readonly List<TextMeshPro> figmaLabels = new List<TextMeshPro>();
+    private readonly List<Material> figmaTextMaterials = new List<Material>();
+    private readonly Dictionary<TextMeshPro, Vector2> figmaLabelOrigins =
+        new Dictionary<TextMeshPro, Vector2>();
+    private readonly Dictionary<TextMeshPro, float> figmaLabelDepths =
+        new Dictionary<TextMeshPro, float>();
+    private readonly Dictionary<TextMeshPro, Vector3[][]> figmaFlatVertices =
+        new Dictionary<TextMeshPro, Vector3[][]>();
+    private readonly TextMeshPro[] terminalLabels = new TextMeshPro[5];
+    private readonly TextMeshPro[] terminalShadows = new TextMeshPro[5];
+    private int terminalLineIndex;
+    private int terminalCharacters;
+    private float terminalPhaseTime;
+    private float terminalNextCharacterAt;
+    private float terminalStartAt;
+    private float terminalCursorRowY;
+    private TerminalPhase terminalPhase;
+
+    private enum TerminalPhase { Waiting, Typing, Pausing, Scrolling, Complete }
+    private float foregroundOpacity;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureController()
+    {
+        if (Instance == null)
+            new GameObject("Tutorial Controller").AddComponent<TutorialController>();
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        if (uiTextElement != null)
+            uiTextElement.gameObject.SetActive(false);
+
+        BuildCurvedPrompt();
+        if (useRightGripToToggle)
+        {
+            rightGripAction = new InputAction("Show Tutorial", InputActionType.Button);
+            rightGripAction.AddBinding("<XRController>{RightHand}/gripPressed");
+            rightGripAction.AddBinding("<XRController>{RightHand}/{GripButton}");
+            rightGripAction.Enable();
+            ApplyAnimation();
+            promptRoot.gameObject.SetActive(false);
         }
         else
         {
-            Destroy(gameObject);
+            animationProgress = 1f;
+            ApplyAnimation();
         }
     }
 
-    // Displays tutorial text
+    private void Update()
+    {
+        if (useRightGripToToggle && rightGripAction != null)
+        {
+            if (rightGripAction.WasPressedThisFrame())
+            {
+                targetVisible = !targetVisible;
+                if (targetVisible)
+                {
+                    ResetTerminal();
+                    promptRoot.gameObject.SetActive(true);
+                }
+            }
+
+            float destination = targetVisible ? 1f : 0f;
+            if (!Mathf.Approximately(animationProgress, destination))
+            {
+                animationProgress = Mathf.MoveTowards(animationProgress, destination,
+                    Time.unscaledDeltaTime / AnimationDuration);
+                ApplyAnimation();
+                if (!targetVisible && animationProgress <= 0f)
+                    promptRoot.gameObject.SetActive(false);
+            }
+        }
+
+        if (targetVisible || !useRightGripToToggle)
+            UpdateTerminal();
+
+        if (foregroundMaterials != null && foregroundMaterials[1] != null)
+        {
+            // The grip ring and terminal cursor pulse while the prompt is visible.
+            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2f * Mathf.PI * 1.2f);
+            foregroundMaterials[1].SetFloat("_Opacity",
+                foregroundOpacity * Mathf.Lerp(0.12f, 1f, pulse));
+            float cursorOpacity = terminalPhase == TerminalPhase.Typing
+                || Mathf.Repeat(Time.unscaledTime * 1.6f, 1f) < 0.55f ? 1f : 0f;
+            if (foregroundMaterials[5] != null)
+                foregroundMaterials[5].SetFloat("_Opacity",
+                    foregroundOpacity * cursorOpacity);
+            if (foregroundMaterials[6] != null)
+                foregroundMaterials[6].SetFloat("_Opacity",
+                    foregroundOpacity * cursorOpacity);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (headsetCamera == null || !headsetCamera.isActiveAndEnabled)
+            headsetCamera = Camera.main;
+        if (headsetCamera == null)
+            return;
+
+        if (promptRoot.parent != headsetCamera.transform)
+        {
+            promptRoot.SetParent(headsetCamera.transform, false);
+            if (promptCanvas != null)
+                promptCanvas.worldCamera = headsetCamera;
+        }
+
+        // Move the whole animation along a 1.5 m sphere around the headset.
+        float rise = 1f - Mathf.Pow(1f - animationProgress, 3f);
+        float vertical = VerticalOffset + Mathf.Lerp(-140f, 0f, rise) * CanvasScale;
+        float forward = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - vertical * vertical);
+        promptRoot.localPosition = new Vector3(0f, vertical, forward);
+        promptRoot.localRotation = Quaternion.identity;
+        promptRoot.localScale = Vector3.one * CanvasScale;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+        rightGripAction?.Dispose();
+        if (generatedFont != null)
+            Destroy(generatedFont);
+        if (frostedMaterial != null)
+            Destroy(frostedMaterial);
+        if (curvedMesh != null)
+            Destroy(curvedMesh);
+        if (foregroundMeshes != null)
+            foreach (Mesh mesh in foregroundMeshes)
+                if (mesh != null) Destroy(mesh);
+        if (foregroundMaterials != null)
+            foreach (Material material in foregroundMaterials)
+                if (material != null) Destroy(material);
+        foreach (Material material in figmaTextMaterials)
+            if (material != null) Destroy(material);
+        if (promptRoot != null)
+            Destroy(promptRoot.gameObject);
+    }
+
     public void DisplayText(InteractableInterface interactableObject)
     {
-        Debug.Log("display");
-        uiTextElement.text = interactableObject.GetTutorialText();
+        if (curvedMesh != null)
+            return; // Figma 53:2 contains only the glass surface.
+        if (useRightGripToToggle)
+            return;
+
+        if (interactableObject == null)
+        {
+            ClearText();
+            return;
+        }
+
+        string prompt = interactableObject.GetTutorialText();
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            ClearText();
+            return;
+        }
+
+        Match match = PromptPattern.Match(prompt);
+        string action = match.Success ? match.Groups[2].Value.Trim() : prompt.Trim();
+        action = char.ToUpperInvariant(action[0]) + action.Substring(1);
+        string press = match.Success ? "Press" : "";
+        string key = match.Success ? match.Groups[1].Value.ToUpperInvariant() : "";
+        string suffix = match.Success ? "to <b>" + action + "</b>" : action;
+
+        SetPromptText(press, key, suffix);
+        promptRoot.gameObject.SetActive(true);
+        if (uiTextElement != null)
+            uiTextElement.text = prompt;
     }
 
-    // Clears current tutorial text
     public void ClearText()
     {
-        uiTextElement.text = "";
+        if (curvedMesh != null)
+            return;
+        if (useRightGripToToggle)
+            return;
+
+        if (promptRoot != null)
+            promptRoot.gameObject.SetActive(false);
+        if (uiTextElement != null)
+            uiTextElement.text = "";
     }
 
+    private void SetPromptText(string press, string key, string action)
+    {
+        pressText.text = shadowPressText.text = press;
+        keyText.text = shadowKeyText.text = key;
+        actionText.text = shadowActionText.text = action;
+    }
+
+    private void ApplyAnimation()
+    {
+        if (curvedMesh != null)
+        {
+            float grow = 1f - Mathf.Pow(1f - animationProgress, 3f);
+            float width = Mathf.Lerp(NewDesignHeight, NewDesignWidth, grow);
+            frostedMaterial.SetFloat("_PanelWidth", width);
+            frostedMaterial.SetFloat("_PanelHeight", NewDesignHeight);
+            frostedMaterial.SetFloat("_CornerRadius",
+                Mathf.Lerp(NewDesignHeight * 0.5f, 140f, grow));
+            BuildCurvedMesh(width);
+            foregroundOpacity = Mathf.SmoothStep(0f, 1f,
+                Mathf.InverseLerp(0.58f, 0.95f, animationProgress));
+            if (foregroundMaterials != null)
+            {
+                for (int i = 0; i < foregroundMaterials.Length; i++)
+                    if (foregroundMaterials[i] != null && i != 1)
+                        foregroundMaterials[i].SetFloat("_Opacity",
+                            foregroundOpacity * OverlayAlpha(i));
+            }
+            foreach (TextMeshPro label in figmaLabels)
+                if (label != null) label.alpha = foregroundOpacity;
+            return;
+        }
+        float stretch = 1f - Mathf.Pow(1f - animationProgress, 3f);
+        float panelWidth = 400f + 900f * stretch;
+        float panelHeight = 400f;
+        Vector2 panelSize = new Vector2(panelWidth, panelHeight);
+        backgroundImage.rectTransform.sizeDelta = panelSize;
+        panelHighlightImage.rectTransform.sizeDelta = panelSize;
+        panelHighlightImage.color = new Color(1f, 1f, 1f,
+            Mathf.Clamp01((panelWidth - 400f) / 900f));
+        if (frostedMaterial != null)
+        {
+            frostedMaterial.SetFloat("_PanelWidth", panelWidth);
+            frostedMaterial.SetFloat("_PanelHeight", panelHeight);
+        }
+
+        float textProgress = Mathf.SmoothStep(0f, 1f,
+            Mathf.InverseLerp(0.42f, 0.95f, animationProgress));
+        contentGroup.alpha = textProgress;
+        contentRoot.localScale = Vector3.one * Mathf.Lerp(0.55f, 1f, textProgress);
+    }
+
+    private void BuildCurvedPrompt()
+    {
+        GameObject root = new GameObject("Figma 53:2 Curved Frosted Panel",
+            typeof(RectTransform), typeof(MeshFilter), typeof(MeshRenderer));
+        promptRoot = root.GetComponent<RectTransform>();
+        promptRoot.sizeDelta = new Vector2(NewDesignWidth, NewDesignHeight);
+        curvedMesh = new Mesh { name = "Curved tutorial glass" };
+        curvedMesh.MarkDynamic();
+        root.GetComponent<MeshFilter>().sharedMesh = curvedMesh;
+
+        Shader shader = Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
+        if (shader == null)
+        {
+            Debug.LogError("Tutorial frosted glass shader is missing.", this);
+            root.SetActive(false);
+            return;
+        }
+        frostedMaterial = new Material(shader);
+        // Render after scene transparents; depth testing is disabled in the shader.
+        frostedMaterial.renderQueue = 4990;
+        root.GetComponent<MeshRenderer>().sharedMaterial = frostedMaterial;
+        BuildFigmaOverlays();
+    }
+
+    private void BuildFigmaOverlays()
+    {
+        Shader overlayShader = Resources.Load<Shader>("TutorialDesign/TutorialFigmaOverlay");
+        if (overlayShader == null)
+        {
+            Debug.LogError("Tutorial Figma overlay shader is missing.", this);
+            return;
+        }
+
+        foregroundMeshes = new Mesh[7];
+        foregroundMaterials = new Material[7];
+        // Absolute Figma bounds are converted from the 2100 x 900 glass node.
+        CreateFigmaOverlay(2, "Left Controller Shadow (54:82)",
+            "figma-left-controller-shadow", overlayShader,
+            1005f + FigmaFrameX, 601f + FigmaFrameY,
+            334.0408f, 478.5183f, 12, 8, forwardDepth: 0f);
+        CreateFigmaOverlay(3, "Flash Indicator Shadow (54:85)",
+            "figma-flash-indicator-shadow", overlayShader,
+            1257f + FigmaFrameX, 913f + FigmaFrameY,
+            42.5836f, 42.5836f, 4, 4, forwardDepth: 0f);
+        CreateFigmaOverlay(0, "Left Controller (53:64)", "figma-left-controller",
+            overlayShader, 10606f, 2833f, 326.0408f, 470.5183f, 12, 8);
+        CreateFigmaOverlay(1, "Flashing Indicator (53:58)", "figma-flash-indicator",
+            overlayShader, 10858f, 3145f, 34.5836f, 34.5836f, 4, 4);
+        CreateFigmaOverlay(4, "Divider (54:71)", null, overlayShader,
+            1853f + FigmaFrameX, 506f + FigmaFrameY, 1f, 654f, 1, 12, 0.6f);
+        CreateFigmaOverlay(5, "Terminal Indicator Shadow (54:99)",
+            "figma-terminal-indicator-shadow", overlayShader,
+            2427f + FigmaFrameX, 971f + FigmaFrameY,
+            28f, 42f, 1, 1, forwardDepth: 0f);
+        CreateFigmaOverlay(6, "Terminal Indicator (54:72)", null,
+            overlayShader, 2426f + FigmaFrameX, 969f + FigmaFrameY,
+            20f, 34f, 1, 1);
+
+        BuildFigmaText();
+    }
+
+    private static float OverlayAlpha(int index)
+    {
+        return index == 4 ? 0.6f : 1f;
+    }
+
+    private void CreateFigmaOverlay(int index, string name, string textureName,
+        Shader shader, float figmaX, float figmaY, float width, float height,
+        int columns, int rows, float alpha = 1f, float blurPixels = 0f,
+        float forwardDepth = NewForegroundDepth)
+    {
+        Texture2D texture = textureName == null ? Texture2D.whiteTexture
+            : Resources.Load<Texture2D>("TutorialDesign/" + textureName);
+        if (texture == null)
+        {
+            Debug.LogError("Missing Figma texture: " + textureName, this);
+            return;
+        }
+
+        GameObject layer = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
+        layer.transform.SetParent(promptRoot, false);
+        Mesh mesh = new Mesh { name = name + " curved mesh" };
+        foregroundMeshes[index] = mesh;
+        int verticesPerRow = columns + 1;
+        Vector3[] vertices = new Vector3[verticesPerRow * (rows + 1)];
+        Vector2[] uv = new Vector2[vertices.Length];
+        int[] triangles = new int[columns * rows * 6];
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        float left = figmaX - FigmaPanelX - NewDesignWidth * 0.5f;
+        float bottom = NewDesignHeight * 0.5f - (figmaY - FigmaPanelY) - height;
+        for (int y = 0; y <= rows; y++)
+        {
+            float v = y / (float)rows;
+            for (int x = 0; x <= columns; x++)
+            {
+                float u = x / (float)columns;
+                float angle = (left + u * width) * CanvasScale / radius;
+                int vertex = y * verticesPerRow + x;
+                // Move toward the headset along this panel point's sightline.
+                // Moving only local Z made left-side art appear farther left.
+                Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+                    VerticalOffset + (bottom + v * height) * CanvasScale,
+                    radius * Mathf.Cos(angle));
+                Vector3 foregroundPoint = panelPoint
+                    - panelPoint.normalized * forwardDepth;
+                vertices[vertex] = (foregroundPoint
+                    - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
+                uv[vertex] = new Vector2(u, v);
+            }
+        }
+        int triangle = 0;
+        for (int y = 0; y < rows; y++)
+        {
+            for (int x = 0; x < columns; x++)
+            {
+                int a = y * verticesPerRow + x;
+                int b = a + verticesPerRow;
+                int c = a + 1;
+                int d = b + 1;
+                triangles[triangle++] = a;
+                triangles[triangle++] = b;
+                triangles[triangle++] = c;
+                triangles[triangle++] = b;
+                triangles[triangle++] = d;
+                triangles[triangle++] = c;
+            }
+        }
+        mesh.vertices = vertices;
+        mesh.uv = uv;
+        mesh.triangles = triangles;
+        mesh.RecalculateBounds();
+        layer.GetComponent<MeshFilter>().sharedMesh = mesh;
+        Material material = new Material(shader);
+        material.SetTexture("_MainTex", texture);
+        material.SetFloat("_Opacity", alpha);
+        material.SetFloat("_BlurPixels", blurPixels);
+        material.SetFloat("_Solid", textureName == null ? 1f : 0f);
+        material.SetFloat("_UseTextureAlpha",
+            index == 2 || index == 3 || index == 5 ? 1f : 0f);
+        material.renderQueue = index == 2 || index == 3 || index == 5
+            ? 4991 : 4992;
+        foregroundMaterials[index] = material;
+        layer.GetComponent<MeshRenderer>().sharedMaterial = material;
+    }
+
+    private void BuildFigmaText()
+    {
+        TMP_FontAsset font = Resources.Load<TMP_FontAsset>(
+            "TutorialDesign/MonomaniacOne SDF");
+        Shader textShader = Resources.Load<Shader>(
+            "TutorialDesign/TutorialTextOverlay");
+        if (font == null || textShader == null)
+        {
+            Debug.LogError("Tutorial Monomaniac One font or overlay shader is missing.", this);
+            return;
+        }
+
+        // Every Figma text layer, including its soft shadow, remains editable TMP text.
+        AddFigmaLabel("CLICK HERE TO GRAB_ Shadow (54:81)", "CLICK HERE TO GRAB_",
+            1315f, 898f, 385f, font, textShader, true);
+        terminalShadows[3] = AddFigmaLabel("Battery Bar Shadow (54:88)", "[████████████] 100%",
+            2043f, 1080f, 660f, font, textShader, true);
+        terminalShadows[0] = AddFigmaLabel("Grab Test Shadow (54:89)", ">_ GRAB MODULE — TEST ",
+            1996f, 897f, 429f, font, textShader, true);
+        terminalShadows[1] = AddFigmaLabel("Waiting Shadow (54:90)", ">_ WAITING FOR TESTING",
+            1996f, 958f, 428f, font, textShader, true);
+        terminalShadows[2] = AddFigmaLabel("Action Shadow (54:91)", ">_ ACTION DETECTED",
+            1996f, 1019f, 369f, font, textShader, true);
+        terminalShadows[4] = AddFigmaLabel("Success Shadow (54:92)", ">_ SUCCESS!",
+            1996f, 1141f, 221f, font, textShader, true);
+        AddFigmaLabel("Date Shadow (54:93)", "01/01/2076",
+            1996f, 480f, 228f, font, textShader, true);
+        AddFigmaLabel("Time Shadow (54:94)", "12:08:05",
+            2282f, 480f, 160f, font, textShader, true);
+        AddFigmaLabel("Battery Shadow (54:95)", "BATTERY 100%",
+            2500f, 480f, 277f, font, textShader, true);
+
+        TextMeshPro grabLabel = AddFigmaLabel("CLICK HERE TO GRAB_ (53:65)",
+            "CLICK HERE TO GRAB_",
+            1308f, 891f, 385f, font, textShader);
+        terminalLabels[3] = AddFigmaLabel("Battery Bar (54:75)", "[████████████] 100%",
+            2034f, 1074f, 660f, font, textShader);
+        terminalLabels[0] = AddFigmaLabel("Grab Test (53:7)", ">_ GRAB MODULE — TEST ",
+            1987f, 891f, 429f, font, textShader);
+        terminalLabels[1] = AddFigmaLabel("Waiting (53:67)", ">_ WAITING FOR TESTING",
+            1987f, 952f, 428f, font, textShader);
+        terminalLabels[2] = AddFigmaLabel("Action (54:73)", ">_ ACTION DETECTED",
+            1987f, 1013f, 369f, font, textShader);
+        terminalLabels[4] = AddFigmaLabel("Success (54:77)", ">_ SUCCESS!",
+            1987f, 1135f, 221f, font, textShader);
+        AddFigmaLabel("Date (53:36)", "01/01/2076",
+            1987f, 474f, 228f, font, textShader);
+        AddFigmaLabel("Time (53:38)", "12:08:05",
+            2273f, 474f, 160f, font, textShader);
+        AddFigmaLabel("Battery (54:79)", "BATTERY 100%",
+            2491f, 474f, 277f, font, textShader);
+
+        MatchFigmaTextToGrabReference(grabLabel);
+        CurveFigmaLabels();
+        ResetTerminal();
+    }
+
+    private void ResetTerminal()
+    {
+        if (terminalLabels[0] == null) return;
+        terminalLineIndex = 0;
+        terminalCharacters = 0;
+        terminalPhase = TerminalPhase.Waiting;
+        terminalStartAt = Time.unscaledTime + (useRightGripToToggle
+            ? AnimationDuration * 0.65f : 0.2f);
+        terminalCursorRowY = TerminalBottomRowY;
+        for (int i = 0; i < TerminalLines.Length; i++)
+        {
+            SetFigmaText(terminalLabels[i], "");
+            SetFigmaText(terminalShadows[i], "");
+            MoveFigmaLabel(terminalLabels[i], TerminalBottomRowY);
+            MoveFigmaLabel(terminalShadows[i], TerminalBottomRowY + 6f);
+        }
+        UpdateTerminalCursor();
+    }
+
+    private void UpdateTerminal()
+    {
+        if (terminalLabels[0] == null) return;
+        float now = Time.unscaledTime;
+        switch (terminalPhase)
+        {
+            case TerminalPhase.Waiting:
+                if (now >= terminalStartAt)
+                {
+                    terminalPhase = TerminalPhase.Typing;
+                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
+                }
+                break;
+            case TerminalPhase.Typing:
+                if (now >= terminalNextCharacterAt)
+                {
+                    terminalCharacters = Mathf.Min(terminalCharacters + 1,
+                        TerminalLines[terminalLineIndex].Length);
+                    string typed = TerminalLines[terminalLineIndex]
+                        .Substring(0, terminalCharacters);
+                    SetFigmaText(terminalLabels[terminalLineIndex], typed);
+                    SetFigmaText(terminalShadows[terminalLineIndex], typed);
+                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
+                    if (terminalCharacters == TerminalLines[terminalLineIndex].Length)
+                    {
+                        terminalPhase = TerminalPhase.Pausing;
+                        terminalPhaseTime = now;
+                    }
+                }
+                break;
+            case TerminalPhase.Pausing:
+                if (now - terminalPhaseTime >= TerminalLinePause)
+                {
+                    terminalPhase = terminalLineIndex == TerminalLines.Length - 1
+                        ? TerminalPhase.Complete : TerminalPhase.Scrolling;
+                    terminalPhaseTime = now;
+                }
+                break;
+            case TerminalPhase.Scrolling:
+                float progress = Mathf.Clamp01((now - terminalPhaseTime)
+                    / TerminalScrollDuration);
+                float eased = progress * progress * (3f - 2f * progress);
+                for (int i = 0; i <= terminalLineIndex; i++)
+                {
+                    float fromY = TerminalBottomRowY
+                        - TerminalRowSpacing * (terminalLineIndex - i);
+                    float rowY = fromY - TerminalRowSpacing * eased;
+                    MoveFigmaLabel(terminalLabels[i], rowY);
+                    MoveFigmaLabel(terminalShadows[i], rowY + 6f);
+                }
+                terminalCursorRowY = TerminalBottomRowY
+                    - TerminalRowSpacing * eased;
+                if (progress >= 1f)
+                {
+                    terminalLineIndex++;
+                    terminalCharacters = 0;
+                    terminalCursorRowY = TerminalBottomRowY;
+                    MoveFigmaLabel(terminalLabels[terminalLineIndex],
+                        TerminalBottomRowY);
+                    MoveFigmaLabel(terminalShadows[terminalLineIndex],
+                        TerminalBottomRowY + 6f);
+                    terminalPhase = TerminalPhase.Typing;
+                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
+                }
+                break;
+        }
+        UpdateTerminalCursor();
+    }
+
+    private void SetFigmaText(TextMeshPro label, string content)
+    {
+        if (label == null || label.text == content) return;
+        figmaFlatVertices[label] = null;
+        label.text = content;
+        label.ForceMeshUpdate(true, true);
+    }
+
+    private void MoveFigmaLabel(TextMeshPro label, float frameY)
+    {
+        if (label == null) return;
+        Vector2 origin = figmaLabelOrigins[label];
+        float top = NewDesignHeight * 0.5f
+            - (FigmaFrameY + frameY - FigmaPanelY);
+        if (Mathf.Abs(origin.y - top) < 0.001f) return;
+        origin.y = top;
+        figmaLabelOrigins[label] = origin;
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        float angle = origin.x * CanvasScale / radius;
+        Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+            VerticalOffset + top * CanvasScale, radius * Mathf.Cos(angle));
+        Vector3 foregroundPoint = panelPoint
+            - panelPoint.normalized * figmaLabelDepths[label];
+        label.transform.localPosition = (foregroundPoint
+            - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
+        label.ForceMeshUpdate(true, true);
+    }
+
+    private void UpdateTerminalCursor()
+    {
+        if (foregroundMeshes == null || foregroundMeshes.Length < 7
+            || foregroundMeshes[5] == null || foregroundMeshes[6] == null)
+            return;
+        float cursorX = TerminalLineX[terminalLineIndex];
+        if (terminalCharacters > 0)
+        {
+            TMP_TextInfo info = terminalLabels[terminalLineIndex].textInfo;
+            if (info.characterCount > 0)
+                cursorX += info.characterInfo[info.characterCount - 1].xAdvance
+                    * terminalLabels[terminalLineIndex].transform.localScale.x + 11f;
+        }
+        float cursorY = terminalCursorRowY + 17f;
+        MoveCursorMesh(foregroundMeshes[5], cursorX + 1f, cursorY + 2f,
+            28f, 42f, 0f);
+        MoveCursorMesh(foregroundMeshes[6], cursorX, cursorY,
+            20f, 34f, NewForegroundDepth);
+    }
+
+    private static void MoveCursorMesh(Mesh mesh, float frameX, float frameY,
+        float width, float height, float depth)
+    {
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        float left = FigmaFrameX + frameX - FigmaPanelX
+            - NewDesignWidth * 0.5f;
+        float bottom = NewDesignHeight * 0.5f
+            - (FigmaFrameY + frameY - FigmaPanelY) - height;
+        Vector3[] vertices = mesh.vertices;
+        for (int y = 0; y <= 1; y++)
+        {
+            for (int x = 0; x <= 1; x++)
+            {
+                float angle = (left + x * width) * CanvasScale / radius;
+                Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+                    VerticalOffset + (bottom + y * height) * CanvasScale,
+                    radius * Mathf.Cos(angle));
+                Vector3 foregroundPoint = panelPoint
+                    - panelPoint.normalized * depth;
+                vertices[y * 2 + x] = (foregroundPoint
+                    - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
+            }
+        }
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
+    }
+
+    private void CurveFigmaLabels()
+    {
+        foreach (TextMeshPro label in figmaLabels)
+        {
+            if (label == null) continue;
+            label.OnPreRenderText += info => WarpFigmaText(label, info);
+            label.ForceMeshUpdate(true, true);
+        }
+    }
+
+    private void WarpFigmaText(TextMeshPro label, TMP_TextInfo textInfo)
+    {
+        if (!figmaFlatVertices.TryGetValue(label, out Vector3[][] flatVertices)
+            || flatVertices == null
+            || flatVertices.Length != textInfo.meshInfo.Length)
+        {
+            flatVertices = new Vector3[textInfo.meshInfo.Length][];
+            for (int i = 0; i < flatVertices.Length; i++)
+                flatVertices[i] = (Vector3[])textInfo.meshInfo[i].vertices.Clone();
+            figmaFlatVertices[label] = flatVertices;
+        }
+
+        Vector2 origin = figmaLabelOrigins[label];
+        float forwardDepth = figmaLabelDepths[label];
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        float scale = label.transform.localScale.x;
+        Quaternion inverseRotation = Quaternion.Inverse(label.transform.localRotation);
+        Vector3 rootCenter = new Vector3(0f, VerticalOffset, radius);
+        for (int i = 0; i < textInfo.characterCount; i++)
+        {
+            TMP_CharacterInfo character = textInfo.characterInfo[i];
+            if (!character.isVisible) continue;
+            int materialIndex = character.materialReferenceIndex;
+            int vertexIndex = character.vertexIndex;
+            if (materialIndex >= flatVertices.Length) continue;
+            Vector3[] source = flatVertices[materialIndex];
+            Vector3[] vertices = textInfo.meshInfo[materialIndex].vertices;
+            if (vertexIndex + 3 >= source.Length || vertexIndex + 3 >= vertices.Length)
+                continue;
+
+            for (int corner = 0; corner < 4; corner++)
+            {
+                Vector3 flat = source[vertexIndex + corner];
+                float angle = (origin.x + flat.x * scale) * CanvasScale / radius;
+                Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+                    VerticalOffset + (origin.y + flat.y * scale) * CanvasScale,
+                    radius * Mathf.Cos(angle));
+                Vector3 foregroundPoint = panelPoint
+                    - panelPoint.normalized * forwardDepth;
+                Vector3 rootPoint = (foregroundPoint - rootCenter) / CanvasScale;
+                vertices[vertexIndex + corner] = inverseRotation
+                    * (rootPoint - label.transform.localPosition) / scale;
+            }
+        }
+    }
+
+    private void MatchFigmaTextToGrabReference(TextMeshPro reference)
+    {
+        // Compare the Unity glyph mesh against the old Grab image, then apply
+        // one shared, undistorted scale to all editable text and shadows.
+        reference.ForceMeshUpdate(true, true);
+        Vector3 rendered = reference.textBounds.size;
+        if (rendered.x <= 0f || rendered.y <= 0f)
+        {
+            Debug.LogWarning("Could not measure the tutorial Grab text glyphs.", this);
+            return;
+        }
+
+        // Match the original Grab image width with one uniform scale. TMP's
+        // text bounds include glyph padding, so using its height as a second
+        // independent scale visibly flattened the letters.
+        float uniformScale = GrabReferenceInkWidth / rendered.x;
+        foreach (TextMeshPro label in figmaLabels)
+        {
+            if (label == null) continue;
+            label.transform.localScale = Vector3.one * uniformScale;
+        }
+        Debug.Log($"Tutorial text calibrated to Figma Grab image: "
+            + $"Unity width {rendered.x:F1}, "
+            + $"reference width {GrabReferenceInkWidth:F0}, "
+            + $"uniform scale {uniformScale:F3}.", this);
+    }
+
+    private TextMeshPro AddFigmaLabel(string name, string content, float frameX,
+        float frameY, float width, TMP_FontAsset font, Shader shader,
+        bool shadow = false)
+    {
+        GameObject layer = new GameObject(name, typeof(RectTransform),
+            typeof(TextMeshPro));
+        layer.transform.SetParent(promptRoot, false);
+        layer.transform.localScale = Vector3.one;
+        TextMeshPro label = layer.GetComponent<TextMeshPro>();
+        label.font = font;
+        label.fontSize = 43.666f;
+        label.enableAutoSizing = false;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.overflowMode = TextOverflowModes.Overflow;
+        label.alignment = TextAlignmentOptions.TopLeft;
+        label.rectTransform.pivot = new Vector2(0f, 1f);
+        label.rectTransform.sizeDelta = new Vector2(width, 63f);
+        label.margin = Vector4.zero;
+        label.text = content;
+        label.color = Color.white;
+        label.alpha = foregroundOpacity;
+
+        float figmaX = FigmaFrameX + frameX;
+        float figmaY = FigmaFrameY + frameY;
+        float left = figmaX - FigmaPanelX - NewDesignWidth * 0.5f;
+        float top = NewDesignHeight * 0.5f - (figmaY - FigmaPanelY);
+        figmaLabelOrigins.Add(label, new Vector2(left, top));
+        float forwardDepth = shadow ? 0f : NewForegroundDepth;
+        figmaLabelDepths.Add(label, forwardDepth);
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        float angle = left * CanvasScale / radius;
+        Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+            VerticalOffset + top * CanvasScale, radius * Mathf.Cos(angle));
+        Vector3 foregroundPoint = panelPoint
+            - panelPoint.normalized * forwardDepth;
+        layer.transform.localPosition = (foregroundPoint
+            - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
+        layer.transform.localRotation = Quaternion.Euler(0f,
+            angle * Mathf.Rad2Deg, 0f);
+
+        Material material = new Material(font.material);
+        material.shader = shader;
+        material.SetColor("_FaceColor", new Color(0f, 0f, 0f,
+            shadow ? 0.1f : 1f));
+        material.SetFloat("_OutlineSoftness", shadow ? 0.15f : 0f);
+        material.renderQueue = shadow ? 4991 : 4994;
+        label.fontSharedMaterial = material;
+        figmaLabels.Add(label);
+        figmaTextMaterials.Add(material);
+        return label;
+    }
+
+    private void BuildCurvedMesh(float width)
+    {
+        int columns = CurveColumns + 1;
+        int rows = CurveRows + 1;
+        Vector3[] vertices = new Vector3[columns * rows];
+        Vector2[] uv = new Vector2[vertices.Length];
+        Color[] colors = new Color[vertices.Length];
+        int[] triangles = new int[CurveColumns * CurveRows * 6];
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
+            - VerticalOffset * VerticalOffset);
+        for (int y = 0; y < rows; y++)
+        {
+            float v = y / (float)CurveRows;
+            for (int x = 0; x < columns; x++)
+            {
+                float u = x / (float)CurveColumns;
+                float arcLength = (u - 0.5f) * width * CanvasScale;
+                float angle = arcLength / radius;
+                int index = y * columns + x;
+                vertices[index] = new Vector3(radius * Mathf.Sin(angle) / CanvasScale,
+                    (v - 0.5f) * NewDesignHeight,
+                    radius * (Mathf.Cos(angle) - 1f) / CanvasScale);
+                uv[index] = new Vector2(u, v);
+                colors[index] = Color.white;
+            }
+        }
+
+        int triangle = 0;
+        for (int y = 0; y < CurveRows; y++)
+        {
+            for (int x = 0; x < CurveColumns; x++)
+            {
+                int a = y * columns + x;
+                int b = a + columns;
+                int c = a + 1;
+                int d = b + 1;
+                triangles[triangle++] = a;
+                triangles[triangle++] = b;
+                triangles[triangle++] = c;
+                triangles[triangle++] = b;
+                triangles[triangle++] = d;
+                triangles[triangle++] = c;
+            }
+        }
+        curvedMesh.Clear();
+        curvedMesh.vertices = vertices;
+        curvedMesh.uv = uv;
+        curvedMesh.colors = colors;
+        curvedMesh.triangles = triangles;
+        curvedMesh.RecalculateBounds();
+    }
+
+    private void BuildPrompt()
+    {
+        GameObject root = new GameObject("Figma Tutorial Prompt",
+            typeof(RectTransform), typeof(Canvas));
+        promptRoot = root.GetComponent<RectTransform>();
+        promptRoot.sizeDelta = new Vector2(1300f, 400f);
+        promptRoot.pivot = new Vector2(0.5f, 0.5f);
+        promptCanvas = root.GetComponent<Canvas>();
+        promptCanvas.renderMode = RenderMode.WorldSpace;
+        promptCanvas.overrideSorting = true;
+        promptCanvas.sortingOrder = 100;
+
+        Font inter = Resources.Load<Font>("TutorialDesign/InterVariable");
+        if (inter != null)
+            generatedFont = TMP_FontAsset.CreateFontAsset(inter);
+        TMP_FontAsset font = generatedFont != null ? generatedFont
+            : uiTextElement != null ? uiTextElement.font : TMP_Settings.defaultFontAsset;
+
+        // One rounded glass surface grows from a circle into the capsule.
+        backgroundImage = AddImage("Figma blurred background", "figma-background", Vector2.zero,
+            new Vector2(1300f, 400f));
+        Shader frostShader = Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
+        if (frostShader != null)
+        {
+            frostedMaterial = new Material(frostShader);
+            backgroundImage.material = frostedMaterial;
+        }
+        panelHighlightImage = AddImage("Capsule highlights", "figma-decorations", Vector2.zero,
+            new Vector2(1300f, 400f));
+
+        GameObject content = new GameObject("Expanding content",
+            typeof(RectTransform), typeof(CanvasGroup));
+        contentRoot = content.GetComponent<RectTransform>();
+        contentRoot.SetParent(promptRoot, false);
+        contentRoot.anchorMin = contentRoot.anchorMax = contentRoot.pivot =
+            new Vector2(0.5f, 0.5f);
+        contentRoot.sizeDelta = new Vector2(1300f, 400f);
+        contentGroup = content.GetComponent<CanvasGroup>();
+        contentGroup.interactable = false;
+        contentGroup.blocksRaycasts = false;
+
+        AddImage("Soft shadow under E", "ellipse-shadow", new Vector2(-55f, -43f),
+            new Vector2(320f, 320f));
+        RawImage softLetterGlow = AddImage("Soft text edge", "text-blur", Vector2.zero,
+            new Vector2(1300f, 400f), 0.22f);
+        RawImage softLetterShadow = AddImage("Soft text shadow", "text-blur", new Vector2(0f, -43f),
+            new Vector2(1300f, 400f), 0.55f);
+        softLetterGlow.gameObject.SetActive(useRightGripToToggle);
+        softLetterShadow.gameObject.SetActive(useRightGripToToggle);
+
+        shadowPressText = AddText("Press shadow", font, new Vector2(-342f, -43f),
+            new Vector2(360f, 180f), new Color(0f, 0f, 0f, 0.2f));
+        shadowKeyText = AddText("Key shadow", font, new Vector2(-55f, -43f),
+            new Vector2(170f, 180f), new Color(1f, 1f, 1f, 0.2f), FontStyles.Bold);
+        shadowActionText = AddText("Action shadow", font, new Vector2(290f, -43f),
+            new Vector2(480f, 180f), new Color(0f, 0f, 0f, 0.2f));
+        shadowPressText.gameObject.SetActive(!useRightGripToToggle);
+        shadowKeyText.gameObject.SetActive(!useRightGripToToggle);
+        shadowActionText.gameObject.SetActive(!useRightGripToToggle);
+
+        GameObject floatingContent = new GameObject("Floating text and key disc",
+            typeof(RectTransform));
+        floatingRoot = floatingContent.GetComponent<RectTransform>();
+        floatingRoot.SetParent(contentRoot, false);
+        floatingRoot.anchorMin = floatingRoot.anchorMax = floatingRoot.pivot =
+            new Vector2(0.5f, 0.5f);
+        floatingRoot.sizeDelta = new Vector2(1300f, 400f);
+        floatingRoot.localPosition = new Vector3(0f, 0f, -ForegroundDepth / CanvasScale);
+
+        AddImage("Blue key disc", "ellipse-main", new Vector2(-55f, 0f),
+            new Vector2(262f, 262f));
+        AddImage("Disc lower glint", "ellipse-glow", new Vector2(-51.28f, -99.09f),
+            new Vector2(148.563f, 89.4442f), 1f, 1.78f, contentRoot);
+
+        pressText = AddText("Press", font, new Vector2(-342f, 0f),
+            new Vector2(360f, 180f), Color.black);
+        keyText = AddText("Key", font, new Vector2(-55f, 0f),
+            new Vector2(170f, 180f), Color.white, FontStyles.Bold);
+        actionText = AddText("Action", font, new Vector2(290f, 0f),
+            new Vector2(480f, 180f), Color.black);
+
+    }
+
+    private RawImage AddImage(string name, string assetName, Vector2 position,
+        Vector2 size, float alpha = 1f, float rotation = 0f,
+        RectTransform parentOverride = null)
+    {
+        GameObject element = new GameObject(name, typeof(RectTransform), typeof(RawImage));
+        RectTransform rect = element.GetComponent<RectTransform>();
+        rect.SetParent(parentOverride != null ? parentOverride
+            : floatingRoot != null ? floatingRoot
+            : contentRoot != null ? contentRoot : promptRoot, false);
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
+
+        RawImage image = element.GetComponent<RawImage>();
+        image.texture = Resources.Load<Texture2D>("TutorialDesign/" + assetName);
+        image.color = new Color(1f, 1f, 1f, alpha);
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private TextMeshProUGUI AddText(string name, TMP_FontAsset font, Vector2 position,
+        Vector2 size, Color color, FontStyles style = FontStyles.Normal)
+    {
+        GameObject element = new GameObject(name, typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+        RectTransform rect = element.GetComponent<RectTransform>();
+        rect.SetParent(floatingRoot != null ? floatingRoot
+            : contentRoot != null ? contentRoot : promptRoot, false);
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+
+        TextMeshProUGUI label = element.GetComponent<TextMeshProUGUI>();
+        label.font = font;
+        label.fontSize = DesignFontSize;
+        label.fontStyle = style;
+        label.color = color;
+        label.alignment = TextAlignmentOptions.Center;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.overflowMode = TextOverflowModes.Overflow;
+        label.raycastTarget = false;
+        return label;
+    }
 }

@@ -5,25 +5,22 @@ using UnityEngine.InputSystem;
 
 public class TutorialController : MonoBehaviour
 {
-    private const float HeadsetDistance = 1.5f;
-    private const float VerticalOffset = -0.18f;
-    private const float CanvasScale = 0.00065f;
-    private const float NewDesignWidth = 2100f;
-    private const float NewDesignHeight = 900f;
-    private const int CurveColumns = 64;
-    private const int CurveRows = 16;
+    private float HeadsetDistance => style.headsetDistance;
+    private float VerticalOffset => style.verticalOffset;
+    private float CanvasScale => style.canvasScale;
+    private float NewDesignWidth => style.panelWidth;
+    private float NewDesignHeight => style.panelHeight;
+    private int CurveColumns => style.curveColumns;
+    private int CurveRows => style.curveRows;
     private const float FigmaPanelX = 10407f;
     private const float FigmaPanelY = 2618f;
     private const float FigmaFrameX = 9604f;
     private const float FigmaFrameY = 2235f;
-    private const float NewForegroundDepth = 0.2f;
+    private float NewForegroundDepth => style.foregroundDepth;
     // Visible ink width of the original Figma Grab PNG, measured in pixels.
-    private const float GrabReferenceInkWidth = 381f;
-    private const float TypewriterSecondsPerCharacter = 0.055f;
-    private const float TerminalScrollDuration = 0.36f;
-    private const float TerminalLinePause = 0.24f;
-    private const float TerminalBottomRowY = 1135f;
-    private const float TerminalRowSpacing = 61f;
+    private float GrabReferenceInkWidth => style.grabReferenceInkWidth;
+    private float TerminalBottomRowY => style.terminalBottomRowY;
+    private float TerminalRowSpacing => style.terminalRowSpacing;
     private static readonly string[] TerminalLines =
     {
         ">_ GRAB MODULE — TEST ",
@@ -36,7 +33,9 @@ public class TutorialController : MonoBehaviour
         { 1987f, 1987f, 1987f, 2034f, 1987f };
 
     public static TutorialController Instance { get; private set; }
-    public TextMeshProUGUI uiTextElement;
+    [SerializeField] private TutorialPanelStyle panelStyle;
+    private TutorialPanelStyle style;
+    private bool ownsStyle;
     public bool useRightGripToToggle = true;
 
     private RectTransform promptRoot;
@@ -57,15 +56,7 @@ public class TutorialController : MonoBehaviour
         new Dictionary<TextMeshPro, Vector3[][]>();
     private readonly TextMeshPro[] terminalLabels = new TextMeshPro[5];
     private readonly TextMeshPro[] terminalShadows = new TextMeshPro[5];
-    private int terminalLineIndex;
-    private int terminalCharacters;
-    private float terminalPhaseTime;
-    private float terminalNextCharacterAt;
-    private float terminalStartAt;
-    private float terminalCursorRowY;
-    private TerminalPhase terminalPhase;
-
-    private enum TerminalPhase { Waiting, Typing, Pausing, Scrolling, Complete }
+    private TerminalTypewriterSequence terminalAnimation;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureController()
@@ -83,9 +74,17 @@ public class TutorialController : MonoBehaviour
         }
 
         Instance = this;
-        if (uiTextElement != null)
-            uiTextElement.gameObject.SetActive(false);
-
+        style = panelStyle != null ? panelStyle : Resources.Load<TutorialPanelStyle>(
+            "TutorialDesign/Curved Tutorial Panel Style");
+        if (style == null)
+        {
+            style = ScriptableObject.CreateInstance<TutorialPanelStyle>();
+            ownsStyle = true;
+            Debug.LogWarning("Tutorial panel style is missing; using built-in defaults.", this);
+        }
+        terminalAnimation = new TerminalTypewriterSequence(TerminalLines,
+            style.typewriterSecondsPerCharacter, style.terminalScrollDuration,
+            style.terminalLinePause, style.terminalInitialDelay);
         BuildCurvedPrompt();
         if (useRightGripToToggle)
         {
@@ -120,11 +119,12 @@ public class TutorialController : MonoBehaviour
         if (foregroundMaterials != null && foregroundMaterials[1] != null)
         {
             // The grip ring and terminal cursor pulse while the prompt is visible.
-            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2f * Mathf.PI * 1.2f);
+            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2f * Mathf.PI * style.indicatorPulseHz);
             foregroundMaterials[1].SetFloat("_Opacity",
                 Mathf.Lerp(0.12f, 1f, pulse));
-            float cursorOpacity = terminalPhase == TerminalPhase.Typing
-                || Mathf.Repeat(Time.unscaledTime * 1.6f, 1f) < 0.55f ? 1f : 0f;
+            float cursorOpacity = terminalAnimation.IsTyping
+                || Mathf.Repeat(Time.unscaledTime * style.cursorBlinkHz, 1f)
+                    < style.cursorBlinkDuty ? 1f : 0f;
             if (foregroundMaterials[5] != null)
                 foregroundMaterials[5].SetFloat("_Opacity",
                     cursorOpacity);
@@ -159,6 +159,8 @@ public class TutorialController : MonoBehaviour
         if (Instance == this)
             Instance = null;
         rightGripAction?.Dispose();
+        if (ownsStyle && style != null)
+            Destroy(style);
         if (frostedMaterial != null)
             Destroy(frostedMaterial);
         if (curvedMesh != null)
@@ -175,15 +177,11 @@ public class TutorialController : MonoBehaviour
             Destroy(promptRoot.gameObject);
     }
 
-    // Keep these methods for existing interaction scripts; this tutorial is grip controlled.
-    public void DisplayText(InteractableInterface interactableObject) { }
-    public void ClearText() { }
-
     private void PreparePanel()
     {
         frostedMaterial.SetFloat("_PanelWidth", NewDesignWidth);
         frostedMaterial.SetFloat("_PanelHeight", NewDesignHeight);
-        frostedMaterial.SetFloat("_CornerRadius", 140f);
+        frostedMaterial.SetFloat("_CornerRadius", style.cornerRadius);
         BuildCurvedMesh(NewDesignWidth);
         if (foregroundMaterials != null)
         {
@@ -202,7 +200,8 @@ public class TutorialController : MonoBehaviour
         curvedMesh = new Mesh { name = "Curved tutorial glass" };
         root.GetComponent<MeshFilter>().sharedMesh = curvedMesh;
 
-        Shader shader = Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
+        Shader shader = style.frostedShader != null ? style.frostedShader
+            : Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
         if (shader == null)
         {
             Debug.LogError("Tutorial frosted glass shader is missing.", this);
@@ -219,7 +218,8 @@ public class TutorialController : MonoBehaviour
 
     private void BuildFigmaOverlays()
     {
-        Shader overlayShader = Resources.Load<Shader>("TutorialDesign/TutorialFigmaOverlay");
+        Shader overlayShader = style.overlayShader != null ? style.overlayShader
+            : Resources.Load<Shader>("TutorialDesign/TutorialFigmaOverlay");
         if (overlayShader == null)
         {
             Debug.LogError("Tutorial Figma overlay shader is missing.", this);
@@ -262,8 +262,9 @@ public class TutorialController : MonoBehaviour
     private void CreateFigmaOverlay(int index, string name, string textureName,
         Shader shader, float figmaX, float figmaY, float width, float height,
         int columns, int rows, float alpha = 1f, float blurPixels = 0f,
-        float forwardDepth = NewForegroundDepth)
+        float forwardDepth = -1f)
     {
+        if (forwardDepth < 0f) forwardDepth = NewForegroundDepth;
         Texture2D texture = textureName == null ? Texture2D.whiteTexture
             : Resources.Load<Texture2D>("TutorialDesign/" + textureName);
         if (texture == null)
@@ -341,10 +342,10 @@ public class TutorialController : MonoBehaviour
 
     private void BuildFigmaText()
     {
-        TMP_FontAsset font = Resources.Load<TMP_FontAsset>(
-            "TutorialDesign/MonomaniacOne SDF");
-        Shader textShader = Resources.Load<Shader>(
-            "TutorialDesign/TutorialTextOverlay");
+        TMP_FontAsset font = style.font != null ? style.font
+            : Resources.Load<TMP_FontAsset>("TutorialDesign/MonomaniacOne SDF");
+        Shader textShader = style.textShader != null ? style.textShader
+            : Resources.Load<Shader>("TutorialDesign/TutorialTextOverlay");
         if (font == null || textShader == null)
         {
             Debug.LogError("Tutorial Monomaniac One font or overlay shader is missing.", this);
@@ -399,11 +400,7 @@ public class TutorialController : MonoBehaviour
     private void ResetTerminal()
     {
         if (terminalLabels[0] == null) return;
-        terminalLineIndex = 0;
-        terminalCharacters = 0;
-        terminalPhase = TerminalPhase.Waiting;
-        terminalStartAt = Time.unscaledTime + 0.2f;
-        terminalCursorRowY = TerminalBottomRowY;
+        terminalAnimation.Restart(Time.unscaledTime);
         for (int i = 0; i < TerminalLines.Length; i++)
         {
             SetFigmaText(terminalLabels[i], "");
@@ -417,68 +414,23 @@ public class TutorialController : MonoBehaviour
     private void UpdateTerminal()
     {
         if (terminalLabels[0] == null) return;
-        float now = Time.unscaledTime;
-        switch (terminalPhase)
+        terminalAnimation.Tick(Time.unscaledTime);
+        int lineIndex = terminalAnimation.LineIndex;
+        for (int i = 0; i < TerminalLines.Length; i++)
         {
-            case TerminalPhase.Waiting:
-                if (now >= terminalStartAt)
-                {
-                    terminalPhase = TerminalPhase.Typing;
-                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
-                }
-                break;
-            case TerminalPhase.Typing:
-                if (now >= terminalNextCharacterAt)
-                {
-                    terminalCharacters = Mathf.Min(terminalCharacters + 1,
-                        TerminalLines[terminalLineIndex].Length);
-                    string typed = TerminalLines[terminalLineIndex]
-                        .Substring(0, terminalCharacters);
-                    SetFigmaText(terminalLabels[terminalLineIndex], typed);
-                    SetFigmaText(terminalShadows[terminalLineIndex], typed);
-                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
-                    if (terminalCharacters == TerminalLines[terminalLineIndex].Length)
-                    {
-                        terminalPhase = TerminalPhase.Pausing;
-                        terminalPhaseTime = now;
-                    }
-                }
-                break;
-            case TerminalPhase.Pausing:
-                if (now - terminalPhaseTime >= TerminalLinePause)
-                {
-                    terminalPhase = terminalLineIndex == TerminalLines.Length - 1
-                        ? TerminalPhase.Complete : TerminalPhase.Scrolling;
-                    terminalPhaseTime = now;
-                }
-                break;
-            case TerminalPhase.Scrolling:
-                float progress = Mathf.Clamp01((now - terminalPhaseTime)
-                    / TerminalScrollDuration);
-                float eased = progress * progress * (3f - 2f * progress);
-                for (int i = 0; i <= terminalLineIndex; i++)
-                {
-                    float fromY = TerminalBottomRowY
-                        - TerminalRowSpacing * (terminalLineIndex - i);
-                    float rowY = fromY - TerminalRowSpacing * eased;
-                    MoveFigmaLabel(terminalLabels[i], rowY);
-                    MoveFigmaLabel(terminalShadows[i], rowY + 6f);
-                }
-                terminalCursorRowY = TerminalBottomRowY
-                    - TerminalRowSpacing * eased;
-                if (progress >= 1f)
-                {
-                    terminalLineIndex++;
-                    terminalCharacters = 0;
-                    terminalCursorRowY = TerminalBottomRowY;
-                    MoveFigmaLabel(terminalLabels[terminalLineIndex],
-                        TerminalBottomRowY);
-                    MoveFigmaLabel(terminalShadows[terminalLineIndex],
-                        TerminalBottomRowY + 6f);
-                    terminalPhase = TerminalPhase.Typing;
-                    terminalNextCharacterAt = now + TypewriterSecondsPerCharacter;
-                }
-                break;
+            int characters = i < lineIndex ? TerminalLines[i].Length
+                : i == lineIndex ? terminalAnimation.CharacterCount : 0;
+            string typed = TerminalLines[i].Substring(0, characters);
+            SetFigmaText(terminalLabels[i], typed);
+            SetFigmaText(terminalShadows[i], typed);
+            if (i <= lineIndex)
+            {
+                float rowY = TerminalBottomRowY
+                    - TerminalRowSpacing * (lineIndex - i);
+                rowY -= TerminalRowSpacing * terminalAnimation.ScrollProgress;
+                MoveFigmaLabel(terminalLabels[i], rowY);
+                MoveFigmaLabel(terminalShadows[i], rowY + 6f);
+            }
         }
         UpdateTerminalCursor();
     }
@@ -517,22 +469,24 @@ public class TutorialController : MonoBehaviour
         if (foregroundMeshes == null || foregroundMeshes.Length < 7
             || foregroundMeshes[5] == null || foregroundMeshes[6] == null)
             return;
-        float cursorX = TerminalLineX[terminalLineIndex];
-        if (terminalCharacters > 0)
+        int lineIndex = terminalAnimation.LineIndex;
+        float cursorX = TerminalLineX[lineIndex];
+        if (terminalAnimation.CharacterCount > 0)
         {
-            TMP_TextInfo info = terminalLabels[terminalLineIndex].textInfo;
+            TMP_TextInfo info = terminalLabels[lineIndex].textInfo;
             if (info.characterCount > 0)
                 cursorX += info.characterInfo[info.characterCount - 1].xAdvance
-                    * terminalLabels[terminalLineIndex].transform.localScale.x + 11f;
+                    * terminalLabels[lineIndex].transform.localScale.x + 11f;
         }
-        float cursorY = terminalCursorRowY + 17f;
+        float cursorY = TerminalBottomRowY
+            - TerminalRowSpacing * terminalAnimation.ScrollProgress + 17f;
         MoveCursorMesh(foregroundMeshes[5], cursorX + 1f, cursorY + 2f,
             28f, 42f, 0f);
         MoveCursorMesh(foregroundMeshes[6], cursorX, cursorY,
             20f, 34f, NewForegroundDepth);
     }
 
-    private static void MoveCursorMesh(Mesh mesh, float frameX, float frameY,
+    private void MoveCursorMesh(Mesh mesh, float frameX, float frameY,
         float width, float height, float depth)
     {
         float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
@@ -654,7 +608,7 @@ public class TutorialController : MonoBehaviour
         layer.transform.localScale = Vector3.one;
         TextMeshPro label = layer.GetComponent<TextMeshPro>();
         label.font = font;
-        label.fontSize = 43.666f;
+        label.fontSize = style.textFontSize;
         label.enableAutoSizing = false;
         label.textWrappingMode = TextWrappingModes.NoWrap;
         label.overflowMode = TextOverflowModes.Overflow;
@@ -699,55 +653,10 @@ public class TutorialController : MonoBehaviour
 
     private void BuildCurvedMesh(float width)
     {
-        int columns = CurveColumns + 1;
-        int rows = CurveRows + 1;
-        Vector3[] vertices = new Vector3[columns * rows];
-        Vector2[] uv = new Vector2[vertices.Length];
-        Color[] colors = new Color[vertices.Length];
-        int[] triangles = new int[CurveColumns * CurveRows * 6];
         float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
             - VerticalOffset * VerticalOffset);
-        for (int y = 0; y < rows; y++)
-        {
-            float v = y / (float)CurveRows;
-            for (int x = 0; x < columns; x++)
-            {
-                float u = x / (float)CurveColumns;
-                float arcLength = (u - 0.5f) * width * CanvasScale;
-                float angle = arcLength / radius;
-                int index = y * columns + x;
-                vertices[index] = new Vector3(radius * Mathf.Sin(angle) / CanvasScale,
-                    (v - 0.5f) * NewDesignHeight,
-                    radius * (Mathf.Cos(angle) - 1f) / CanvasScale);
-                uv[index] = new Vector2(u, v);
-                colors[index] = Color.white;
-            }
-        }
-
-        int triangle = 0;
-        for (int y = 0; y < CurveRows; y++)
-        {
-            for (int x = 0; x < CurveColumns; x++)
-            {
-                int a = y * columns + x;
-                int b = a + columns;
-                int c = a + 1;
-                int d = b + 1;
-                triangles[triangle++] = a;
-                triangles[triangle++] = b;
-                triangles[triangle++] = c;
-                triangles[triangle++] = b;
-                triangles[triangle++] = d;
-                triangles[triangle++] = c;
-            }
-        }
-        curvedMesh.Clear();
-        curvedMesh.vertices = vertices;
-        curvedMesh.uv = uv;
-        curvedMesh.colors = colors;
-        curvedMesh.triangles = triangles;
-        curvedMesh.RecalculateBounds();
+        CurvedPanelMeshBuilder.Rebuild(curvedMesh, width, NewDesignHeight,
+            radius, CanvasScale, CurveColumns, CurveRows);
     }
-
 
 }

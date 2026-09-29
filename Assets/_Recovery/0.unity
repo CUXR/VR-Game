@@ -33802,33 +33802,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6654104311393945966, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      propertyPath: m_Volume
-      value: 0.613
-      objectReference: {fileID: 0}
     - target: {fileID: 6758879635198799828, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
       propertyPath: generatorHum
       value: 
       objectReference: {fileID: 1697835391}
     - target: {fileID: 6758879635198799828, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+      propertyPath: doors.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6758879635198799828, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
       propertyPath: 'doors.Array.data[0]'
       value: 
       objectReference: {fileID: 221557275}
+    - target: {fileID: 6758879635198799828, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+      propertyPath: 'doors.Array.data[1]'
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 853530648985190279, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      insertIndex: 7
+      insertIndex: -1
       addedObject: {fileID: 1697835383}
     - targetCorrespondingSourceObject: {fileID: 853530648985190279, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      insertIndex: 8
+      insertIndex: -1
       addedObject: {fileID: 1697835382}
     - targetCorrespondingSourceObject: {fileID: 853530648985190279, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      insertIndex: 9
+      insertIndex: -1
       addedObject: {fileID: 1697835390}
     - targetCorrespondingSourceObject: {fileID: 853530648985190279, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      insertIndex: 10
+      insertIndex: -1
       addedObject: {fileID: 1697835391}
   m_SourcePrefab: {fileID: 100100000, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
 --- !u!4 &1524388219 stripped
@@ -43476,12 +43480,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1676735074417899703, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_Volume
-      value: 0.547
+      value: 0.519
       objectReference: {fileID: 0}
-    - target: {fileID: 1676735074417899703, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
-      propertyPath: m_Resource
-      value: 
-      objectReference: {fileID: 8300000, guid: c3c3671cdc5e9e74ab0025acd17771bf, type: 3}
     - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: outlineColor.b
       value: 0.99607843
@@ -43500,7 +43500,7 @@ PrefabInstance:
       objectReference: {fileID: 281365953}
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_VersionIndex
-      value: 358
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 7692291576190097354, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_Mesh
@@ -43509,10 +43509,6 @@ PrefabInstance:
     - target: {fileID: 8636230450222540552, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_Name
       value: Push Box
-      objectReference: {fileID: 0}
-    - target: {fileID: 9091026787772257037, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
-      propertyPath: m_Volume
-      value: 0.519
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

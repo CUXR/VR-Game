@@ -33802,10 +33802,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6654104311393945966, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
-      propertyPath: m_Volume
-      value: 0.613
-      objectReference: {fileID: 0}
     - target: {fileID: 6758879635198799828, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
       propertyPath: generatorHum
       value: 

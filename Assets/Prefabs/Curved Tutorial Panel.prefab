@@ -41,7 +41,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7868757249307237531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01d0647f7c3e66347a080a83aed77cd9, type: 3}
+  m_Script: {fileID: 11500000, guid: a59a761d5a5147dc8b9517a72151b0d3, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialController
   useRightGripToToggle: 1

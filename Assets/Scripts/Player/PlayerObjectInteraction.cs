@@ -28,6 +28,7 @@ public class ObjectInteraction : MonoBehaviour
                     lastHighlighted?.SetGlow(false);
                     interactableObject.SetGlow(true);
                     lastHighlighted = interactableObject;
+                    TutorialController.Instance.DisplayText(interactableObject);
                 }
                 if (InputController.Instance.GetInteractDown())
                 {
@@ -68,6 +69,7 @@ public class ObjectInteraction : MonoBehaviour
     {
         if (lastHighlighted!=null)
         {
+            TutorialController.Instance.ClearText();
             lastHighlighted?.SetGlow(false);
             lastHighlighted=null; 
         }

@@ -33,6 +33,8 @@ public class TutorialController : MonoBehaviour
         { 1987f, 1987f, 1987f, 2034f, 1987f };
 
     public static TutorialController Instance { get; private set; }
+    // Retains the original team's prefab field; its legacy text is hidden at runtime.
+    public TextMeshProUGUI uiTextElement;
     [SerializeField] private TutorialPanelStyle panelStyle;
     private TutorialPanelStyle style;
     private bool ownsStyle;
@@ -74,6 +76,8 @@ public class TutorialController : MonoBehaviour
         }
 
         Instance = this;
+        if (uiTextElement != null)
+            uiTextElement.gameObject.SetActive(false);
         style = panelStyle != null ? panelStyle : Resources.Load<TutorialPanelStyle>(
             "TutorialDesign/Curved Tutorial Panel Style");
         if (style == null)
@@ -176,6 +180,10 @@ public class TutorialController : MonoBehaviour
         if (promptRoot != null)
             Destroy(promptRoot.gameObject);
     }
+
+    // Compatibility with the original ObjectInteraction script.
+    public void DisplayText(InteractableInterface interactableObject) { }
+    public void ClearText() { }
 
     private void PreparePanel()
     {

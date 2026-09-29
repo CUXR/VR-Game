@@ -2332,6 +2332,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3169150570371856346}
     m_Modifications:
+    - target: {fileID: 2064340652792024083, guid: a1bfa4f8f7245473ca286f8a17a88c36,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 381
+      objectReference: {fileID: 0}
+    - target: {fileID: 2064340652792024083, guid: a1bfa4f8f7245473ca286f8a17a88c36,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 340
+      objectReference: {fileID: 0}
     - target: {fileID: 4348162395969113747, guid: a1bfa4f8f7245473ca286f8a17a88c36,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2381,6 +2391,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6746488411431942468, guid: a1bfa4f8f7245473ca286f8a17a88c36,
+        type: 3}
+      propertyPath: m_margin.w
+      value: -42.573093
+      objectReference: {fileID: 0}
+    - target: {fileID: 6746488411431942468, guid: a1bfa4f8f7245473ca286f8a17a88c36,
+        type: 3}
+      propertyPath: m_margin.x
+      value: -20.571297
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868757249307237531, guid: a1bfa4f8f7245473ca286f8a17a88c36,
+        type: 3}
+      propertyPath: m_Name
+      value: Tutorial Controller
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

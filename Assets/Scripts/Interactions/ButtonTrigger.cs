@@ -81,7 +81,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
 
     private bool CanPress(Collider other)
     {
-        return other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire");
+        return other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire") || other.CompareTag("VRHand");
     }
 
     void OnTriggerEnter(Collider other)

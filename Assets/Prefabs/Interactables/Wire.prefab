@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7419773020869456886}
   - component: {fileID: 3755761135282884420}
   - component: {fileID: 5432873175042709972}
+  - component: {fileID: 1493547370923355906}
   - component: {fileID: 50848066727754668}
   m_Layer: 0
   m_Name: Wire
@@ -282,6 +283,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1493547370923355906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3079853164802308631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ee3f59466614cbf8a3256040c7c667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Wire
+  color: 0
+  activeObj:
+  - {fileID: 0}
 --- !u!114 &50848066727754668
 MonoBehaviour:
   m_ObjectHideFlags: 0

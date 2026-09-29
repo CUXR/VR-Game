@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Door : MonoBehaviour, InteractableInterface
+public class Chute : MonoBehaviour, InteractableInterface
 {
     public Animator anim;
     [SerializeField]
@@ -87,5 +87,5 @@ public class Door : MonoBehaviour, InteractableInterface
     {
         return tutorialText;
     }
-    
+
 }

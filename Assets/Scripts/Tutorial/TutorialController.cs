@@ -1,18 +1,13 @@
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class TutorialController : MonoBehaviour
 {
     private const float HeadsetDistance = 1.5f;
     private const float VerticalOffset = -0.18f;
     private const float CanvasScale = 0.00065f;
-    private const float ForegroundDepth = 0.05f;
-    private const float DesignFontSize = 118.615f;
-    private const float AnimationDuration = 0.7f;
     private const float NewDesignWidth = 2100f;
     private const float NewDesignHeight = 900f;
     private const int CurveColumns = 64;
@@ -40,29 +35,15 @@ public class TutorialController : MonoBehaviour
     private static readonly float[] TerminalLineX =
         { 1987f, 1987f, 1987f, 2034f, 1987f };
 
-    private static readonly Regex PromptPattern = new Regex(
-        @"^\s*Press\s+\[?([A-Za-z0-9]+)\]?\s+to\s+(.+?)\s*$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled
-    );
-
     public static TutorialController Instance { get; private set; }
     public TextMeshProUGUI uiTextElement;
     public bool useRightGripToToggle = true;
 
     private RectTransform promptRoot;
-    private RectTransform contentRoot;
-    private RectTransform floatingRoot;
-    private Canvas promptCanvas;
-    private CanvasGroup contentGroup;
-    private RawImage backgroundImage, panelHighlightImage;
     private Camera headsetCamera;
-    private TMP_FontAsset generatedFont;
     private Material frostedMaterial;
     private InputAction rightGripAction;
-    private float animationProgress;
     private bool targetVisible;
-    private TextMeshProUGUI pressText, keyText, actionText;
-    private TextMeshProUGUI shadowPressText, shadowKeyText, shadowActionText;
     private Mesh curvedMesh;
     private Mesh[] foregroundMeshes;
     private Material[] foregroundMaterials;
@@ -85,7 +66,6 @@ public class TutorialController : MonoBehaviour
     private TerminalPhase terminalPhase;
 
     private enum TerminalPhase { Waiting, Typing, Pausing, Scrolling, Complete }
-    private float foregroundOpacity;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureController()
@@ -113,13 +93,11 @@ public class TutorialController : MonoBehaviour
             rightGripAction.AddBinding("<XRController>{RightHand}/gripPressed");
             rightGripAction.AddBinding("<XRController>{RightHand}/{GripButton}");
             rightGripAction.Enable();
-            ApplyAnimation();
             promptRoot.gameObject.SetActive(false);
         }
         else
         {
-            animationProgress = 1f;
-            ApplyAnimation();
+            targetVisible = true;
         }
     }
 
@@ -131,20 +109,8 @@ public class TutorialController : MonoBehaviour
             {
                 targetVisible = !targetVisible;
                 if (targetVisible)
-                {
                     ResetTerminal();
-                    promptRoot.gameObject.SetActive(true);
-                }
-            }
-
-            float destination = targetVisible ? 1f : 0f;
-            if (!Mathf.Approximately(animationProgress, destination))
-            {
-                animationProgress = Mathf.MoveTowards(animationProgress, destination,
-                    Time.unscaledDeltaTime / AnimationDuration);
-                ApplyAnimation();
-                if (!targetVisible && animationProgress <= 0f)
-                    promptRoot.gameObject.SetActive(false);
+                promptRoot.gameObject.SetActive(targetVisible);
             }
         }
 
@@ -156,15 +122,15 @@ public class TutorialController : MonoBehaviour
             // The grip ring and terminal cursor pulse while the prompt is visible.
             float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2f * Mathf.PI * 1.2f);
             foregroundMaterials[1].SetFloat("_Opacity",
-                foregroundOpacity * Mathf.Lerp(0.12f, 1f, pulse));
+                Mathf.Lerp(0.12f, 1f, pulse));
             float cursorOpacity = terminalPhase == TerminalPhase.Typing
                 || Mathf.Repeat(Time.unscaledTime * 1.6f, 1f) < 0.55f ? 1f : 0f;
             if (foregroundMaterials[5] != null)
                 foregroundMaterials[5].SetFloat("_Opacity",
-                    foregroundOpacity * cursorOpacity);
+                    cursorOpacity);
             if (foregroundMaterials[6] != null)
                 foregroundMaterials[6].SetFloat("_Opacity",
-                    foregroundOpacity * cursorOpacity);
+                    cursorOpacity);
         }
     }
 
@@ -178,16 +144,12 @@ public class TutorialController : MonoBehaviour
         if (promptRoot.parent != headsetCamera.transform)
         {
             promptRoot.SetParent(headsetCamera.transform, false);
-            if (promptCanvas != null)
-                promptCanvas.worldCamera = headsetCamera;
         }
 
-        // Move the whole animation along a 1.5 m sphere around the headset.
-        float rise = 1f - Mathf.Pow(1f - animationProgress, 3f);
-        float vertical = VerticalOffset + Mathf.Lerp(-140f, 0f, rise) * CanvasScale;
+        // Keep the completed panel 1.5 m from the headset.
         float forward = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
-            - vertical * vertical);
-        promptRoot.localPosition = new Vector3(0f, vertical, forward);
+            - VerticalOffset * VerticalOffset);
+        promptRoot.localPosition = new Vector3(0f, VerticalOffset, forward);
         promptRoot.localRotation = Quaternion.identity;
         promptRoot.localScale = Vector3.one * CanvasScale;
     }
@@ -197,8 +159,6 @@ public class TutorialController : MonoBehaviour
         if (Instance == this)
             Instance = null;
         rightGripAction?.Dispose();
-        if (generatedFont != null)
-            Destroy(generatedFont);
         if (frostedMaterial != null)
             Destroy(frostedMaterial);
         if (curvedMesh != null)
@@ -215,101 +175,22 @@ public class TutorialController : MonoBehaviour
             Destroy(promptRoot.gameObject);
     }
 
-    public void DisplayText(InteractableInterface interactableObject)
+    // Keep these methods for existing interaction scripts; this tutorial is grip controlled.
+    public void DisplayText(InteractableInterface interactableObject) { }
+    public void ClearText() { }
+
+    private void PreparePanel()
     {
-        if (curvedMesh != null)
-            return; // Figma 53:2 contains only the glass surface.
-        if (useRightGripToToggle)
-            return;
-
-        if (interactableObject == null)
+        frostedMaterial.SetFloat("_PanelWidth", NewDesignWidth);
+        frostedMaterial.SetFloat("_PanelHeight", NewDesignHeight);
+        frostedMaterial.SetFloat("_CornerRadius", 140f);
+        BuildCurvedMesh(NewDesignWidth);
+        if (foregroundMaterials != null)
         {
-            ClearText();
-            return;
+            for (int i = 0; i < foregroundMaterials.Length; i++)
+                if (foregroundMaterials[i] != null && i != 1)
+                    foregroundMaterials[i].SetFloat("_Opacity", OverlayAlpha(i));
         }
-
-        string prompt = interactableObject.GetTutorialText();
-        if (string.IsNullOrWhiteSpace(prompt))
-        {
-            ClearText();
-            return;
-        }
-
-        Match match = PromptPattern.Match(prompt);
-        string action = match.Success ? match.Groups[2].Value.Trim() : prompt.Trim();
-        action = char.ToUpperInvariant(action[0]) + action.Substring(1);
-        string press = match.Success ? "Press" : "";
-        string key = match.Success ? match.Groups[1].Value.ToUpperInvariant() : "";
-        string suffix = match.Success ? "to <b>" + action + "</b>" : action;
-
-        SetPromptText(press, key, suffix);
-        promptRoot.gameObject.SetActive(true);
-        if (uiTextElement != null)
-            uiTextElement.text = prompt;
-    }
-
-    public void ClearText()
-    {
-        if (curvedMesh != null)
-            return;
-        if (useRightGripToToggle)
-            return;
-
-        if (promptRoot != null)
-            promptRoot.gameObject.SetActive(false);
-        if (uiTextElement != null)
-            uiTextElement.text = "";
-    }
-
-    private void SetPromptText(string press, string key, string action)
-    {
-        pressText.text = shadowPressText.text = press;
-        keyText.text = shadowKeyText.text = key;
-        actionText.text = shadowActionText.text = action;
-    }
-
-    private void ApplyAnimation()
-    {
-        if (curvedMesh != null)
-        {
-            float grow = 1f - Mathf.Pow(1f - animationProgress, 3f);
-            float width = Mathf.Lerp(NewDesignHeight, NewDesignWidth, grow);
-            frostedMaterial.SetFloat("_PanelWidth", width);
-            frostedMaterial.SetFloat("_PanelHeight", NewDesignHeight);
-            frostedMaterial.SetFloat("_CornerRadius",
-                Mathf.Lerp(NewDesignHeight * 0.5f, 140f, grow));
-            BuildCurvedMesh(width);
-            foregroundOpacity = Mathf.SmoothStep(0f, 1f,
-                Mathf.InverseLerp(0.58f, 0.95f, animationProgress));
-            if (foregroundMaterials != null)
-            {
-                for (int i = 0; i < foregroundMaterials.Length; i++)
-                    if (foregroundMaterials[i] != null && i != 1)
-                        foregroundMaterials[i].SetFloat("_Opacity",
-                            foregroundOpacity * OverlayAlpha(i));
-            }
-            foreach (TextMeshPro label in figmaLabels)
-                if (label != null) label.alpha = foregroundOpacity;
-            return;
-        }
-        float stretch = 1f - Mathf.Pow(1f - animationProgress, 3f);
-        float panelWidth = 400f + 900f * stretch;
-        float panelHeight = 400f;
-        Vector2 panelSize = new Vector2(panelWidth, panelHeight);
-        backgroundImage.rectTransform.sizeDelta = panelSize;
-        panelHighlightImage.rectTransform.sizeDelta = panelSize;
-        panelHighlightImage.color = new Color(1f, 1f, 1f,
-            Mathf.Clamp01((panelWidth - 400f) / 900f));
-        if (frostedMaterial != null)
-        {
-            frostedMaterial.SetFloat("_PanelWidth", panelWidth);
-            frostedMaterial.SetFloat("_PanelHeight", panelHeight);
-        }
-
-        float textProgress = Mathf.SmoothStep(0f, 1f,
-            Mathf.InverseLerp(0.42f, 0.95f, animationProgress));
-        contentGroup.alpha = textProgress;
-        contentRoot.localScale = Vector3.one * Mathf.Lerp(0.55f, 1f, textProgress);
     }
 
     private void BuildCurvedPrompt()
@@ -319,7 +200,6 @@ public class TutorialController : MonoBehaviour
         promptRoot = root.GetComponent<RectTransform>();
         promptRoot.sizeDelta = new Vector2(NewDesignWidth, NewDesignHeight);
         curvedMesh = new Mesh { name = "Curved tutorial glass" };
-        curvedMesh.MarkDynamic();
         root.GetComponent<MeshFilter>().sharedMesh = curvedMesh;
 
         Shader shader = Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
@@ -334,6 +214,7 @@ public class TutorialController : MonoBehaviour
         frostedMaterial.renderQueue = 4990;
         root.GetComponent<MeshRenderer>().sharedMaterial = frostedMaterial;
         BuildFigmaOverlays();
+        PreparePanel();
     }
 
     private void BuildFigmaOverlays()
@@ -521,8 +402,7 @@ public class TutorialController : MonoBehaviour
         terminalLineIndex = 0;
         terminalCharacters = 0;
         terminalPhase = TerminalPhase.Waiting;
-        terminalStartAt = Time.unscaledTime + (useRightGripToToggle
-            ? AnimationDuration * 0.65f : 0.2f);
+        terminalStartAt = Time.unscaledTime + 0.2f;
         terminalCursorRowY = TerminalBottomRowY;
         for (int i = 0; i < TerminalLines.Length; i++)
         {
@@ -784,7 +664,7 @@ public class TutorialController : MonoBehaviour
         label.margin = Vector4.zero;
         label.text = content;
         label.color = Color.white;
-        label.alpha = foregroundOpacity;
+        label.alpha = 1f;
 
         float figmaX = FigmaFrameX + frameX;
         float figmaY = FigmaFrameY + frameY;
@@ -869,131 +749,5 @@ public class TutorialController : MonoBehaviour
         curvedMesh.RecalculateBounds();
     }
 
-    private void BuildPrompt()
-    {
-        GameObject root = new GameObject("Figma Tutorial Prompt",
-            typeof(RectTransform), typeof(Canvas));
-        promptRoot = root.GetComponent<RectTransform>();
-        promptRoot.sizeDelta = new Vector2(1300f, 400f);
-        promptRoot.pivot = new Vector2(0.5f, 0.5f);
-        promptCanvas = root.GetComponent<Canvas>();
-        promptCanvas.renderMode = RenderMode.WorldSpace;
-        promptCanvas.overrideSorting = true;
-        promptCanvas.sortingOrder = 100;
 
-        Font inter = Resources.Load<Font>("TutorialDesign/InterVariable");
-        if (inter != null)
-            generatedFont = TMP_FontAsset.CreateFontAsset(inter);
-        TMP_FontAsset font = generatedFont != null ? generatedFont
-            : uiTextElement != null ? uiTextElement.font : TMP_Settings.defaultFontAsset;
-
-        // One rounded glass surface grows from a circle into the capsule.
-        backgroundImage = AddImage("Figma blurred background", "figma-background", Vector2.zero,
-            new Vector2(1300f, 400f));
-        Shader frostShader = Resources.Load<Shader>("TutorialDesign/TutorialFrostedGlass");
-        if (frostShader != null)
-        {
-            frostedMaterial = new Material(frostShader);
-            backgroundImage.material = frostedMaterial;
-        }
-        panelHighlightImage = AddImage("Capsule highlights", "figma-decorations", Vector2.zero,
-            new Vector2(1300f, 400f));
-
-        GameObject content = new GameObject("Expanding content",
-            typeof(RectTransform), typeof(CanvasGroup));
-        contentRoot = content.GetComponent<RectTransform>();
-        contentRoot.SetParent(promptRoot, false);
-        contentRoot.anchorMin = contentRoot.anchorMax = contentRoot.pivot =
-            new Vector2(0.5f, 0.5f);
-        contentRoot.sizeDelta = new Vector2(1300f, 400f);
-        contentGroup = content.GetComponent<CanvasGroup>();
-        contentGroup.interactable = false;
-        contentGroup.blocksRaycasts = false;
-
-        AddImage("Soft shadow under E", "ellipse-shadow", new Vector2(-55f, -43f),
-            new Vector2(320f, 320f));
-        RawImage softLetterGlow = AddImage("Soft text edge", "text-blur", Vector2.zero,
-            new Vector2(1300f, 400f), 0.22f);
-        RawImage softLetterShadow = AddImage("Soft text shadow", "text-blur", new Vector2(0f, -43f),
-            new Vector2(1300f, 400f), 0.55f);
-        softLetterGlow.gameObject.SetActive(useRightGripToToggle);
-        softLetterShadow.gameObject.SetActive(useRightGripToToggle);
-
-        shadowPressText = AddText("Press shadow", font, new Vector2(-342f, -43f),
-            new Vector2(360f, 180f), new Color(0f, 0f, 0f, 0.2f));
-        shadowKeyText = AddText("Key shadow", font, new Vector2(-55f, -43f),
-            new Vector2(170f, 180f), new Color(1f, 1f, 1f, 0.2f), FontStyles.Bold);
-        shadowActionText = AddText("Action shadow", font, new Vector2(290f, -43f),
-            new Vector2(480f, 180f), new Color(0f, 0f, 0f, 0.2f));
-        shadowPressText.gameObject.SetActive(!useRightGripToToggle);
-        shadowKeyText.gameObject.SetActive(!useRightGripToToggle);
-        shadowActionText.gameObject.SetActive(!useRightGripToToggle);
-
-        GameObject floatingContent = new GameObject("Floating text and key disc",
-            typeof(RectTransform));
-        floatingRoot = floatingContent.GetComponent<RectTransform>();
-        floatingRoot.SetParent(contentRoot, false);
-        floatingRoot.anchorMin = floatingRoot.anchorMax = floatingRoot.pivot =
-            new Vector2(0.5f, 0.5f);
-        floatingRoot.sizeDelta = new Vector2(1300f, 400f);
-        floatingRoot.localPosition = new Vector3(0f, 0f, -ForegroundDepth / CanvasScale);
-
-        AddImage("Blue key disc", "ellipse-main", new Vector2(-55f, 0f),
-            new Vector2(262f, 262f));
-        AddImage("Disc lower glint", "ellipse-glow", new Vector2(-51.28f, -99.09f),
-            new Vector2(148.563f, 89.4442f), 1f, 1.78f, contentRoot);
-
-        pressText = AddText("Press", font, new Vector2(-342f, 0f),
-            new Vector2(360f, 180f), Color.black);
-        keyText = AddText("Key", font, new Vector2(-55f, 0f),
-            new Vector2(170f, 180f), Color.white, FontStyles.Bold);
-        actionText = AddText("Action", font, new Vector2(290f, 0f),
-            new Vector2(480f, 180f), Color.black);
-
-    }
-
-    private RawImage AddImage(string name, string assetName, Vector2 position,
-        Vector2 size, float alpha = 1f, float rotation = 0f,
-        RectTransform parentOverride = null)
-    {
-        GameObject element = new GameObject(name, typeof(RectTransform), typeof(RawImage));
-        RectTransform rect = element.GetComponent<RectTransform>();
-        rect.SetParent(parentOverride != null ? parentOverride
-            : floatingRoot != null ? floatingRoot
-            : contentRoot != null ? contentRoot : promptRoot, false);
-        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
-        rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
-
-        RawImage image = element.GetComponent<RawImage>();
-        image.texture = Resources.Load<Texture2D>("TutorialDesign/" + assetName);
-        image.color = new Color(1f, 1f, 1f, alpha);
-        image.raycastTarget = false;
-        return image;
-    }
-
-    private TextMeshProUGUI AddText(string name, TMP_FontAsset font, Vector2 position,
-        Vector2 size, Color color, FontStyles style = FontStyles.Normal)
-    {
-        GameObject element = new GameObject(name, typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-        RectTransform rect = element.GetComponent<RectTransform>();
-        rect.SetParent(floatingRoot != null ? floatingRoot
-            : contentRoot != null ? contentRoot : promptRoot, false);
-        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
-
-        TextMeshProUGUI label = element.GetComponent<TextMeshProUGUI>();
-        label.font = font;
-        label.fontSize = DesignFontSize;
-        label.fontStyle = style;
-        label.color = color;
-        label.alignment = TextAlignmentOptions.Center;
-        label.textWrappingMode = TextWrappingModes.NoWrap;
-        label.overflowMode = TextOverflowModes.Overflow;
-        label.raycastTarget = false;
-        return label;
-    }
 }

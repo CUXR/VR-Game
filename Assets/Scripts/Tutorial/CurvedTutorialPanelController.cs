@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class CurvedTutorialPanelController : MonoBehaviour
 {
@@ -59,15 +58,6 @@ public class CurvedTutorialPanelController : MonoBehaviour
     private readonly TextMeshPro[] terminalShadows = new TextMeshPro[5];
     private TerminalTypewriterSequence terminalAnimation;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void EnsureController()
-    {
-        // The demo scene uses this panel; other scenes retain their own tutorial UI.
-        if (SceneManager.GetActiveScene().name == "Demo Level" && Instance == null)
-            new GameObject("Curved Tutorial Panel")
-                .AddComponent<CurvedTutorialPanelController>();
-    }
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -77,12 +67,6 @@ public class CurvedTutorialPanelController : MonoBehaviour
         }
 
         Instance = this;
-        foreach (TutorialController legacy in
-            FindObjectsByType<TutorialController>())
-        {
-            if (legacy.uiTextElement != null)
-                legacy.uiTextElement.gameObject.SetActive(false);
-        }
         style = panelStyle != null ? panelStyle : Resources.Load<TutorialPanelStyle>(
             "TutorialDesign/Curved Tutorial Panel Style");
         if (style == null)

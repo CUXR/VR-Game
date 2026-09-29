@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -21,13 +20,6 @@ public class CameraFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (XRSettings.isDeviceActive)
-        {
-            // The tracked pose driver updates the camera from the headset.
-            // Do not replace its rotation with desktop mouse input.
-            return;
-        }
-
         Vector2 lookDirection = InputController.Instance.GetLookDirection();
 
         // Get mouse input with sensitivity

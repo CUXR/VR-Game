@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class CurvedTutorialPanelController : MonoBehaviour
 {
@@ -36,12 +37,13 @@ public class CurvedTutorialPanelController : MonoBehaviour
     [SerializeField] private TutorialPanelStyle panelStyle;
     private TutorialPanelStyle style;
     private bool ownsStyle;
-    public bool useRightGripToToggle = true;
+    [FormerlySerializedAs("useRightGripToToggle")]
+    public bool useControllerButtonToToggle = true;
 
     private RectTransform promptRoot;
     private Camera headsetCamera;
     private Material frostedMaterial;
-    private InputAction rightGripAction;
+    private InputAction panelToggleAction;
     private bool targetVisible;
     private Mesh curvedMesh;
     private Mesh[] foregroundMeshes;
@@ -79,12 +81,12 @@ public class CurvedTutorialPanelController : MonoBehaviour
             style.typewriterSecondsPerCharacter, style.terminalScrollDuration,
             style.terminalLinePause, style.terminalInitialDelay);
         BuildCurvedPrompt();
-        if (useRightGripToToggle)
+        if (useControllerButtonToToggle)
         {
-            rightGripAction = new InputAction("Show Tutorial", InputActionType.Button);
-            rightGripAction.AddBinding("<XRController>{RightHand}/gripPressed");
-            rightGripAction.AddBinding("<XRController>{RightHand}/{GripButton}");
-            rightGripAction.Enable();
+            panelToggleAction = new InputAction("Show Tutorial", InputActionType.Button);
+            // B on the right Touch controller (Y belongs to the left hand).
+            panelToggleAction.AddBinding("<XRController>{RightHand}/{SecondaryButton}");
+            panelToggleAction.Enable();
             promptRoot.gameObject.SetActive(false);
         }
         else
@@ -95,9 +97,9 @@ public class CurvedTutorialPanelController : MonoBehaviour
 
     private void Update()
     {
-        if (useRightGripToToggle && rightGripAction != null)
+        if (useControllerButtonToToggle && panelToggleAction != null)
         {
-            if (rightGripAction.WasPressedThisFrame())
+            if (panelToggleAction.WasPressedThisFrame())
             {
                 targetVisible = !targetVisible;
                 if (targetVisible)
@@ -106,7 +108,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
             }
         }
 
-        if (targetVisible || !useRightGripToToggle)
+        if (targetVisible || !useControllerButtonToToggle)
             UpdateTerminal();
 
         if (foregroundMaterials != null && foregroundMaterials[1] != null)
@@ -151,7 +153,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
     {
         if (Instance == this)
             Instance = null;
-        rightGripAction?.Dispose();
+        panelToggleAction?.Dispose();
         if (ownsStyle && style != null)
             Destroy(style);
         if (frostedMaterial != null)

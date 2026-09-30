@@ -78,6 +78,15 @@ public class PlayerMovement : MonoBehaviour
     private float sprintingVolumeDecay = 0.1f;
     private float sprintingLoudness = 1.0f;
 
+    [Header("Footstep Audio")]
+    public AudioSource footstepSource;
+    public AudioClip[] footstepSounds;
+    public float walkStepDistance = 1.5f;
+    public float sprintStepDistance = 2.5f;
+    
+    private Vector3 lastStepPosition;
+    private float distanceTraveled = 0f;
+
     Rigidbody rb;
     Vector3 moveDirection;
     float horizontalInput,
@@ -102,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
         rayUpper.transform.position = rayLower.transform.position + stepHeight * Vector3.up;
         defaultScale = transform.localScale.y;
         playerLimb = GetComponent<PlayerLimb>();
+        lastStepPosition = transform.position;
     }
 
     void Update()
@@ -120,6 +130,7 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl();
         SetDrag();
         HandleMovementState();
+        HandleFootsteps();
     }
 
     void FixedUpdate()
@@ -421,6 +432,41 @@ public class PlayerMovement : MonoBehaviour
         }
 
         return new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+    }
+
+    void HandleFootsteps()
+    {
+        if (Grounded && (movementState == MovementState.WALK || movementState == MovementState.SPRINT))
+        {
+            Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 lastPos = new Vector3(lastStepPosition.x, 0, lastStepPosition.z);
+            
+            distanceTraveled += Vector3.Distance(currentPos, lastPos);
+            
+            float currentThreshold = (movementState == MovementState.SPRINT) ? sprintStepDistance : walkStepDistance;
+
+            if (distanceTraveled >= currentThreshold)
+            {
+                PlayRandomFootstep();
+                distanceTraveled = 0f;
+            }
+        }
+        else if (movementState == MovementState.IDLE)
+        {
+            distanceTraveled = 0f;
+        }
+
+        lastStepPosition = transform.position;
+    }
+
+    void PlayRandomFootstep()
+    {
+        if (footstepSounds.Length == 0 || footstepSource == null) return;
+
+        int randomIndex = UnityEngine.Random.Range(0, footstepSounds.Length);
+        
+        footstepSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+        footstepSource.PlayOneShot(footstepSounds[randomIndex]);
     }
     
     private void OnDrawGizmos()

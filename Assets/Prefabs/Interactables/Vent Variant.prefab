@@ -110,6 +110,26 @@ PrefabInstance:
       propertyPath: outline
       value: 
       objectReference: {fileID: 4405542454306148424}
+    - target: {fileID: 3373497584068738827, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: pushForce
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3373497584068738827, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: sound_moving
+      value: 
+      objectReference: {fileID: 5208916131710732563}
+    - target: {fileID: 3829036677190919620, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: Loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3829036677190919620, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: m_Volume
+      value: 0.651
+      objectReference: {fileID: 0}
+    - target: {fileID: 3829036677190919620, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+      propertyPath: reverbZoneMixCustomCurve.m_Curve.Array.data[0].value
+      value: 0.81
+      objectReference: {fileID: 0}
     - target: {fileID: 5117063023227608476, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.13
@@ -196,6 +216,11 @@ PrefabInstance:
 --- !u!4 &4209111625070227787 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5117063023227608476, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
+  m_PrefabInstance: {fileID: 9037230274626432215}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &5208916131710732563 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 3829036677190919620, guid: 4df73e799f6694e2aaf97ef8c75dedc0, type: 3}
   m_PrefabInstance: {fileID: 9037230274626432215}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &7298698861618643374 stripped

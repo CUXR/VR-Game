@@ -29,6 +29,7 @@ public class GameController : MonoBehaviour
         enemyLayer = LayerMask.GetMask("Enemy");
         environmentLayerInt = LayerMask.NameToLayer("Environment");
         AudioUtility.Initialize(enemyLayer, environmentLayerInt, maxHearingRange);
+        AudioListener.pause = true;
 
         Application.targetFrameRate = 60;
         Time.timeScale = 1f;
@@ -37,6 +38,12 @@ public class GameController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        Invoke(nameof(UnmuteAudio), 0.5f);
+    }
+
+    private void UnmuteAudio()
+    {
+        AudioListener.pause = false;
     }
 
     // Listens for the pause button to be pressed, pauses or unpauses depending on state

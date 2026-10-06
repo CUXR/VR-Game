@@ -38,10 +38,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
         {
             if (interactableObject.Count!=0)
             {
-                if (sound != null) {
-                    Debug.Log("sound played");
-                    sound.Play();
-                }
+                if (sound != null) sound.Play();
                 Press();
             }
             if (!pressed)
@@ -82,7 +79,6 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
         //Debug.Log("OnTriggerEnter");
         if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire"))
         {
-            if (sound != null) sound.Play();
             pressed = true;
             Press();
         }

@@ -14,7 +14,6 @@ public class Generator : MonoBehaviour
     public List<GameObject> cylinders = new List<GameObject>();
     public List<Material> cylinderMats = new List<Material>();
     public AudioSource generatorHum;
-    public AudioSource generatorStartUp;
 
     void Start()
     {
@@ -50,16 +49,9 @@ public class Generator : MonoBehaviour
                     doors[i].isButtonDoor = false;
                 }
 
-                float delayTime = 5f;
-
-                if (generatorStartUp != null && !generatorStartUp.isPlaying) {
-                    generatorStartUp.Play();
-                    delayTime = generatorStartUp.clip.length;
-                }
-
                 if (generatorHum != null && !generatorHum.isPlaying) 
                 {
-                    generatorHum.PlayDelayed(delayTime);
+                    generatorHum.Play();
                 }
             }
             Destroy(obj.gameObject);

@@ -35,7 +35,6 @@ Transform:
   m_Children:
   - {fileID: 864003223428778027}
   - {fileID: 961767497217109334}
-  - {fileID: 7239337265923038012}
   - {fileID: 5432653371361330654}
   m_Father: {fileID: 6865371854879335982}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -160,7 +159,7 @@ Transform:
   m_GameObject: {fileID: 690135973200179049}
   serializedVersion: 2
   m_LocalRotation: {x: 0.18301262, y: 0.68301266, z: 0.6830128, w: -0.18301259}
-  m_LocalPosition: {x: -0, y: 3.67, z: 0}
+  m_LocalPosition: {x: 0, y: 3.67, z: 0}
   m_LocalScale: {x: 82.918755, y: 82.91875, z: 465.6206}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -224,37 +223,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &2840341883854837554
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7239337265923038012}
-  m_Layer: 0
-  m_Name: PressedPos
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7239337265923038012
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2840341883854837554}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.29, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4950730825895109786}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3074089351353667968
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,6 +288,7 @@ Transform:
   m_LocalScale: {x: 0.79, y: 0.79, z: 0.79}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 1317873915094095008}
   - {fileID: 6855500933909751943}
   - {fileID: 8839419942042016135}
   m_Father: {fileID: 4950730825895109786}
@@ -429,6 +398,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1.5689924, z: 1}
   m_Center: {x: 0.00000021896453, y: -0.053709723, z: 0}
+--- !u!1 &4636460393646410560
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1317873915094095008}
+  m_Layer: 0
+  m_Name: PressedPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1317873915094095008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4636460393646410560}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.58228296, z: 0}
+  m_LocalScale: {x: 1.2658228, y: 1.26582, z: 1.2658228}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5432653371361330654}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8288416722514653559
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,11 +497,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eec2b911208b2432097399410792e2ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pressedPos: {fileID: 3074089351353667968}
+  pressedPos: {fileID: 4636460393646410560}
   playerPressable: 1
   pressed: 0
-  interactableObject: []
-  button: {fileID: 3074089351353667968}
+  interactableObject:
+  - {fileID: 0}
+  button: {fileID: 9081713451163371324}
   tutorialText: 
   sound: {fileID: 6139022930000471413}
 --- !u!54 &4771123764973298101

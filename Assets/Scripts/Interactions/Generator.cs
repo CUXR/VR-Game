@@ -47,6 +47,9 @@ public class Generator : MonoBehaviour
                 for (int i = 0; i < doors.Count; i++)
                 {
                     doors[i].isButtonDoor = false;
+                    doors[i].locked = false;
+                    doors[i].SetMat();
+                    doors[i].SetTrigger();
                 }
 
                 if (generatorHum != null && !generatorHum.isPlaying) 

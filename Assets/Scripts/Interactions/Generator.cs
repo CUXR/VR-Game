@@ -11,8 +11,8 @@ public class Generator : MonoBehaviour
     public List<GameObject> wires = new List<GameObject>();
     public GameObject button;
     public Material buttonMat;
-    public List<GameObject> cylinders = new List<GameObject>();
-    public List<Material> cylinderMats = new List<Material>();
+    //public List<GameObject> cylinders = new List<GameObject>();
+    //public List<Material> cylinderMats = new List<Material>();
     public AudioSource generatorHum;
 
     void Start()
@@ -39,8 +39,10 @@ public class Generator : MonoBehaviour
         if (obj.CompareTag("Wire"))
         {
             numWires++;
-            wires[numWires-1].SetActive(true);
-            cylinders[numWires-1].GetComponent<MeshRenderer>().material = cylinderMats[numWires-1];
+            obj.GetComponent<Wire>().setObjsActive();
+            obj.GetComponent<Wire>().changeObjMats();
+            //wires[numWires-1].SetActive(true);
+            //cylinders[numWires-1].GetComponent<MeshRenderer>().material = cylinderMats[numWires-1];
             if (numWires == requiredWires)
             {
                 button.GetComponent<MeshRenderer>().material = buttonMat;

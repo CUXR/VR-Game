@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 6b33e6d05a69c42fc958c70dee55a510, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 295ab856611b9a049b0d23298ad1ff5b, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -5429,9 +5429,33 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -7915840492449411108, guid: 3c14e5653a1c04a8a9307224e209d826, type: 3}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: color
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMats.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMatObj.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMats.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 60398ac4c9f314ced99480d8af0d52fe, type: 2}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'activeObj.Array.data[0]'
+      value: 
+      objectReference: {fileID: 721740877}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMatObj.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1346868635}
     - target: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
       propertyPath: m_Name
-      value: Wire
+      value: Incinerator Wire
       objectReference: {fileID: 0}
     - target: {fileID: 3755761135282884420, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
       propertyPath: outlineWidth
@@ -8866,7 +8890,7 @@ Light:
   serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -14743,6 +14767,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1658281141947575811, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
   m_PrefabInstance: {fileID: 1369597384}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &721740877 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5615805697525390021, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+  m_PrefabInstance: {fileID: 1524388218}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &733812974
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18463,9 +18492,25 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1409449083469545472, guid: 3c14e5653a1c04a8a9307224e209d826, type: 3}
     - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMats.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMatObj.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMats.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4de74ff6bc34e4d8a89fcf3756d40f9f, type: 2}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
       propertyPath: 'activeObj.Array.data[0]'
       value: 
       objectReference: {fileID: 1524388220}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMatObj.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1556918536}
     - target: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
       propertyPath: m_Name
       value: Shelf Wire
@@ -19250,6 +19295,11 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &989523380 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4504998256914774874, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+  m_PrefabInstance: {fileID: 1524388218}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &996961815
 GameObject:
   m_ObjectHideFlags: 0
@@ -20178,6 +20228,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 840635306}
     m_Modifications:
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: color
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMats.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: difMatObj.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMats.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: cfeb477b43d764ca2bae2ff49406a6bd, type: 2}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'activeObj.Array.data[0]'
+      value: 
+      objectReference: {fileID: 989523380}
+    - target: {fileID: 1493547370923355906, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
+      propertyPath: 'difMatObj.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1357251029}
     - target: {fileID: 3079853164802308631, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
       propertyPath: m_Name
       value: Ceiling Wire
@@ -29565,6 +29639,11 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!1 &1346868635 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3645357537800467593, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+  m_PrefabInstance: {fileID: 1524388218}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1346909294
 Mesh:
   m_ObjectHideFlags: 0
@@ -30021,6 +30100,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 612145368}
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+--- !u!1 &1357251029 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2191638089888802445, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+  m_PrefabInstance: {fileID: 1524388218}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1361100003
 Mesh:
   m_ObjectHideFlags: 0
@@ -33460,6 +33544,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 581777118879193650, guid: 78f4239ae8b794cdebdec3e241df5f4d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 790824453853210215, guid: 78f4239ae8b794cdebdec3e241df5f4d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8026914501657015140, guid: 78f4239ae8b794cdebdec3e241df5f4d, type: 3}
       propertyPath: m_Name
       value: Incinerator Door
@@ -34422,6 +34514,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1458808466}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1556918536 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1014290281049002951, guid: ae09c5e08cfc944ae87af3bcda98591e, type: 3}
+  m_PrefabInstance: {fileID: 1524388218}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1572052071
 Mesh:
   m_ObjectHideFlags: 0

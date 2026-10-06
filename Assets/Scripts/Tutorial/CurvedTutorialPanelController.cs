@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using UnityEngine.Rendering.Universal;
 
 public class CurvedTutorialPanelController : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
     private const float FigmaFrameX = 9604f;
     private const float FigmaFrameY = 2235f;
     private float NewForegroundDepth => style.foregroundDepth;
+    private float TextForwardDepth => style.textForwardDepth;
     // Visible ink width of the original Figma Grab PNG, measured in pixels.
     private float GrabReferenceInkWidth => style.grabReferenceInkWidth;
     private float TerminalBottomRowY => style.terminalBottomRowY;
@@ -42,11 +44,32 @@ public class CurvedTutorialPanelController : MonoBehaviour
 
     private RectTransform promptRoot;
     private Camera headsetCamera;
+    private UniversalAdditionalCameraData blurCameraData;
+    private CameraOverrideOption previousColorTextureOption;
     private Material frostedMaterial;
+    private MeshRenderer glassRenderer;
     private InputAction panelToggleAction;
+    private TutorialControllerModelDisplay controllerDisplay;
     private bool targetVisible;
+    private float fadeProgress;
+    private Renderer[] fadeRenderers;
+    private MaterialPropertyBlock fadeProperties;
+    private Material dimmerMaterial;
+    private Mesh dimmerMesh;
     private Mesh curvedMesh;
     private Mesh[] foregroundMeshes;
+    private readonly List<OverlayGeometry> overlayGeometry = new List<OverlayGeometry>();
+    private sealed class OverlayGeometry
+    {
+        public Mesh mesh;
+        public Vector3[] panelPoints;
+        public Vector3[] vertices;
+        public float depth;
+    }
+    private float dockBlend;
+    private bool dockTarget;
+    private readonly TutorialPanelDockMotion dockMotion = new TutorialPanelDockMotion();
+    private readonly TutorialPanelDockMotion backdropMotion = new TutorialPanelDockMotion();
     private Material[] foregroundMaterials;
     private readonly List<TextMeshPro> figmaLabels = new List<TextMeshPro>();
     private readonly List<Material> figmaTextMaterials = new List<Material>();
@@ -69,6 +92,14 @@ public class CurvedTutorialPanelController : MonoBehaviour
         }
 
         Instance = this;
+        fadeProperties = new MaterialPropertyBlock();
+        if (useControllerButtonToToggle)
+        {
+            panelToggleAction = new InputAction("Show Tutorial", InputActionType.Button);
+            // B on the right Touch controller (Y belongs to the left hand).
+            panelToggleAction.AddBinding("<XRController>{RightHand}/{SecondaryButton}");
+            panelToggleAction.Enable();
+        }
         style = panelStyle != null ? panelStyle : Resources.Load<TutorialPanelStyle>(
             "TutorialDesign/Curved Tutorial Panel Style");
         if (style == null)
@@ -81,33 +112,47 @@ public class CurvedTutorialPanelController : MonoBehaviour
             style.typewriterSecondsPerCharacter, style.terminalScrollDuration,
             style.terminalLinePause, style.terminalInitialDelay);
         BuildCurvedPrompt();
+        try { BuildSceneDimmer(); }
+        catch (System.Exception exception)
+        {
+            Debug.LogError("Tutorial background dimmer failed; keeping the panel available.", this);
+            Debug.LogException(exception, this);
+        }
+        fadeRenderers = promptRoot.GetComponentsInChildren<Renderer>(true);
         if (useControllerButtonToToggle)
         {
-            panelToggleAction = new InputAction("Show Tutorial", InputActionType.Button);
-            // B on the right Touch controller (Y belongs to the left hand).
-            panelToggleAction.AddBinding("<XRController>{RightHand}/{SecondaryButton}");
-            panelToggleAction.Enable();
             promptRoot.gameObject.SetActive(false);
         }
         else
         {
             targetVisible = true;
+            fadeProgress = 1f;
         }
+        ApplyFade();
     }
 
     private void Update()
     {
+        if (promptRoot == null) return;
+        bool restartTerminal = false;
         if (useControllerButtonToToggle && panelToggleAction != null)
         {
             if (panelToggleAction.WasPressedThisFrame())
             {
                 targetVisible = !targetVisible;
-                if (targetVisible)
-                    ResetTerminal();
-                promptRoot.gameObject.SetActive(targetVisible);
+                restartTerminal = targetVisible;
+                if (targetVisible) promptRoot.gameObject.SetActive(true);
             }
         }
 
+        fadeProgress = Mathf.MoveTowards(fadeProgress, targetVisible ? 1f : 0f,
+            Time.unscaledDeltaTime / Mathf.Max(0.05f, style.fadeDuration));
+        ApplyFade();
+        if (!targetVisible && fadeProgress <= 0f)
+            promptRoot.gameObject.SetActive(false);
+
+        // Visibility must update even if a text mesh or its animation fails.
+        if (restartTerminal) ResetTerminal();
         if (targetVisible || !useControllerButtonToToggle)
             UpdateTerminal();
 
@@ -131,29 +176,115 @@ public class CurvedTutorialPanelController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (promptRoot == null || style == null) return;
         if (headsetCamera == null || !headsetCamera.isActiveAndEnabled)
             headsetCamera = Camera.main;
         if (headsetCamera == null)
+        {
+            ReleaseBlurInput();
             return;
+        }
+
+        if (blurCameraData != null && blurCameraData.gameObject != headsetCamera.gameObject)
+            ReleaseBlurInput();
+        if ((fadeProgress > 0f || (controllerDisplay != null && controllerDisplay.HasHandVisual))
+            && style.controllerDisplayPrefab != null)
+        {
+            if (blurCameraData == null && headsetCamera.TryGetComponent(out UniversalAdditionalCameraData cameraData))
+            {
+                blurCameraData = cameraData;
+                previousColorTextureOption = cameraData.requiresColorOption;
+                cameraData.requiresColorOption = CameraOverrideOption.On;
+            }
+        }
+        else ReleaseBlurInput();
 
         if (promptRoot.parent != headsetCamera.transform)
         {
             promptRoot.SetParent(headsetCamera.transform, false);
         }
 
-        // Keep the completed panel 1.5 m from the headset.
+        UpdateDockMotion();
+        // The complete hierarchy (glass, curved images, shadows, text and
+        // cursor) moves together in the current headset's coordinate frame.
         float forward = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
             - VerticalOffset * VerticalOffset);
-        promptRoot.localPosition = new Vector3(0f, VerticalOffset, forward);
-        promptRoot.localRotation = Quaternion.identity;
-        promptRoot.localScale = Vector3.one * CanvasScale;
+        promptRoot.localPosition = Vector3.LerpUnclamped(new Vector3(0f, VerticalOffset, forward),
+            style.dockedPanelPosition, dockBlend);
+        promptRoot.localRotation = Quaternion.SlerpUnclamped(Quaternion.identity,
+            Quaternion.Euler(style.dockedPanelPitch, 0f, 0f), dockBlend);
+        promptRoot.localScale = Vector3.one * CanvasScale
+            * Mathf.LerpUnclamped(1f, style.dockedPanelScale, dockBlend);
+    }
+
+    private void SetHandMode(bool docked)
+    {
+        if (dockTarget == docked) return;
+        dockTarget = docked;
+        double now = Time.unscaledTimeAsDouble;
+        dockMotion.Retarget(docked ? 1f : 0f, style.panelDockDuration, now);
+        // The mask follows the controller's shorter handoff, independently of
+        // the panel's longer movement, without a visible opacity rebound.
+        backdropMotion.Retarget(docked ? 1f : 0f, style.controllerSnapDuration, now, rebound: false);
+    }
+
+    private void UpdateDockMotion()
+    {
+        double now = Time.unscaledTimeAsDouble;
+        float next = dockMotion.Evaluate(now).value;
+        float backdropBlend = Mathf.Clamp01(backdropMotion.Evaluate(now).value);
+        if (dimmerMaterial != null)
+            dimmerMaterial.SetFloat("_Opacity", style.backdropOpacity
+                * (1f - backdropBlend));
+        float previous = dockBlend;
+        dockBlend = next;
+        ApplyGlassOpacity();
+        if (Mathf.Abs(next - previous) < 0.000001f) return;
+        RefreshForegroundDepth();
+    }
+
+    private float ActiveDepth(float presentationDepth)
+        => Mathf.LerpUnclamped(presentationDepth, Mathf.Min(presentationDepth, style.dockedForegroundDepth), dockBlend);
+
+    private void RefreshForegroundDepth()
+    {
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance - VerticalOffset * VerticalOffset);
+        Vector3 centre = new Vector3(0f, VerticalOffset, radius);
+        foreach (var geometry in overlayGeometry)
+        {
+            for (int i = 0; i < geometry.vertices.Length; i++)
+                geometry.vertices[i] = (ProjectForegroundPoint(geometry.panelPoints[i], geometry.depth, false)
+                    - centre) / CanvasScale;
+            geometry.mesh.vertices = geometry.vertices;
+            geometry.mesh.RecalculateBounds();
+        }
+        foreach (var label in figmaLabels)
+        {
+            Vector2 origin = figmaLabelOrigins[label];
+            float angle = origin.x * CanvasScale / radius;
+            float depth = figmaLabelDepths[label];
+            Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
+                VerticalOffset + origin.y * CanvasScale, radius * Mathf.Cos(angle));
+            label.transform.localPosition = (ProjectForegroundPoint(panelPoint, depth, depth > 0f) - centre) / CanvasScale;
+            WarpFigmaText(label, label.textInfo);
+            label.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices);
+        }
+        UpdateTerminalCursor();
     }
 
     private void OnDestroy()
     {
+        ReleaseBlurInput();
         if (Instance == this)
             Instance = null;
         panelToggleAction?.Dispose();
+        if (controllerDisplay != null)
+        {
+            controllerDisplay.HandModeChanged -= SetHandMode;
+            Destroy(controllerDisplay.gameObject);
+        }
+        if (dimmerMaterial != null) Destroy(dimmerMaterial);
+        if (dimmerMesh != null) Destroy(dimmerMesh);
         if (ownsStyle && style != null)
             Destroy(style);
         if (frostedMaterial != null)
@@ -170,6 +301,71 @@ public class CurvedTutorialPanelController : MonoBehaviour
             if (material != null) Destroy(material);
         if (promptRoot != null)
             Destroy(promptRoot.gameObject);
+    }
+
+    private void ReleaseBlurInput()
+    {
+        if (blurCameraData == null) return;
+        if (blurCameraData.requiresColorOption == CameraOverrideOption.On)
+            blurCameraData.requiresColorOption = previousColorTextureOption;
+        blurCameraData = null;
+    }
+
+    private void ApplyFade()
+    {
+        if (fadeRenderers == null || fadeProperties == null) return;
+        float alpha = Mathf.SmoothStep(0f, 1f, fadeProgress);
+        if (controllerDisplay != null) controllerDisplay.SetPanelOpacity(alpha);
+        foreach (Renderer renderer in fadeRenderers)
+        {
+            if (renderer == null) continue;
+            renderer.GetPropertyBlock(fadeProperties);
+            fadeProperties.SetFloat("_UIFade", alpha * (renderer == glassRenderer
+                ? Mathf.LerpUnclamped(1f, style.dockedPanelOpacityMultiplier, dockBlend) : 1f));
+            renderer.SetPropertyBlock(fadeProperties);
+        }
+    }
+
+    private void ApplyGlassOpacity()
+    {
+        if (glassRenderer == null || fadeProperties == null) return;
+        glassRenderer.GetPropertyBlock(fadeProperties);
+        fadeProperties.SetFloat("_UIFade", Mathf.SmoothStep(0f, 1f, fadeProgress)
+            * Mathf.LerpUnclamped(1f, style.dockedPanelOpacityMultiplier, dockBlend));
+        glassRenderer.SetPropertyBlock(fadeProperties);
+    }
+
+    private void BuildSceneDimmer()
+    {
+        Shader shader = Resources.Load<Shader>("TutorialDesign/TutorialSceneDimmer");
+        if (shader == null)
+        {
+            Debug.LogWarning("Tutorial dimmer shader is missing; skipping the background dimmer.", this);
+            return;
+        }
+        GameObject dimmer = new GameObject("Tutorial background dimmer", typeof(MeshFilter), typeof(MeshRenderer));
+        dimmer.transform.SetParent(promptRoot, false);
+        dimmerMesh = new Mesh { name = "Tutorial full-view dimmer" };
+        dimmerMesh.vertices = new[] { new Vector3(-1,-1,0), new Vector3(1,-1,0),
+            new Vector3(1,1,0), new Vector3(-1,1,0) };
+        dimmerMesh.triangles = new[] { 0,1,2,0,2,3 };
+        dimmerMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 100000f);
+        dimmer.GetComponent<MeshFilter>().sharedMesh = dimmerMesh;
+        dimmerMaterial = new Material(shader) { renderQueue = 4989 };
+        dimmerMaterial.SetFloat("_Opacity", style.backdropOpacity);
+        MeshRenderer renderer = dimmer.GetComponent<MeshRenderer>();
+        renderer.sharedMaterial = dimmerMaterial;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
+    }
+
+    private Vector3 ProjectForegroundPoint(Vector3 panelPoint, float depth, bool tiltText)
+    {
+        Vector3 foreground = panelPoint - panelPoint.normalized * ActiveDepth(depth);
+        if (!tiltText) return foreground;
+        float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance - VerticalOffset * VerticalOffset);
+        Vector3 pivot = new Vector3(0f, VerticalOffset, radius - ActiveDepth(TextForwardDepth));
+        return pivot + Quaternion.Euler(style.textTiltDegrees, 0f, 0f) * (foreground - pivot);
     }
 
     private void PreparePanel()
@@ -206,9 +402,46 @@ public class CurvedTutorialPanelController : MonoBehaviour
         frostedMaterial = new Material(shader);
         // Render after scene transparents; depth testing is disabled in the shader.
         frostedMaterial.renderQueue = 4990;
-        root.GetComponent<MeshRenderer>().sharedMaterial = frostedMaterial;
+        glassRenderer = root.GetComponent<MeshRenderer>();
+        glassRenderer.sharedMaterial = frostedMaterial;
         BuildFigmaOverlays();
         PreparePanel();
+        if (style.controllerDisplayPrefab != null)
+        {
+            try { BuildControllerDisplay(); }
+            catch (System.Exception exception)
+            {
+                Debug.LogError("Tutorial controller display failed; keeping the panel available.", this);
+                Debug.LogException(exception, this);
+            }
+        }
+    }
+
+    private void BuildControllerDisplay()
+    {
+        GameObject controllerDisplayObject = Instantiate(style.controllerDisplayPrefab, promptRoot, false);
+        try
+        {
+            Mesh illustrationMesh = foregroundMeshes[0];
+            Vector3 illustrationCenter = illustrationMesh.bounds.center;
+            Vector2[] illustrationUVs = illustrationMesh.uv;
+            Vector3[] illustrationVertices = illustrationMesh.vertices;
+            for (int vertex = 0; vertex < illustrationUVs.Length; vertex++)
+                if ((illustrationUVs[vertex] - new Vector2(0.5f, 0.5f)).sqrMagnitude < 0.000001f)
+                {
+                    illustrationCenter = illustrationVertices[vertex];
+                    break;
+                }
+            controllerDisplay = controllerDisplayObject.GetComponent<TutorialControllerModelDisplay>();
+            controllerDisplay.Configure(style, illustrationCenter);
+            controllerDisplay.HandModeChanged += SetHandMode;
+        }
+        catch
+        {
+            controllerDisplay = null;
+            Destroy(controllerDisplayObject);
+            throw;
+        }
     }
 
     private void BuildFigmaOverlays()
@@ -274,6 +507,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
         foregroundMeshes[index] = mesh;
         int verticesPerRow = columns + 1;
         Vector3[] vertices = new Vector3[verticesPerRow * (rows + 1)];
+        Vector3[] panelPoints = new Vector3[vertices.Length];
         Vector2[] uv = new Vector2[vertices.Length];
         int[] triangles = new int[columns * rows * 6];
         float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
@@ -293,8 +527,8 @@ public class CurvedTutorialPanelController : MonoBehaviour
                 Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
                     VerticalOffset + (bottom + v * height) * CanvasScale,
                     radius * Mathf.Cos(angle));
-                Vector3 foregroundPoint = panelPoint
-                    - panelPoint.normalized * forwardDepth;
+                panelPoints[vertex] = panelPoint;
+                Vector3 foregroundPoint = ProjectForegroundPoint(panelPoint, forwardDepth, false);
                 vertices[vertex] = (foregroundPoint
                     - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
                 uv[vertex] = new Vector2(u, v);
@@ -321,6 +555,10 @@ public class CurvedTutorialPanelController : MonoBehaviour
         mesh.uv = uv;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
+        // Terminal cursor meshes are rebuilt from the live insertion point.
+        if (index < 5)
+            overlayGeometry.Add(new OverlayGeometry { mesh = mesh, panelPoints = panelPoints,
+                vertices = vertices, depth = forwardDepth });
         layer.GetComponent<MeshFilter>().sharedMesh = mesh;
         Material material = new Material(shader);
         material.SetTexture("_MainTex", texture);
@@ -452,8 +690,8 @@ public class CurvedTutorialPanelController : MonoBehaviour
         float angle = origin.x * CanvasScale / radius;
         Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
             VerticalOffset + top * CanvasScale, radius * Mathf.Cos(angle));
-        Vector3 foregroundPoint = panelPoint
-            - panelPoint.normalized * figmaLabelDepths[label];
+        float depth = figmaLabelDepths[label];
+        Vector3 foregroundPoint = ProjectForegroundPoint(panelPoint, depth, depth > 0f);
         label.transform.localPosition = (foregroundPoint
             - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
         label.ForceMeshUpdate(true, true);
@@ -478,7 +716,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
         MoveCursorMesh(foregroundMeshes[5], cursorX + 1f, cursorY + 2f,
             28f, 42f, 0f);
         MoveCursorMesh(foregroundMeshes[6], cursorX, cursorY,
-            20f, 34f, NewForegroundDepth);
+            20f, 34f, TextForwardDepth);
     }
 
     private void MoveCursorMesh(Mesh mesh, float frameX, float frameY,
@@ -499,8 +737,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
                 Vector3 panelPoint = new Vector3(radius * Mathf.Sin(angle),
                     VerticalOffset + (bottom + y * height) * CanvasScale,
                     radius * Mathf.Cos(angle));
-                Vector3 foregroundPoint = panelPoint
-                    - panelPoint.normalized * depth;
+                Vector3 foregroundPoint = ProjectForegroundPoint(panelPoint, depth, depth > 0f);
                 vertices[y * 2 + x] = (foregroundPoint
                     - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
             }
@@ -559,6 +796,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
                     radius * Mathf.Cos(angle));
                 Vector3 foregroundPoint = panelPoint
                     - panelPoint.normalized * forwardDepth;
+                foregroundPoint = ProjectForegroundPoint(panelPoint, forwardDepth, forwardDepth > 0f);
                 Vector3 rootPoint = (foregroundPoint - rootCenter) / CanvasScale;
                 vertices[vertexIndex + corner] = inverseRotation
                     * (rootPoint - label.transform.localPosition) / scale;
@@ -620,7 +858,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
         float left = figmaX - FigmaPanelX - NewDesignWidth * 0.5f;
         float top = NewDesignHeight * 0.5f - (figmaY - FigmaPanelY);
         figmaLabelOrigins.Add(label, new Vector2(left, top));
-        float forwardDepth = shadow ? 0f : NewForegroundDepth;
+        float forwardDepth = shadow ? 0f : TextForwardDepth;
         figmaLabelDepths.Add(label, forwardDepth);
         float radius = Mathf.Sqrt(HeadsetDistance * HeadsetDistance
             - VerticalOffset * VerticalOffset);
@@ -629,6 +867,7 @@ public class CurvedTutorialPanelController : MonoBehaviour
             VerticalOffset + top * CanvasScale, radius * Mathf.Cos(angle));
         Vector3 foregroundPoint = panelPoint
             - panelPoint.normalized * forwardDepth;
+        foregroundPoint = ProjectForegroundPoint(panelPoint, forwardDepth, !shadow);
         layer.transform.localPosition = (foregroundPoint
             - new Vector3(0f, VerticalOffset, radius)) / CanvasScale;
         layer.transform.localRotation = Quaternion.Euler(0f,

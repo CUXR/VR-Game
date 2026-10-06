@@ -20,10 +20,39 @@ public sealed class TutorialPanelStyle : ScriptableObject
     public Shader textShader;
     [Min(1f)] public float textFontSize = 43.666f;
     [Min(1f)] public float grabReferenceInkWidth = 381f;
+    [Min(0f)] public float textForwardDepth = 0.5f;
+    [Range(0f, 30f)] public float textTiltDegrees = 10f;
+
+    [Header("UI appearance")]
+    [Min(0.05f)] public float fadeDuration = 0.35f;
+    [Range(0f, 1f)] public float backdropOpacity = 0.5f;
 
     [Header("Materials")]
     public Shader frostedShader;
     public Shader overlayShader;
+
+    [Header("Controller display")]
+    public GameObject controllerDisplayPrefab;
+    [Min(0.01f)] public float controllerHeightRatio = 1f;
+    [Min(0f)] public float controllerForwardOffset = 0.5f;
+    public float controllerHorizontalOffset;
+    [Range(0f, 90f)] public float controllerRotationAmplitude = 15f;
+    [Min(0.1f)] public float controllerRotationPeriod = 4f;
+
+    [Header("Controller handoff")]
+    public GameObject handControllerPrefab;
+    [Min(0.1f)] public float controllerSnapDuration = 0.85f;
+    [Min(0.01f)] public float controllerSnapFadeDistance = 0.35f;
+    [Min(0f)] public float controllerSnapFadeEndDistance = 0.1f;
+    [Min(0.01f)] public float controllerHandFadeDuration = 0.65f;
+    [Min(0.01f)] public float controllerDisplayFadeDuration = 0.18f;
+    [Header("Panel docking motion")]
+    [Min(0.1f)] public float panelDockDuration = 1.25f;
+    public Vector3 dockedPanelPosition = new Vector3(0f, -0.5f, 0.45f);
+    [Range(0f, 90f)] public float dockedPanelPitch = 30f;
+    [Range(0.01f, 1f)] public float dockedPanelScale = 0.4f;
+    [Range(0f, 1f)] public float dockedPanelOpacityMultiplier = 0.8f;
+    [Min(0f)] public float dockedForegroundDepth = 0.02f;
 
     [Header("Terminal animation")]
     [Min(0.001f)] public float typewriterSecondsPerCharacter = 0.055f;

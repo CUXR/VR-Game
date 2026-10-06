@@ -1,6 +1,7 @@
 Shader "VRGame/TutorialTextOverlay" {
 
 Properties {
+        _UIFade ("UI fade", Range(0,1)) = 1
 	_FaceTex			("Face Texture", 2D) = "white" {}
 	_FaceUVSpeedX		("Face UV Speed X", Range(-5, 5)) = 0.0
 	_FaceUVSpeedY		("Face UV Speed Y", Range(-5, 5)) = 0.0
@@ -123,6 +124,7 @@ SubShader {
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
 
 		#include "UnityCG.cginc"
+        float _UIFade;
 		#include "UnityUI.cginc"
 		#include "Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc"
 		#include "Assets/TextMesh Pro/Shaders/TMPro.cginc"
@@ -315,7 +317,7 @@ SubShader {
 			clip(faceColor.a - 0.001);
 		    #endif
 
-			return faceColor * input.color.a;
+			return faceColor * input.color.a * _UIFade;
 		}
 		ENDCG
 	}

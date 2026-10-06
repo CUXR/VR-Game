@@ -2,6 +2,7 @@ Shader "VRGame/TutorialFrostedGlass"
 {
     Properties
     {
+        _UIFade ("UI fade", Range(0,1)) = 1
         _MainTex ("Figma Glass Tint", 2D) = "white" {}
         _Color ("Figma Glass Tint", Color) = (0.243137, 0.337255, 0.392157, 1)
         _BlurRadius ("Figma Backdrop Blur", Float) = 338.438
@@ -49,6 +50,7 @@ Shader "VRGame/TutorialFrostedGlass"
             float4 _CameraOpaqueTexture_TexelSize;
 
             CBUFFER_START(UnityPerMaterial)
+                float _UIFade;
                 half4 _Color;
                 float _BlurRadius;
                 float _TintStrength;
@@ -115,7 +117,7 @@ Shader "VRGame/TutorialFrostedGlass"
                 // Plus-lighter mixes the tinted glass additively with its
                 // blurred backdrop before the 90% surface opacity is applied.
                 half3 color = saturate(scene + input.color.rgb * _TintStrength + glow);
-                return half4(color, alpha);
+                return half4(color, alpha * _UIFade);
             }
             ENDHLSL
         }

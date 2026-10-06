@@ -2,6 +2,7 @@ Shader "VRGame/TutorialFigmaOverlay"
 {
     Properties
     {
+        _UIFade ("UI fade", Range(0,1)) = 1
         _MainTex ("Figma Export", 2D) = "white" {}
         _Opacity ("Opacity", Range(0, 1)) = 1
         _BlurPixels ("Blur Pixels", Range(0, 8)) = 0
@@ -41,6 +42,7 @@ Shader "VRGame/TutorialFigmaOverlay"
             SAMPLER(sampler_MainTex);
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                float _UIFade;
                 float _Opacity;
                 float _BlurPixels;
                 float _Solid;
@@ -94,7 +96,7 @@ Shader "VRGame/TutorialFigmaOverlay"
                     SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).a,
                     _UseTextureAlpha);
                 alpha = lerp(alpha, 1.0, _Solid);
-                return half4(0, 0, 0, alpha * _Opacity);
+                return half4(0, 0, 0, alpha * _Opacity * _UIFade);
             }
             ENDHLSL
         }

@@ -25,8 +25,30 @@ MonoBehaviour:
   textShader: {fileID: 4800000, guid: 94474a06aeba4e0eb31e4d62c926253a, type: 3}
   textFontSize: 43.666
   grabReferenceInkWidth: 381
+  textForwardDepth: 0.5
+  textTiltDegrees: 10
+  fadeDuration: 0.35
+  backdropOpacity: 0.5
   frostedShader: {fileID: 4800000, guid: 14eb87d1a7ad4b25b27feeb9f280cdbd, type: 3}
   overlayShader: {fileID: 4800000, guid: 6cb4936f2ba18c9478094ca853eb9e58, type: 3}
+  controllerDisplayPrefab: {fileID: 8368331341077857005, guid: dc426b6b38d99d343a9b8c327a971e34, type: 3}
+  controllerHeightRatio: 1
+  controllerForwardOffset: 0.5
+  controllerHorizontalOffset: 0
+  controllerRotationAmplitude: 15
+  controllerRotationPeriod: 4
+  handControllerPrefab: {fileID: 1174099188002853058, guid: 25508a022611d6f4096419a29c7ff14a, type: 3}
+  controllerSnapDuration: 0.85
+  controllerSnapFadeDistance: 0.35
+  controllerSnapFadeEndDistance: 0.1
+  controllerHandFadeDuration: 0.65
+  controllerDisplayFadeDuration: 0.18
+  panelDockDuration: 1.25
+  dockedPanelPosition: {x: 0, y: -0.5, z: 0.45}
+  dockedPanelPitch: 30
+  dockedPanelScale: 0.4
+  dockedPanelOpacityMultiplier: 0.8
+  dockedForegroundDepth: 0.02
   typewriterSecondsPerCharacter: 0.055
   terminalScrollDuration: 0.36
   terminalLinePause: 0.24

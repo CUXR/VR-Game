@@ -4,6 +4,30 @@ using UnityEngine.XR;
 // Read the existing XR devices. The tutorial does not create or modify the XR rig.
 public static class TutorialLeftControllerTracking
 {
+    public static bool TryGetSceneVisual(out Transform controller, out Transform originalVisual)
+    {
+        controller = null;
+        originalVisual = null;
+        var camera = Camera.main;
+        var origin = camera != null ? camera.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>() : null;
+        if (origin != null && TryGetSceneVisual(origin, out controller, out originalVisual)) return true;
+        foreach (var candidate in Object.FindObjectsByType<Unity.XR.CoreUtils.XROrigin>())
+        {
+            if (candidate == origin || !candidate.isActiveAndEnabled) continue;
+            if (TryGetSceneVisual(candidate, out controller, out originalVisual)) return true;
+        }
+        return false;
+    }
+
+    private static bool TryGetSceneVisual(Unity.XR.CoreUtils.XROrigin origin,
+        out Transform controller, out Transform originalVisual)
+    {
+        controller = origin.CameraFloorOffsetObject != null
+            ? origin.CameraFloorOffsetObject.transform.Find("Left Controller") : null;
+        originalVisual = controller != null ? controller.Find("Left Controller Visual") : null;
+        return controller != null && controller.gameObject.activeInHierarchy && originalVisual != null;
+    }
+
     public static float Grip()
     {
         var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
@@ -17,6 +41,11 @@ public static class TutorialLeftControllerTracking
         var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
         if (!left.isValid) return false;
         if (left.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked) && !tracked) return false;
+        if (TryGetSceneVisual(out Transform controller, out _))
+        {
+            pose = new Pose(controller.position, controller.rotation);
+            return true;
+        }
         if (!left.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 leftPosition)
             || !left.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion leftRotation)) return false;
         if (!TryGetTrackingOrigin(out Pose origin)) return false;

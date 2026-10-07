@@ -2,9 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR;
 
-// The driver owns the controller pose. This component only adapts the existing
-// tracking origin and owns the visual's fade, without modifying the XR rig.
-[RequireComponent(typeof(TrackedPoseDriver))]
+// This visual shares the scene controller's tracking and only replaces its appearance.
 public sealed class TutorialHandControllerVisual : MonoBehaviour
 {
     private Renderer[] renderers;
@@ -12,49 +10,78 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     private float opacity;
     private float fadeDuration;
     private bool configured;
-    private Transform ownedOrigin;
+    private Transform originalVisual;
+    private Renderer[] originalRenderers;
+    private bool[] originalRenderingOff;
     private bool retiring;
     private bool tracked;
-    private float fadeOutDuration;
+    private bool originalHidden;
 
-    public void Configure(float duration, float exitDuration = 0.18f)
+    public void Configure(Transform controller, Transform sceneVisual, float duration)
     {
         fadeDuration = Mathf.Max(0.01f, duration);
-        fadeOutDuration = Mathf.Max(0.01f, exitDuration);
         renderers = GetComponentsInChildren<Renderer>(true);
         properties = new MaterialPropertyBlock();
-        ownedOrigin = new GameObject("Tutorial controller tracking space").transform;
-        transform.SetParent(ownedOrigin, false);
+        // Older generated prefabs may still contain their own pose driver.
+        if (TryGetComponent(out TrackedPoseDriver driver)) driver.enabled = false;
+        transform.SetParent(controller, false);
+        transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         transform.localScale = Vector3.one;
+        originalVisual = sceneVisual;
+        originalRenderers = sceneVisual.GetComponentsInChildren<Renderer>(true);
+        originalRenderingOff = new bool[originalRenderers.Length];
+        for (int i = 0; i < originalRenderers.Length; i++)
+            originalRenderingOff[i] = originalRenderers[i].forceRenderingOff;
         configured = true;
+        HideOriginalVisual();
         ApplyOpacity(0f);
-        UpdateOriginAndVisibility();
+        UpdateVisibility();
     }
 
-    public void HideAndDestroy() { retiring = true; }
+    public void HideAndDestroy()
+    {
+        if (retiring) return;
+        retiring = true;
+        gameObject.SetActive(false);
+        RestoreOriginalVisual();
+        Destroy(gameObject);
+    }
 
-    private void OnEnable() { Application.onBeforeRender += UpdateOriginAndVisibility; }
-    private void OnDisable() { Application.onBeforeRender -= UpdateOriginAndVisibility; }
+    private void OnEnable()
+    {
+        Application.onBeforeRender += UpdateVisibility;
+        if (configured && !retiring) HideOriginalVisual();
+    }
+
+    private void OnDisable()
+    {
+        Application.onBeforeRender -= UpdateVisibility;
+        if (renderers != null)
+            foreach (var renderer in renderers)
+                if (renderer != null) renderer.enabled = false;
+        RestoreOriginalVisual();
+    }
 
     private void LateUpdate()
     {
-        if (!configured) return;
-        UpdateOriginAndVisibility();
-        if (!tracked && !retiring) opacity = 0f;
-        else opacity = Mathf.MoveTowards(opacity, retiring ? 0f : 1f,
-            Time.unscaledDeltaTime / (retiring ? fadeOutDuration : fadeDuration));
+        if (!configured || retiring) return;
+        if (originalVisual == null)
+        {
+            HideAndDestroy();
+            return;
+        }
+        UpdateVisibility();
+        if (!tracked) opacity = 0f;
+        else opacity = Mathf.MoveTowards(opacity, 1f, Time.unscaledDeltaTime / fadeDuration);
         ApplyOpacity(TutorialControllerSnapMotion.Smooth(opacity));
-        if (retiring && opacity <= 0f) Destroy(gameObject);
     }
 
     [BeforeRenderOrder(-100)]
-    private void UpdateOriginAndVisibility()
+    private void UpdateVisibility()
     {
-        if (!configured) return;
-        bool originValid = TutorialLeftControllerTracking.TryGetTrackingOrigin(out Pose origin);
-        if (originValid) ownedOrigin.SetPositionAndRotation(origin.position, origin.rotation);
+        if (!configured || retiring) return;
         var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-        bool trackedNow = originValid && left.isValid
+        bool trackedNow = originalVisual != null && originalVisual.gameObject.activeInHierarchy && left.isValid
             && left.TryGetFeatureValue(CommonUsages.isTracked, out bool isTracked) && isTracked
             && left.TryGetFeatureValue(CommonUsages.trackingState, out InputTrackingState state)
             && (state & (InputTrackingState.Position | InputTrackingState.Rotation))
@@ -71,6 +98,23 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             if (renderer != null) renderer.enabled = tracked;
     }
 
+    private void HideOriginalVisual()
+    {
+        if (originalHidden || originalRenderers == null) return;
+        originalHidden = true;
+        foreach (var renderer in originalRenderers)
+            if (renderer != null) renderer.forceRenderingOff = true;
+    }
+
+    private void RestoreOriginalVisual()
+    {
+        if (!originalHidden) return;
+        for (int i = 0; i < originalRenderers.Length; i++)
+            if (originalRenderers[i] != null)
+                originalRenderers[i].forceRenderingOff = originalRenderingOff[i];
+        originalHidden = false;
+    }
+
     private void ApplyOpacity(float alpha)
     {
         foreach (var renderer in renderers)
@@ -84,6 +128,6 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (ownedOrigin != null) Destroy(ownedOrigin.gameObject);
+        RestoreOriginalVisual();
     }
 }

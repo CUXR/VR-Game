@@ -26,6 +26,8 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
     private Vector3 startScale;
     private Vector3 arrivalScale;
     private TutorialHandControllerVisual handVisual;
+    private Transform sceneController;
+    private Transform sceneVisual;
     private float presentationFade = 1f;
 
     public event System.Action<bool> HandModeChanged;
@@ -70,7 +72,7 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
     public void SetPanelOpacity(float alpha)
     {
         panelOpacity = alpha;
-        if (flying && alpha <= 0f) RestorePresentation();
+        if ((flying || handedOff) && alpha <= 0f) RestorePresentation();
     }
 
     private void Update()
@@ -98,13 +100,19 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
             Debug.LogError("Tutorial tracked controller prefab is missing. Rebuild the tutorial controller assets.", this);
             return;
         }
+        if (!TutorialLeftControllerTracking.TryGetSceneVisual(out sceneController, out sceneVisual)
+            || style.handControllerPrefab.GetComponent<TutorialHandControllerVisual>() == null)
+        {
+            Debug.LogWarning("Tutorial handoff needs the scene's Left Controller Visual and a valid tutorial hand prefab.", this);
+            return;
+        }
         capturedHandPose = handPose;
         startPose = new Pose(transform.position, transform.rotation);
         startScale = transform.lossyScale;
         // The child stores only the large UI presentation pose. Undo that pose
         // at arrival so the geometry reaches the real controller orientation.
         arrivalRotation = handPose.rotation * Quaternion.Inverse(visual.localRotation);
-        arrivalScale = Vector3.one / Mathf.Max(0.00001f, visual.localScale.x);
+        arrivalScale = sceneController.lossyScale / Mathf.Max(0.00001f, visual.localScale.x);
         flightStartedAt = Time.unscaledTime;
         flying = true;
         // Freeze the flight in world space; head movement must not drag its path.
@@ -114,12 +122,22 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (style == null || handedOff) return;
+        if (style == null) return;
+        if ((flying || handedOff) && (sceneController == null || sceneVisual == null
+            || !sceneController.gameObject.activeInHierarchy || (handedOff && handVisual == null)))
+        {
+            RestorePresentation();
+            return;
+        }
+        if (handedOff) return;
         presentationFade = Mathf.MoveTowards(presentationFade, 1f,
             Time.unscaledDeltaTime / Mathf.Max(0.01f, style.controllerDisplayFadeDuration));
         float alpha = 1f;
         if (flying)
         {
+            capturedHandPose = new Pose(sceneController.position, sceneController.rotation);
+            arrivalRotation = capturedHandPose.rotation * Quaternion.Inverse(visual.localRotation);
+            arrivalScale = sceneController.lossyScale / Mathf.Max(0.00001f, visual.localScale.x);
             float progress = Mathf.Clamp01((Time.unscaledTime - flightStartedAt)
                 / Mathf.Max(0.1f, style.controllerSnapDuration));
             float travel = TutorialControllerSnapMotion.Travel(progress);
@@ -133,6 +151,7 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
             // Begin the real controller's slow reveal as the flying display
             // becomes fully transparent, without waiting for its hidden arrival.
             if (alpha <= 0f) ShowHandVisual();
+            if (handVisual != null) alpha = 0f;
             if (progress >= 1f)
             {
                 CompleteHandoff();
@@ -148,8 +167,7 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
         ShowHandVisual();
         flying = false;
         handedOff = true;
-        // Keep the input owner alive when B hides the panel. The physical
-        // controller visual is independent of the tutorial's visibility.
+        // Keep the input owner active while the large presentation is hidden.
         transform.SetParent(presentationParent.parent, false);
         transform.localPosition = presentationPosition;
         transform.localRotation = referenceOrientation;
@@ -160,17 +178,18 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
     private void ShowHandVisual()
     {
         if (handVisual != null) return;
-        // The physical visual is a separately authored, metre-scale rig driven
-        // by TrackedPoseDriver, never a copy of the enlarged UI presentation.
-        var handRoot = Instantiate(style.handControllerPrefab);
+        // The authored grip pose shares the original controller's tracking and scale.
+        var handRoot = Instantiate(style.handControllerPrefab, sceneController, false);
         handVisual = handRoot.GetComponent<TutorialHandControllerVisual>();
-        handVisual.Configure(style.controllerHandFadeDuration, style.controllerDisplayFadeDuration);
+        handVisual.Configure(sceneController, sceneVisual, style.controllerHandFadeDuration);
     }
 
     private void RestorePresentation()
     {
         flying = false;
         handedOff = false;
+        sceneController = null;
+        sceneVisual = null;
         if (handVisual != null)
         {
             handVisual.HideAndDestroy();
@@ -200,6 +219,11 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (handVisual != null) Destroy(handVisual.gameObject);
+        if (handVisual != null) handVisual.HideAndDestroy();
+    }
+
+    private void OnDisable()
+    {
+        if (presentationParent != null && (flying || handedOff)) RestorePresentation();
     }
 }

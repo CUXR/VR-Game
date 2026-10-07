@@ -5,8 +5,6 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.Rendering;
 
 // Generates only the tutorial's controller visual. No scene, camera, XR setting,
@@ -133,22 +131,13 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             glowRenderer.shadowCastingMode = ShadowCastingMode.Off;
             glowRenderer.receiveShadows = false;
 
-            var driver = root.AddComponent<TrackedPoseDriver>();
-            driver.trackingType = TrackedPoseDriver.TrackingType.RotationAndPosition;
-            driver.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
-            driver.positionInput = new InputActionProperty(new InputAction("Left Grip Position", InputActionType.Value,
-                "<XRController>{LeftHand}/devicePosition", expectedControlType: "Vector3"));
-            driver.rotationInput = new InputActionProperty(new InputAction("Left Grip Rotation", InputActionType.Value,
-                "<XRController>{LeftHand}/deviceRotation", expectedControlType: "Quaternion"));
-            driver.trackingStateInput = new InputActionProperty(new InputAction("Left Tracking State", InputActionType.Value,
-                "<XRController>{LeftHand}/trackingState", expectedControlType: "Integer"));
             root.AddComponent<TutorialHandControllerVisual>();
             root.AddComponent<TutorialControllerInputAnimation>().Configure(motions.ToArray(), glow.transform);
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             AssetDatabase.SaveAssetIfDirty(savedMesh);
             ConnectStyle();
             TutorialControllerModelImporter.CheckAndroidControllerConfiguration();
-            Debug.Log("TUTORIAL_TRACKED_CONTROLLER_READY: metre-scale official rig, TrackedPoseDriver, X/Y/trigger/grip/thumbstick input animations.");
+            Debug.Log("TUTORIAL_TRACKED_CONTROLLER_READY: scene controller replacement, X/Y/trigger/grip/thumbstick input animations.");
         }
         finally { UnityEngine.Object.DestroyImmediate(root); }
     }

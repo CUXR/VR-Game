@@ -28,6 +28,7 @@ Shader "VRGame/TutorialFrostedGlass"
             #pragma target 3.5
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "TutorialGlassBackdrop.hlsl"
 
             struct Attributes
             {
@@ -44,10 +45,6 @@ Shader "VRGame/TutorialFrostedGlass"
                 half4 color : COLOR;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-
-            TEXTURE2D_X(_CameraOpaqueTexture);
-            SAMPLER(sampler_CameraOpaqueTexture);
-            float4 _CameraOpaqueTexture_TexelSize;
 
             CBUFFER_START(UnityPerMaterial)
                 float _UIFade;
@@ -86,26 +83,13 @@ Shader "VRGame/TutorialFrostedGlass"
                 float edgeWidth = max(fwidth(signedDistance), 0.5);
                 float shapeAlpha = 1 - smoothstep(-edgeWidth, edgeWidth, signedDistance);
                 float2 uv = GetNormalizedScreenSpaceUV(input.positionCS);
-                // Convert the 338.438 design-pixel blur to screen UV at the
-                // current headset projection, including the curved edges.
-                float2 designPixelUV = float2(
-                    abs(ddx(uv.x)) / max(abs(ddx(input.uv.x)) * _PanelWidth, 1e-5),
-                    abs(ddy(uv.y)) / max(abs(ddy(input.uv.y)) * _PanelHeight, 1e-5));
-                float2 stepUV = min(_BlurRadius * designPixelUV, 0.16);
-                half3 scene = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv).rgb;
-                [unroll] for (int ring = 1; ring <= 3; ring++)
-                {
-                    float2 offsetUV = stepUV * (ring / 3.0);
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv + float2(offsetUV.x, 0)).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv - float2(offsetUV.x, 0)).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv + float2(0, offsetUV.y)).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv - float2(0, offsetUV.y)).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv + offsetUV * 0.707107).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv - offsetUV * 0.707107).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv + offsetUV * float2(0.707107, -0.707107)).rgb;
-                    scene += SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, uv + offsetUV * float2(-0.707107, 0.707107)).rgb;
-                }
-                scene *= 1.0 / 25.0;
+                // Match softness to the current projected Figma geometry.
+                // Estimate its size in screen pixels without dividing by UV
+                // derivatives of the screen (which are unstable when tilted).
+                float pixelsPerDesignX = rcp(max(length(float2(ddx(input.uv.x), ddy(input.uv.x))) * _PanelWidth, 1e-5));
+                float pixelsPerDesignY = rcp(max(length(float2(ddx(input.uv.y), ddy(input.uv.y))) * _PanelHeight, 1e-5));
+                float sigmaPixels = _BlurRadius * min(pixelsPerDesignX, pixelsPerDesignY) / 3.0;
+                half3 scene = TutorialGlassBackdrop(uv, sigmaPixels);
 
                 // Figma's two inset white shadows: +/-18.952, +/-26.398,
                 // each with 67.688 px softness and 20% white opacity.
@@ -113,11 +97,12 @@ Shader "VRGame/TutorialFrostedGlass"
                 float insetB = RoundedBoxDistance(shapePoint - float2(18.952, 26.398), halfSize, radius);
                 float glow = 0.2 * (exp(-max(-insetA, 0) / 67.688)
                     + exp(-max(-insetB, 0) / 67.688));
-                half alpha = 0.9 * shapeAlpha * input.color.a;
-                // Plus-lighter mixes the tinted glass additively with its
-                // blurred backdrop before the 90% surface opacity is applied.
-                half3 color = saturate(scene + input.color.rgb * _TintStrength + glow);
-                return half4(color, alpha * _UIFade);
+                // Composite the 90% tinted surface over the BLURRED backdrop.
+                // Blending that result at 90% over the original scene again
+                // would restore crisp edges and defeat the frosted material.
+                half3 tinted = saturate(scene + input.color.rgb * _TintStrength + glow);
+                half3 color = lerp(scene, tinted, 0.9h * input.color.a);
+                return half4(color, shapeAlpha * _UIFade);
             }
             ENDHLSL
         }

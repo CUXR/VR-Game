@@ -70,8 +70,7 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
 
             var body = AssetDatabase.LoadAssetAtPath<Material>("Assets/TutorialDesign/Materials/Controller Body Transparent.mat");
             var white = AssetDatabase.LoadAssetAtPath<Material>("Assets/TutorialDesign/Materials/Controller Side Grip White.mat");
-            var glowMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/TutorialDesign/Materials/Controller Side Grip Glow.mat");
-            if (body == null || white == null || glowMaterial == null)
+            if (body == null || white == null)
                 throw new InvalidOperationException("Tutorial controller materials are missing.");
             var skins = model.GetComponentsInChildren<SkinnedMeshRenderer>();
             var main = skins.Single(s => s.bones.Any(b => b.name == "left_b_trigger_grip"));
@@ -100,6 +99,10 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             main.sharedMaterials = new[] { body, white };
             foreach (var skin in skins)
             {
+                // This is a flat LED artwork card, not part of the controller
+                // shell. The glass boundary mask must never be drawn on it.
+                if (skin.name == "left_batteryIndicatorQuad_MeshX")
+                    skin.gameObject.SetActive(false);
                 if (skin != main) skin.sharedMaterial = body;
                 skin.shadowCastingMode = ShadowCastingMode.Off;
                 skin.receiveShadows = false;
@@ -108,31 +111,8 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
                 skin.updateWhenOffscreen = true;
             }
 
-            var baked = new Mesh();
-            Vector3 gripCentre;
-            try
-            {
-                main.BakeMesh(baked);
-                var vertices = baked.vertices;
-                var indices = gripTriangles.Distinct().ToArray();
-                gripCentre = indices.Aggregate(Vector3.zero,
-                    (sum, index) => sum + main.transform.TransformPoint(vertices[index])) / indices.Length;
-            }
-            finally { UnityEngine.Object.DestroyImmediate(baked); }
-            var glow = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            glow.name = "Side grip glow";
-            UnityEngine.Object.DestroyImmediate(glow.GetComponent<Collider>());
-            glow.transform.SetParent(bones["left_b_trigger_grip"], false);
-            glow.transform.position = gripCentre;
-            float scale = Mathf.Max(0.00001f, glow.transform.parent.lossyScale.x);
-            glow.transform.localScale = Vector3.one * 0.035f / scale;
-            var glowRenderer = glow.GetComponent<MeshRenderer>();
-            glowRenderer.sharedMaterial = glowMaterial;
-            glowRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            glowRenderer.receiveShadows = false;
-
             root.AddComponent<TutorialHandControllerVisual>();
-            root.AddComponent<TutorialControllerInputAnimation>().Configure(motions.ToArray(), glow.transform);
+            root.AddComponent<TutorialControllerInputAnimation>().Configure(motions.ToArray());
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             AssetDatabase.SaveAssetIfDirty(savedMesh);
             ConnectStyle();

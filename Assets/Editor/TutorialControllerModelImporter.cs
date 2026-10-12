@@ -25,15 +25,14 @@ public static class TutorialControllerModelImporter
             var oldModel = prefab.transform.GetChild(0);
             var oldPress = oldModel.GetComponentInChildren<TutorialButtonPressAnimation>();
             if (oldPress == null) throw new InvalidOperationException("Existing grip animation is missing.");
-            var oldGlow = oldModel.GetComponentsInChildren<MeshRenderer>().Single(r => r.name == "Side grip glow");
+            // Exclude halos in older tutorial prefabs when migrating them.
+            var oldGlow = oldModel.GetComponentsInChildren<MeshRenderer>().SingleOrDefault(r => r.name == "Side grip glow");
             var oldGrip = oldPress.GetComponent<MeshRenderer>();
             var oldBody = oldModel.GetComponentsInChildren<MeshRenderer>().First(r => r != oldGrip && r != oldGlow);
             var oldBounds = GetBounds(oldModel.GetComponentsInChildren<Renderer>().Where(r => r != oldGlow));
             var animationJson = JsonUtility.ToJson(oldPress);
             var bodyMaterial = oldBody.sharedMaterial;
             var buttonMaterial = oldGrip.sharedMaterial;
-            var glowMaterial = oldGlow.sharedMaterial;
-            float glowSize = oldGlow.transform.lossyScale.x;
 
             var skins = source.GetComponentsInChildren<SkinnedMeshRenderer>();
             var mainSkin = skins.Single(s => s.bones.Any(b => b.name.EndsWith("trigger_grip")));
@@ -99,27 +98,19 @@ public static class TutorialControllerModelImporter
             newBounds = GetBounds(generated);
             visual.transform.position += oldBounds.center - newBounds.center;
 
-            var halo = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            halo.name = "Side grip glow";
-            UnityEngine.Object.DestroyImmediate(halo.GetComponent<Collider>());
-            halo.transform.SetParent(newGrip.transform, false);
-            halo.transform.position = newGrip.bounds.center;
-            halo.transform.rotation = oldGlow.transform.rotation;
-            halo.transform.localScale = Vector3.one * glowSize / Mathf.Abs(newGrip.transform.lossyScale.x);
-            ConfigureRenderer(halo.GetComponent<MeshRenderer>(), glowMaterial);
             var press = newGrip.gameObject.AddComponent<TutorialButtonPressAnimation>();
             JsonUtility.FromJsonOverwrite(animationJson, press);
             Vector3 inward = Vector3.right;
             Vector3 bodyCentreLocal = visual.transform.InverseTransformPoint(GetBounds(generated.Where(r => r != newGrip)).center);
             if (Vector3.Dot(inward, bodyCentreLocal
                 - newGrip.GetComponent<MeshFilter>().sharedMesh.bounds.center) < 0f) inward = -inward;
-            press.SetDirectionAndGlow(inward, halo.transform);
+            press.SetPressDirection(inward);
 
             UnityEngine.Object.DestroyImmediate(oldModel.gameObject);
             PrefabUtility.SaveAsPrefabAsset(prefab, PrefabPath);
             Debug.Log("TOUCH_PLUS_REPLACED: height=" + GetBounds(generated).size.y
                 + "; centre=" + GetBounds(generated).center
-                + "; preserved body, button and glow materials, animation settings and prefab root.");
+                + "; preserved body and emissive button materials, animation settings and prefab root.");
             CheckAndroidControllerConfiguration();
         }
         finally
@@ -179,6 +170,8 @@ public static class TutorialControllerModelImporter
     {
         var part = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
         part.transform.SetParent(parent, false);
+        // The source LED artwork is a flat card with unrelated UVs.
+        if (name == "Touch Plus battery indicator") part.SetActive(false);
         part.GetComponent<MeshFilter>().sharedMesh = mesh;
         var renderer = part.GetComponent<MeshRenderer>();
         ConfigureRenderer(renderer, material);

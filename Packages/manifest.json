@@ -1,8 +1,6 @@
 {
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
-    "com.unity.ai.assistant": "2.20.0-pre.1",
-    "com.unity.ai.inference": "2.6.1",
     "com.unity.ai.navigation": "2.0.14",
     "com.unity.collab-proxy": "2.13.6",
     "com.unity.ide.rider": "3.0.40",
@@ -13,10 +11,8 @@
     "com.unity.test-framework": "1.8.0",
     "com.unity.timeline": "6.6.0",
     "com.unity.ugui": "2.6.0",
-    "com.unity.ui.figma": "0.1.0-exp.1",
     "com.unity.xr.interaction.toolkit": "3.6.0",
     "com.unity.xr.management": "4.7.0",
-    "com.unity.xr.mock-hmd": "1.5.0-exp.3",
     "com.unity.xr.openxr": "1.18.0",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",

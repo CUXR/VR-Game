@@ -14,7 +14,6 @@ public class Movable : MonoBehaviour, InteractableInterface
     private Rigidbody rb;
     private Transform currentInteractor;
     public Outline outline; // outline settings
-    public string tutorialText = ""; // tutorial text, empty if nothing
     public AudioSource sound;
 
     void Start()
@@ -41,9 +40,9 @@ public class Movable : MonoBehaviour, InteractableInterface
         outline.enabled = state;
     }
 
-    public string GetTutorialText()
+    public string GetTutorialID()
     {
-        return tutorialText;
+        return "movable";
     }
 
 }

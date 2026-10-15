@@ -38,4 +38,9 @@ public class Wire : MonoBehaviour
         }
     }
 
+    public string GetTutorialID()
+    {
+        return "wire";
+    }
+
 }

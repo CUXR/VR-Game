@@ -12,7 +12,6 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
     public bool pressed = false;
     [SerializeField] public List<GameObject> interactableObject;
     public GameObject button;
-    public string tutorialText = ""; // tutorial text, empty if nothing
     public AudioSource sound;
     public float pressDuration = 0.5f; // how long a player press stays down
 
@@ -32,9 +31,9 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
         // Nothing for now, maybe add an effect later
     }
 
-    public string GetTutorialText()
+    public string GetTutorialID()
     {
-        return tutorialText;
+        return "button";
     }
 
     public void Interact()

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
+public class Holdable : MonoBehaviour, ThrowableInterface
 {
     private Vector3 holdOffset;
     private Vector3 targetPos;
@@ -46,7 +46,6 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
 
     [Header("Display")]
     public Outline outline; // outline settings
-    public string tutorialText = ""; // tutorial text, empty if nothing
 
     public AudioSource sound;
 
@@ -221,9 +220,9 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         outline.enabled = state;
     }
 
-    public string GetTutorialText()
+    public string GetTutorialID()
     {
-        return tutorialText;
+        return "interactable";
     }
 
     private void OnDrawGizmos()

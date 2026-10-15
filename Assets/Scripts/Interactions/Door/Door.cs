@@ -10,7 +10,6 @@ public class Door : MonoBehaviour, InteractableInterface
     private bool inDoorPath = false;
     [SerializeField]
     public bool isButtonDoor = false; //when something is not a button door that is the same as being unlocked, when something is a button door with no button thats the same as being locked
-    public string tutorialText = ""; // tutorial text, empty if nothing
     public GameObject[] buttonTriggers; //deactivate when door is locked, activate when door unlocked
     public GameObject[] lockVisuals; // what ever gameObjects need to change material when door is locked/unlocked
     public bool locked; //locked or unlocked (when you toggle this in inspector, the door material won't change)
@@ -109,8 +108,9 @@ public class Door : MonoBehaviour, InteractableInterface
         // Nothing for now, maybe add an effect later
     }
 
-    public string GetTutorialText()
+    public string GetTutorialID()
     {
-        return tutorialText;
+        if (locked) return "locked_door";
+        return "door";
     }
 }

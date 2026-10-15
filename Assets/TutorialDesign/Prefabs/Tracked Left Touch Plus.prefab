@@ -127,64 +127,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1174099188002853058}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae980eb6cd066f44f8b3d81105c936e1, type: 3}
+  m_Script: {fileID: 11500000, guid: baab9605fa144c92bc3af9b788e63213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialControllerInputAnimation
-  motions:
-  - bone: {fileID: 9028333707121031395}
-    control: 0
-    restPosition: {x: 0.5366125, y: 0.4256339, z: -0.9631782}
-    restRotation: {x: -0.079715475, y: -0.006832741, z: -0.010788154, w: 0.9967359}
-    pressedPosition: {x: 0.5366125, y: 0.3265899, z: -0.9489093}
-    pressedRotation: {x: -0.079715475, y: -0.006832741, z: -0.010788154, w: 0.9967359}
-  - bone: {fileID: 4089545841605406429}
-    control: 1
-    restPosition: {x: 1.560742, y: 0.5965641, z: 0.3205864}
-    restRotation: {x: -0.073689476, y: -0.006897823, z: -0.010746658, w: 0.9971995}
-    pressedPosition: {x: 1.560742, y: 0.4965249, z: 0.3340145}
-    pressedRotation: {x: -0.073689476, y: -0.006897823, z: -0.010746658, w: 0.9971995}
-  - bone: {fileID: 8132084100974909863}
-    control: 2
-    restPosition: {x: -1.046803, y: 0.2482037, z: -1.1252}
-    restRotation: {x: -0.07882118, y: -0.010384407, z: -0.02061734, w: 0.99662143}
-    pressedPosition: {x: -1.046803, y: 0.2245258, z: -1.122094}
-    pressedRotation: {x: -0.07882118, y: -0.010384407, z: -0.02061734, w: 0.99662143}
-  - bone: {fileID: 6041737968630144983}
-    control: 3
-    restPosition: {x: 1.485478, y: -0.1985349, z: 2.472124}
-    restRotation: {x: 0.04043698, y: -0.10925582, z: 0.008632264, w: 0.99315333}
-    pressedPosition: {x: 1.485478, y: -0.1985349, z: 2.472124}
-    pressedRotation: {x: 0.18959849, y: -0.11203975, z: -0.049327716, w: 0.97420037}
-  - bone: {fileID: 7723310191011320103}
-    control: 4
-    restPosition: {x: 1.032056, y: -2.177939, z: 1.289754}
-    restRotation: {x: 0.10486942, y: -0.07999015, z: -0.12395867, w: 0.9834827}
-    pressedPosition: {x: 1.032056, y: -2.177939, z: 1.289754}
-    pressedRotation: {x: 0.10108751, y: -0.023420844, z: -0.17047796, w: 0.97988266}
-  - bone: {fileID: 8957005617839237160}
-    control: 5
-    restPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    restRotation: {x: -0.07339577, y: -0.11925421, z: -0.009944958, w: 0.9900973}
-    pressedPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    pressedRotation: {x: -0.27895105, y: -0.008361884, z: -0.016661685, w: 0.9601244}
-  - bone: {fileID: 8957005617839237160}
-    control: 6
-    restPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    restRotation: {x: -0.07339577, y: -0.11925421, z: -0.009944958, w: 0.9900973}
-    pressedPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    pressedRotation: {x: 0.11274041, y: -0.014978618, z: -0.017785246, w: 0.9933524}
-  - bone: {fileID: 8957005617839237160}
-    control: 7
-    restPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    restRotation: {x: -0.07339577, y: -0.11925421, z: -0.009944958, w: 0.9900973}
-    pressedPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    pressedRotation: {x: -0.024297986, y: -0.0030149757, z: 0.16458145, w: 0.9860596}
-  - bone: {fileID: 8957005617839237160}
-    control: 8
-    restPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    restRotation: {x: -0.07339577, y: -0.11925421, z: -0.009944958, w: 0.9900973}
-    pressedPosition: {x: -0.6293706, y: -0.186804, z: 0.8684617}
-    pressedRotation: {x: -0.024419826, y: 0.018825328, z: -0.21569212, w: 0.9759745}
+  motions: []
 --- !u!1 &2907402612705333527
 GameObject:
   m_ObjectHideFlags: 0

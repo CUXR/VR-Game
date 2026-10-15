@@ -11,7 +11,6 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
     public bool isSingleUse;
     public Sprite itemIcon;
     public Outline outline; // outline settings
-    public string tutorialText = ""; // tutorial text, empty if nothing
     
     public Actions[] collectibleActions = new Actions[]
     {
@@ -105,8 +104,8 @@ public abstract class Collectible : MonoBehaviour, InteractableInterface
         outline.enabled = state;
     }
 
-    public string GetTutorialText()
+    public string GetTutorialID()
     {
-        return tutorialText;
+        return "collectible";
     }
 }

@@ -11,6 +11,11 @@
       "priority": 2
     },
     {
+      "id": "button",
+      "text": "Press [E] to try pressing the button.",
+      "priority": 2
+    },
+    {
       "id": "interactable_holding",
       "text": "Click to throw or press [E] to release.",
       "priority": 2
@@ -21,9 +26,14 @@
       "priority": 2
     },
     {
-      "id": "door_locked",
+      "id": "door_blocked",
       "text": "Looks like you need to fix the generator first.",
       "priority": 1.9
+    },
+    {
+      "id": "movable",
+      "text": "Press [E] to try moving this.",
+      "priority": 2
     },
     {
       "id": "generator",

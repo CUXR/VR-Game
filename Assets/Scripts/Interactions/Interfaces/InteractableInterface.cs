@@ -4,6 +4,6 @@ public interface InteractableInterface
 
     public void SetGlow(bool state);
 
-    public string GetTutorialText();
+    public string GetTutorialID();
 }
 

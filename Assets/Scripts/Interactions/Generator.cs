@@ -14,6 +14,7 @@ public class Generator : MonoBehaviour
     //public List<GameObject> cylinders = new List<GameObject>();
     //public List<Material> cylinderMats = new List<Material>();
     public AudioSource generatorHum;
+    private string tutorialID = "generator";
 
     void Start()
     {
@@ -45,6 +46,7 @@ public class Generator : MonoBehaviour
             //cylinders[numWires-1].GetComponent<MeshRenderer>().material = cylinderMats[numWires-1];
             if (numWires == requiredWires)
             {
+                tutorialID = "generator_fixed";
                 button.GetComponent<MeshRenderer>().material = buttonMat;
                 for (int i = 0; i < doors.Count; i++)
                 {
@@ -63,17 +65,20 @@ public class Generator : MonoBehaviour
         }
         
         if (numWires != requiredWires) {
-            //TutorialController.Instance.ShowText("generator");
+            TutorialController.Instance.ShowText("generator");
         }
         else {
-            //TutorialController.Instance.ShowText("generator_fixed");
-            // 
+            TutorialController.Instance.ShowText("generator_fixed"); 
         };
     }
 
     void OnTriggerExit(Collider obj)
     {
-        //TutorialController.Instance.HideText("generator");
-        //TutorialController.Instance.HideText("generator_fixed");
+        TutorialController.Instance.HideText();
+    }
+
+    public string GetTutorialID()
+    {
+        return tutorialID;
     }
 }

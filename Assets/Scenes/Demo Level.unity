@@ -17674,7 +17674,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 454641893840355991, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 653920853902860101, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
       propertyPath: cameraHolder
@@ -30028,7 +30028,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalScale.x
@@ -31194,6 +31194,18 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3671085541269501770, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: tutorialAnchor
+      value: 
+      objectReference: {fileID: 1411627714}
+    - target: {fileID: 3671085541269501770, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: tutorialPrefab
+      value: 
+      objectReference: {fileID: 8368331341077857005, guid: dc426b6b38d99d343a9b8c327a971e34, type: 3}
+    - target: {fileID: 3671085541269501770, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: tutorialJsonFile
+      value: 
+      objectReference: {fileID: 4900000, guid: d4620f19e9a4955409c4ed6378feb781, type: 3}
     - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Name
       value: GAME MANAGER
@@ -31461,6 +31473,37 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1411627713
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1411627714}
+  m_Layer: 0
+  m_Name: Tutorial Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1411627714
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411627713}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.20000005, z: 1.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1166986419}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1412093961
 Mesh:
   m_ObjectHideFlags: 0
@@ -42515,7 +42558,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Movable
   pushForce: 0
   outline: {fileID: 1697835382}
-  tutorialText: This generator is missing some wires
   sound: {fileID: 0}
 --- !u!54 &1697835390
 Rigidbody:
@@ -45487,6 +45529,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1356294832424147419, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
+      propertyPath: cameraPosition
+      value: 
+      objectReference: {fileID: 443206360}
     - target: {fileID: 7273264394570390151, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 87.33
@@ -45537,11 +45583,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7876305873403948027, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7876305873403948027, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
+      propertyPath: m_TagString
+      value: MainCamera
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7449521972592460446, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1411627714}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
 --- !u!43 &1803647001
@@ -59675,6 +59728,19 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1001 &2100000100
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2231afbd61d941a1b71a54880fc59d57, type: 3}
 --- !u!1001 &2106244384
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61354,19 +61420,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 870563fb5d6a743f8a7477415d2c60b8, type: 3}
---- !u!1001 &2100000100
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications: []
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2231afbd61d941a1b71a54880fc59d57, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

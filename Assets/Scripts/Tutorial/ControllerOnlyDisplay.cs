@@ -18,6 +18,7 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
         public readonly List<Transform> targets = new List<Transform>();
         public bool visible;
         public bool selected;
+        public bool completed;
     }
     private readonly List<Hint> hints = new List<Hint>();
     private readonly List<WireAttentionVisual> effects = new List<WireAttentionVisual>();
@@ -47,6 +48,17 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
         hands.Clear();
         foreach (var hint in hints)
         {
+            if (!hint.completed && hint.presenter.Model != null && (hint.presenter.Model.IsCompleted || Performed(hint)))
+            {
+                hint.completed = true;
+                hint.presenter.Complete();
+            }
+            if (hint.completed)
+            {
+                hint.visible = hint.selected = false;
+                hint.presenter.Update(false, camera);
+                continue;
+            }
             hint.targets.Clear();
             hint.visible = camera != null && camera.isActiveAndEnabled
                 && hint.visibility.CollectVisible(camera, hint.definition.distance, hint.targets);
@@ -66,6 +78,8 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
         {
             var eligible = eligibleHints;
             eligible.Clear();
+            if (hints.Exists(h => h.completed && h.presenter.IsCompleting
+                && h.presenter.Model != null && h.definition.hand == hand)) continue;
             foreach (var hint in hints)
                 if (hint.visible && hint.definition.hand == hand) eligible.Add(hint);
             int index = 0;
@@ -88,7 +102,7 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
                 continuing.Add(hint.definition.hand);
         // Dispose the outgoing owner before capturing original renderer state.
         foreach (var hint in hints)
-            if (!hint.selected)
+            if (!hint.selected && !hint.completed)
             {
                 if (hands.Contains(hint.definition.hand)) hint.presenter.Hide();
                 else hint.presenter.Update(false, camera);
@@ -101,6 +115,25 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
             if (effect == null) { effects.RemoveAt(i); continue; }
             effect.SetVisible(attentionTargets.Contains(effect.transform), camera);
         }
+    }
+    private static bool Performed(Hint hint)
+    {
+        if (hint.definition.action == "CRAWL")
+        {
+            foreach (var rig in Object.FindObjectsByType<RobotLocomotion.LocomotionModeSwitcher>())
+                if (rig.CurrentMode == RobotLocomotion.LocomotionModeSwitcher.Mode.Crawl) return true;
+            return false;
+        }
+        if (hint.definition.action != "GRAB") return false;
+        foreach (var target in hint.targets)
+        {
+            if (target == null) continue;
+            var grab = target.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            if (grab != null && grab.isSelected) return true;
+            var legacy = target.GetComponent<Holdable>();
+            if (legacy != null && legacy.IsHeld) return true;
+        }
+        return false;
     }
     private void OnDisable()
     {

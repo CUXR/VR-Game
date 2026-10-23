@@ -29,6 +29,21 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
     private string actionText = "GRAB";
     private bool fadeText;
     private float textAppeared;
+    private float completedAt = -1f;
+    private bool successText;
+    private UnityEngine.XR.XRNode inputHand;
+    private bool gripPressed;
+    private int attemptFrame = -1;
+    private float textSwapAt = -1f;
+    private float restoreAt = -1f;
+    private bool showingFailure;
+    private bool pendingFailure;
+    private float baseLabelScale;
+    private string targetTag;
+    private string completionText = "Well Done!";
+    public bool IsCrawlPrompt => actionText == "CRAWL";
+    private readonly List<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor> grabInteractors = new List<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
+    public void Complete() { completedAt = Time.unscaledTime; attemptFrame = -1; textSwapAt = restoreAt = -1f; }
     public void Configure(ControllerHintDefinition definition, bool swap = false)
     {
         anchorBone = definition.anchorBone;
@@ -38,11 +53,22 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         rightOffsetRatio = definition.rightTextOffset;
         forwardOffsetRatio = definition.forwardTextOffset;
         fadeText = swap;
+        inputHand = definition.hand;
+        targetTag = definition.targetTag;
+        completionText = IsCrawlPrompt
+            ? "SWING <font=\"Inter-ExtraLight SDF\">Your Arms to </font>MOVE"
+            : "<font=\"Inter-ExtraLight SDF\">Well Done!</font>";
     }
 
     private void Start()
     {
         visual = GetComponent<TutorialHandControllerVisual>();
+        if (actionText == "GRAB" && transform.parent != null)
+            foreach (var interactor in transform.parent.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>(true))
+            {
+                grabInteractors.Add(interactor);
+                interactor.selectEntered.AddListener(OnGrabbed);
+            }
         textAppeared = Time.unscaledTime;
         foreach (var child in GetComponentsInChildren<Transform>(true))
         {
@@ -56,6 +82,10 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
             enabled = false;
             return;
         }
+        // TMP's font tag switches the connecting words to the same ExtraLight
+        // asset used by the prefix, while the action text remains Medium.
+        MaterialReferenceManager.AddFontAsset(light);
+        MaterialReferenceManager.AddFontAsset(medium);
         modelHeight = MeasureModelHeight();
         label = new GameObject("PRESS To GRAB — Headset Facing").transform;
         label.SetParent(transform, false);
@@ -70,6 +100,8 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         ink.Encapsulate(actionInk);
         // Screenshot: text ink is ~0.70 of the controller's height in width.
         labelScale = modelHeight * 0.70f / Mathf.Max(0.01f, ink.size.x);
+        baseLabelScale = labelScale;
+        gripPressed = ReadGrip();
         inkCenter = new Vector3(ink.min.x, ink.center.y, 0f);
         label.gameObject.SetActive(false);
     }
@@ -94,16 +126,91 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
     private void OnEnable() => Application.onBeforeRender += PositionLabel;
     private void OnDisable()
     {
+        foreach (var interactor in grabInteractors)
+            if (interactor != null) interactor.selectEntered.RemoveListener(OnGrabbed);
+        grabInteractors.Clear();
         Application.onBeforeRender -= PositionLabel;
         if (label != null) label.gameObject.SetActive(false);
     }
+    private void OnGrabbed(UnityEngine.XR.Interaction.Toolkit.SelectEnterEventArgs args)
+    {
+        if (completedAt < 0f && visual != null && !string.IsNullOrEmpty(targetTag)
+            && args.interactableObject.transform.CompareTag(targetTag)) visual.Complete();
+    }
 
-    private void LateUpdate() => PositionLabel();
+    private bool ReadGrip()
+    {
+        var device = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(inputHand);
+        return device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out bool pressed) && pressed;
+    }
+    private void LateUpdate()
+    {
+        bool pressed = ReadGrip();
+        if (actionText == "GRAB" && completedAt < 0f && visual != null && visual.IsTracked)
+        {
+            if (pressed && !gripPressed) attemptFrame = Time.frameCount;
+            // XRI has no failed-selection event. Let the next interaction frame
+            // settle before testing selection; no fixed wall-clock delay.
+            if (attemptFrame >= 0 && Time.frameCount > attemptFrame)
+            {
+                attemptFrame = -1;
+                bool holding = false;
+                if (transform.parent != null)
+                    foreach (var interactor in transform.parent.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>(true))
+                        holding |= interactor.hasSelection;
+                if (!holding)
+                {
+                    if (showingFailure && textSwapAt < 0f) restoreAt = Time.unscaledTime + 1.8f;
+                    else { pendingFailure = true; textSwapAt = Time.unscaledTime; }
+                }
+            }
+        }
+        gripPressed = pressed;
+        PositionLabel();
+    }
+    private void SetFailureText(bool failure)
+    {
+        showingFailure = failure;
+        prefix.text = failure ? "" : prefixText;
+        action.text = failure
+            ? "<font=\"Inter-ExtraLight SDF\">Move </font>CLOSER<font=\"Inter-ExtraLight SDF\"> to the Object</font>" : actionText;
+        prefix.ForceMeshUpdate();
+        action.ForceMeshUpdate();
+        action.transform.localPosition = failure ? Vector3.zero : Vector3.right
+            * prefix.textInfo.characterInfo[prefix.textInfo.characterCount - 1].xAdvance;
+        Bounds ink = action.textBounds;
+        ink.center += action.transform.localPosition;
+        if (!failure) ink.Encapsulate(prefix.textBounds);
+        inkCenter = new Vector3(ink.min.x, ink.center.y, 0f);
+        labelScale = failure ? Mathf.Min(baseLabelScale, modelHeight * 1.6f / Mathf.Max(0.01f, ink.size.x)) : baseLabelScale;
+    }
 
     [BeforeRenderOrder(200)]
     private void PositionLabel()
     {
         if (label == null) return;
+        float messageOpacity = 1f;
+        if (completedAt < 0f)
+        {
+            if (restoreAt >= 0f && Time.unscaledTime >= restoreAt && textSwapAt < 0f)
+            {
+                restoreAt = -1f;
+                pendingFailure = false;
+                textSwapAt = Time.unscaledTime;
+            }
+            if (textSwapAt >= 0f)
+            {
+                float elapsed = Time.unscaledTime - textSwapAt;
+                if (elapsed >= 0.11f && showingFailure != pendingFailure)
+                {
+                    SetFailureText(pendingFailure);
+                    if (pendingFailure) restoreAt = Time.unscaledTime + 1.8f;
+                }
+                messageOpacity = elapsed < 0.11f ? 1f - Mathf.SmoothStep(0f, 1f, elapsed / 0.11f)
+                    : Mathf.SmoothStep(0f, 1f, (elapsed - 0.11f) / 0.11f);
+                if (elapsed >= 0.22f) textSwapAt = -1f;
+            }
+        }
         var camera = Camera.main;
         bool visible = camera != null && visual != null && visual.IsTracked;
         label.gameObject.SetActive(visible);
@@ -135,7 +242,29 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         label.rotation = Quaternion.LookRotation(anchor - camera.transform.position, up);
         label.localScale = Vector3.one * labelScale;
         label.position = anchor - label.TransformVector(inkCenter);
-        float opacity = visual.RevealOpacity;
+        float opacity = visual.RevealOpacity * messageOpacity;
+        if (completedAt >= 0f)
+        {
+            float elapsed = Time.unscaledTime - completedAt;
+            if (!successText && elapsed >= 0.11f)
+            {
+                successText = true;
+                prefix.text = IsCrawlPrompt ? "Now " : "";
+                action.text = completionText;
+                prefix.ForceMeshUpdate();
+                action.transform.localPosition = IsCrawlPrompt ? Vector3.right
+                    * prefix.textInfo.characterInfo[prefix.textInfo.characterCount - 1].xAdvance : Vector3.zero;
+                action.ForceMeshUpdate();
+                Bounds completionInk = action.textBounds;
+                completionInk.center += action.transform.localPosition;
+                if (IsCrawlPrompt) completionInk.Encapsulate(prefix.textBounds);
+                labelScale = IsCrawlPrompt
+                    ? Mathf.Min(baseLabelScale, modelHeight * 1.6f / Mathf.Max(0.01f, completionInk.size.x)) : baseLabelScale;
+                inkCenter = new Vector3(completionInk.min.x, completionInk.center.y, 0f);
+            }
+            opacity *= successText ? Mathf.SmoothStep(0f, 1f, (elapsed - 0.11f) / 0.11f)
+                : 1f - Mathf.SmoothStep(0f, 1f, elapsed / 0.11f);
+        }
         if (fadeText) opacity *= Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - textAppeared) / 0.25f);
         prefix.alpha = opacity;
         action.alpha = opacity;

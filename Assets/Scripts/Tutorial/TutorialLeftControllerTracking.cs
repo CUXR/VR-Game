@@ -29,6 +29,15 @@ public static class TutorialLeftControllerTracking
         controller = origin.CameraFloorOffsetObject != null
             ? origin.CameraFloorOffsetObject.transform.Find(side + " Controller") : null;
         originalVisual = controller != null ? controller.Find(side + " Controller Visual") : null;
+        // Walking collision rigs keep the visible model outside the tracked
+        // controller so that walls can stop it without stopping device tracking.
+        if (controller != null && originalVisual == null)
+            foreach (var child in origin.GetComponentsInChildren<Transform>(true))
+                if (child.name == side + " Controller Visual")
+                {
+                    originalVisual = child;
+                    break;
+                }
         return controller != null && controller.gameObject.activeInHierarchy && originalVisual != null;
     }
 

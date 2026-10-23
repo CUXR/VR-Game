@@ -10,10 +10,22 @@ public sealed class ControllerHintPresenter : IDisposable
     private Camera glassCamera;
     private float lastSeen = float.NegativeInfinity;
     private float nextAttempt;
+    public bool IsCompleting { get; private set; }
+    public void Complete()
+    {
+        if (Model == null || IsCompleting) return;
+        IsCompleting = true;
+        Model.Complete();
+    }
     public ControllerHintPresenter(ControllerHintDefinition definition) => this.definition = definition;
     public void Update(bool visible, Camera camera, bool continuingHand = false)
     {
         float now = Time.unscaledTime;
+        if (IsCompleting)
+        {
+            if (Model == null) { glass?.Dispose(); glass = null; glassCamera = null; }
+            return;
+        }
         if (visible) lastSeen = now;
         if (visible && Model == null && now >= nextAttempt)
         {

@@ -66,7 +66,8 @@ internal static class TutorialGlowBloom
             var desc = graph.GetTextureDesc(resources.activeColorTexture);
             int width = camera.cameraTargetDescriptor.width;
             int height = camera.cameraTargetDescriptor.height;
-            desc.width = Mathf.Max(1, width / 2); desc.height = Mathf.Max(1, height / 2);
+            // Thin wire triangles must be sampled before reducing resolution.
+            desc.width = Mathf.Max(1, width); desc.height = Mathf.Max(1, height);
             desc.colorFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat;
             desc.msaaSamples = MSAASamples.None; desc.clearBuffer = true; desc.clearColor = Color.clear;
             desc.filterMode = FilterMode.Bilinear; desc.wrapMode = TextureWrapMode.Clamp;
@@ -100,8 +101,8 @@ internal static class TutorialGlowBloom
                 desc.name = "Hint bloom vertical " + level; var vertical = graph.CreateTexture(desc);
                 int index = level * 3;
                 Blit(graph, source, down, blocks[index], new Vector4(.25f / desc.width, .25f / desc.height, 0, 0), 0);
-                Blit(graph, down, horizontal, blocks[index + 1], new Vector4(1.6f / desc.width, 0, 0, 0), 1);
-                using (var builder = Blit(graph, horizontal, vertical, blocks[index + 2], new Vector4(0, 1.6f / desc.height, 0, 0), 1, true))
+                Blit(graph, down, horizontal, blocks[index + 1], new Vector4(2.8f / desc.width, 0, 0, 0), 1);
+                using (var builder = Blit(graph, horizontal, vertical, blocks[index + 2], new Vector4(0, 2.8f / desc.height, 0, 0), 1, true))
                 {
                     if (level == 0) builder.SetGlobalTextureAfterPass(vertical, Tight);
                     if (level == 2) builder.SetGlobalTextureAfterPass(vertical, Wide);

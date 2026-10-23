@@ -30,6 +30,25 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     private float shrinkDuration;
     private bool shrinking;
     private float accentSwapStarted = -1000f;
+    private float completedAt = -1f;
+    private bool secondSuccessPulse;
+    private float completionHold = 1f;
+    public bool IsCompleted => completedAt >= 0f;
+    private float CompletionBlend => completedAt < 0f ? 0f : Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - completedAt) / 0.22f);
+    public void Complete()
+    {
+        if (completedAt >= 0f) return;
+        completionHold = GetComponent<ControllerGrabPrompt>()?.IsCrawlPrompt == true ? 3f : 1f;
+        completedAt = Time.unscaledTime;
+        GetComponent<ControllerGrabPrompt>()?.Complete();
+        SuccessPulse();
+    }
+    private void SuccessPulse()
+    {
+        if (Application.isFocused)
+            HapticsUtility.SendHapticImpulse(0.65f, 0.045f,
+                hapticHand == XRNode.RightHand ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
+    }
     public void ContinueHandReveal()
     {
         opacity = 1f;
@@ -41,7 +60,8 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     }
     private TutorialPanelDockMotion shrinkMotion;
     public bool IsTracked => tracked && configured && !retiring;
-    public float RevealOpacity => TutorialControllerSnapMotion.Smooth(opacity);
+    public float RevealOpacity => TutorialControllerSnapMotion.Smooth(opacity)
+        * (completedAt < 0f ? 1f : 1f - Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - completedAt - 0.22f - completionHold) / 0.28f));
 
     public void Configure(Transform controller, Transform sceneVisual, float duration,
         float initialScale = 1f, float settleDuration = 1.25f, XRNode hand = XRNode.LeftHand)
@@ -114,8 +134,14 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         }
         UpdateVisibility();
         if (tracked) opacity = Mathf.MoveTowards(opacity, 1f, Time.unscaledDeltaTime / fadeDuration);
-        ApplyOpacity(TutorialControllerSnapMotion.Smooth(opacity));
-        UpdateBreathHaptics();
+        ApplyOpacity(RevealOpacity);
+        if (completedAt < 0f) UpdateBreathHaptics();
+        else
+        {
+            float elapsed = Time.unscaledTime - completedAt;
+            if (!secondSuccessPulse && elapsed >= 0.12f) { secondSuccessPulse = true; SuccessPulse(); }
+            if (elapsed >= 0.22f + completionHold + 0.28f) { HideAndDestroy(); return; }
+        }
         // Reveal and shrink together. Keep the original curve's rebound,
         // but apply it only to scale, never to the tracked rotation.
         if (tracked && !shrinking)
@@ -135,22 +161,33 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             hapticPulsePhase = 0f;
             return;
         }
-        // Match the white coat's shader clock, cosine curve and opacity range.
-        float period = Mathf.Max(0.1f, breathMaterial.GetFloat("_BreathPeriod"));
-        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * 2f * Mathf.PI / period);
-        float whiteOpacity = Mathf.Lerp(breathMaterial.GetFloat("_BreathOpacityMin"),
-            breathMaterial.GetFloat("_BreathOpacityMax"), breath);
-        float strength = Mathf.InverseLerp(
-            Mathf.Min(breathMaterial.GetFloat("_BreathOpacityMin"), breathMaterial.GetFloat("_BreathOpacityMax")),
-            Mathf.Max(breathMaterial.GetFloat("_BreathOpacityMin"), breathMaterial.GetFloat("_BreathOpacityMax")), whiteOpacity);
+        // Share the visual clock across hands and hint replacements so switching
+        // tutorials cannot restart the strong/soft alternation.
+        const float period = 2.4f;
+        float pairedPhase = Mathf.Repeat(Time.realtimeSinceStartup / period, 2f);
+        bool softCycle = pairedPhase >= 1f;
+        float phase = Mathf.Repeat(pairedPhase, 1f);
+        // Match the envelope peak to the white coat's cosine maximum (phase 0.5).
+        // Advance only the boundaries by 12 ms, preserving both total lengths.
+        // The softer cycle releases sooner, leaving more quiet time.
+        const float advance = 0.012f / period;
+        const float start = 0.275f - advance, peak = 0.5f;
+        float end = (softCycle ? 0.66f : 0.805f) - advance;
+        float amplitudeScale = softCycle ? 0.8f : 1f;
+        if (phase < start || phase > end) { hapticPulsePhase = 1f; return; }
+        float strength = phase < peak
+            ? Mathf.SmoothStep(0f, 1f, (phase - start) / (peak - start))
+            : 1f - Mathf.SmoothStep(0f, 1f, (phase - peak) / (end - peak));
         float pulseRate = Mathf.Lerp(breathHapticMinPulseRate, breathHapticMaxPulseRate, strength);
+        // Release all the way to silence rather than ending at the onset floor.
+        float amplitudeFloor = phase < peak ? breathHapticMinAmplitude : 0f;
         // Integrate the changing rate rather than rescheduling a fixed timer.
         // Drop missed pulses after a stall so they never arrive in a burst.
         hapticPulsePhase += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * Mathf.Max(0.1f, pulseRate);
         if (hapticPulsePhase < 1f) return;
         hapticPulsePhase %= 1f;
         HapticsUtility.SendHapticImpulse(
-            Mathf.Lerp(breathHapticMinAmplitude, breathHapticAmplitude, strength) * RevealOpacity,
+            Mathf.Lerp(amplitudeFloor, breathHapticAmplitude, strength) * amplitudeScale * RevealOpacity,
             Mathf.Min(breathHapticDuration, 0.7f / Mathf.Max(0.1f, pulseRate)),
             hapticHand == XRNode.RightHand ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
     }
@@ -203,7 +240,15 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             renderer.GetPropertyBlock(properties);
             properties.SetFloat("_UIFade", alpha);
             properties.SetFloat("_BreathTime", Time.realtimeSinceStartup);
-            properties.SetFloat("_HintAccentFade", Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - accentSwapStarted) / 0.25f));
+            properties.SetFloat("_CompletionFrost", CompletionBlend);
+            if (bodyMaterial != null)
+            {
+                properties.SetColor("_UnderlayColor", bodyMaterial.GetColor("_BaseColor"));
+                properties.SetFloat("_UnderlayTintStrength", bodyMaterial.GetFloat("_TintStrength"));
+                properties.SetFloat("_UnderlayBrightness", bodyMaterial.GetFloat("_SurfaceBrightness"));
+                if (completedAt >= 0f) properties.SetFloat("_BlurPixels", bodyMaterial.GetFloat("_BlurPixels"));
+            }
+            properties.SetFloat("_HintAccentFade", (1f - CompletionBlend) * Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - accentSwapStarted) / 0.25f));
             properties.SetFloat("_WhiteFrostedSurface", 0f);
             properties.SetFloat("_BreathOpacityMin", 1f);
             properties.SetFloat("_BreathOpacityMax", 1f);
@@ -218,7 +263,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
                 properties.SetFloat("_WhiteFrostedSurface", 1f);
                 properties.SetFloat("_BreathOpacityMin", material.GetFloat("_BreathOpacityMin"));
                 properties.SetFloat("_BreathOpacityMax", material.GetFloat("_BreathOpacityMax"));
-                properties.SetFloat("_BreathPeriod", material.GetFloat("_BreathPeriod"));
+                properties.SetFloat("_BreathPeriod", 2.4f);
                 if (bodyMaterial != null)
                 {
                     properties.SetColor("_UnderlayColor", bodyMaterial.GetColor("_BaseColor"));

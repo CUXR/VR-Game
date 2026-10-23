@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 // Visual-only copies keep the Wire's rigidbody, grab points and colliders fixed.
 // Original materials and rendering state are restored on exit, grab or disable.
@@ -20,14 +21,15 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private readonly Dictionary<Transform, Transform> mirrors = new Dictionary<Transform, Transform>();
     private Transform visualRoot;
     private Transform basis;
-    private Material glowMaterial;
-    private MeshRenderer glowRenderer;
-    private Mesh glowMesh;
+    private static uint allocatedLightLayers;
+    private uint lightLayer;
+    private Light topLight;
+    private Light fillLight;
+    private float lightWeight;
     private Vector3 pivot;
     private Vector3 approach;
     private bool requested;
     private float weight;
-    private double startedAt;
     private Component xrGrab;
     private PropertyInfo xrSelected;
     private Component legacyGrab;
@@ -43,8 +45,7 @@ public sealed class WireAttentionVisual : MonoBehaviour
         legacyGrab = GetComponent("Holdable");
         legacyHeld = legacyGrab != null ? legacyGrab.GetType().GetProperty("IsHeld") : null;
         var sources = GetComponentsInChildren<MeshRenderer>(true);
-        var glowShader = Resources.Load<Shader>("TutorialDesign/WireAttentionGlow");
-        if (glowShader != null) glowMaterial = new Material(glowShader);
+        lightLayer = AllocateLightLayer();
         var root = new GameObject("Wire Attention — Visual Only");
         visualRoot = root.transform;
         visualRoot.SetParent(transform, false);
@@ -68,29 +69,32 @@ public sealed class WireAttentionVisual : MonoBehaviour
             proxy.receiveShadows = source.receiveShadows;
             proxy.lightProbeUsage = source.lightProbeUsage;
             proxy.reflectionProbeUsage = source.reflectionProbeUsage;
+            proxy.renderingLayerMask = source.renderingLayerMask | lightLayer;
+            source.renderingLayerMask |= lightLayer;
             surfaces.Add(new Surface { source = source, proxy = proxy, wasHidden = source.forceRenderingOff });
-        }
-        // A single broad emitter avoids sampling individual thin wire triangles.
-        if (glowMaterial != null && hasBounds)
-        {
-            glowMesh = new Mesh { name = "Wire soft halo quad" };
-            glowMesh.vertices = new[] { new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0) };
-            glowMesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
-            glowMesh.RecalculateBounds();
-            var glowObject = new GameObject("Wire — Broad Soft Halo", typeof(MeshFilter), typeof(MeshRenderer));
-            glowObject.layer = gameObject.layer;
-            glowObject.transform.SetParent(visualRoot, false);
-            glowObject.GetComponent<MeshFilter>().sharedMesh = glowMesh;
-            glowRenderer = glowObject.GetComponent<MeshRenderer>();
-            glowRenderer.sharedMaterial = glowMaterial;
-            glowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            glowRenderer.receiveShadows = false;
-            glowRenderer.forceRenderingOff = true;
-            TutorialGlowBloom.Register(glowRenderer, glowMesh, glowMaterial);
         }
         pivot = transform.InverseTransformPoint(bounds.center);
         basis.localPosition = -pivot;
         visualRoot.gameObject.SetActive(false);
+        if (lightLayer != 0)
+        {
+            // Independent world transforms preserve the lighting direction as
+            // the wire rotates, while positions follow its world-space bounds.
+            topLight = new GameObject("Wire — Isolated Key Light", typeof(Light)).GetComponent<Light>();
+            topLight.type = LightType.Point;
+            topLight.color = Color.white;
+            topLight.shadows = LightShadows.None;
+            topLight.bounceIntensity = 0f;
+            topLight.enabled = false;
+            topLight.GetUniversalAdditionalLightData().renderingLayers = lightLayer;
+            fillLight = new GameObject("Wire — Isolated Fill Light", typeof(Light)).GetComponent<Light>();
+            fillLight.type = LightType.Point;
+            fillLight.color = topLight.color;
+            fillLight.shadows = LightShadows.None;
+            fillLight.bounceIntensity = 0f;
+            fillLight.enabled = false;
+            fillLight.GetUniversalAdditionalLightData().renderingLayers = lightLayer;
+        }
     }
 
     private Transform MirrorTransform(Transform source)
@@ -123,12 +127,64 @@ public sealed class WireAttentionVisual : MonoBehaviour
             // Capture one small approach target; never follow the moving head.
             approach = (camera.transform.position - transform.TransformPoint(pivot)).normalized
                 * (settings != null ? settings.approachDistance : 0.06f);
-            if (weight == 0f) startedAt = Time.unscaledTimeAsDouble;
+
         }
         requested = visible;
     }
 
-    private void LateUpdate() => Animate(Time.unscaledDeltaTime, Time.unscaledTimeAsDouble);
+    private void LateUpdate()
+    {
+        Animate(Time.unscaledDeltaTime, Time.unscaledTimeAsDouble);
+        UpdateTopLight();
+    }
+
+    private static uint AllocateLightLayer()
+    {
+        uint used = allocatedLightLayers | 1u;
+        foreach (var renderer in Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include))
+            used |= renderer.renderingLayerMask;
+        foreach (var light in Object.FindObjectsByType<UniversalAdditionalLightData>(FindObjectsInactive.Include))
+            used |= light.renderingLayers;
+        // The default URP rendering-layer layout supports eight bits. Reserve
+        // a free bit per wire so nearby wires cannot light one another.
+        for (int bit = 7; bit >= 1; bit--)
+        {
+            uint mask = 1u << bit;
+            if ((used & mask) != 0) continue;
+            allocatedLightLayers |= mask;
+            return mask;
+        }
+        Debug.LogWarning("No unused rendering layer is available for the isolated wire light.");
+        return 0;
+    }
+
+    private void UpdateTopLight()
+    {
+        if (topLight == null) return;
+        lightWeight = Mathf.MoveTowards(lightWeight, requested || IsHeld ? 1f : 0f, Time.unscaledDeltaTime / 0.3f);
+        bool found = false;
+        Bounds bounds = default;
+        foreach (var surface in surfaces)
+        {
+            var renderer = visualRoot.gameObject.activeSelf ? surface.proxy : surface.source;
+            if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy) continue;
+            if (!found) { bounds = renderer.bounds; found = true; }
+            else bounds.Encapsulate(renderer.bounds);
+        }
+        topLight.enabled = found && lightWeight > 0f;
+        fillLight.enabled = topLight.enabled;
+        if (!topLight.enabled) return;
+        float distance = Mathf.Max(0.4f, bounds.extents.magnitude * 2.5f);
+        Vector3 direction = new Vector3(-1f, 1.3f, -1f).normalized;
+        topLight.transform.SetPositionAndRotation(bounds.center + direction * distance, Quaternion.identity);
+        fillLight.transform.SetPositionAndRotation(bounds.center - direction * distance, Quaternion.identity);
+        topLight.range = fillLight.range = distance * 3f;
+        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * Mathf.PI * 2f / 2.4f);
+        // Compensate for inverse-square attenuation when wire dimensions differ.
+        float strength = distance * distance * lightWeight * Mathf.Lerp(0.85f, 1f, breath);
+        topLight.intensity = 0.45f * strength;
+        fillLight.intensity = 0.22f * strength;
+    }
 
     private void Animate(float deltaTime, double now)
     {
@@ -143,14 +199,13 @@ public sealed class WireAttentionVisual : MonoBehaviour
         }
         // Quintic ease has zero speed and acceleration at both endpoints.
         float eased = weight * weight * weight * (weight * (weight * 6f - 15f) + 10f);
-        float breath = Mathf.Sin((float)(now - startedAt) * Mathf.PI * 2f / (settings != null ? settings.period : 4.8f));
+        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * Mathf.PI * 2f / 2.4f);
         float scale = 1f + ((settings != null ? settings.scale - 1f : 0.2f)
             + (settings != null ? settings.scaleBreath : 0.04f) * breath) * eased;
         Vector3 offset = approach * eased
             + Vector3.up * (breath * (settings != null ? settings.floatAmplitude : 0.015f) * eased);
         visualRoot.localPosition = pivot + transform.InverseTransformVector(offset);
         visualRoot.localScale = Vector3.one * scale;
-        if (glowMaterial != null) glowMaterial.SetFloat("_GlowStrength", (settings != null ? settings.glowIntensity : 0.3f) * eased);
         // Preserve the full authored hierarchy, including nonuniform scales.
         // Flattening it to a world rotation/lossyScale changes the Wire's shape.
         foreach (var pair in mirrors)
@@ -172,24 +227,7 @@ public sealed class WireAttentionVisual : MonoBehaviour
                 surface.materials[i].SetColor(surface.colorProperties[i], original);
             }
         }
-        UpdateHaloBounds();
-    }
 
-    private void UpdateHaloBounds()
-    {
-        if (glowRenderer == null) return;
-        Bounds bounds = default;
-        bool found = false;
-        foreach (var surface in surfaces)
-        {
-            if (surface.proxy == null || !surface.proxy.enabled || !surface.proxy.gameObject.activeInHierarchy) continue;
-            if (!found) { bounds = surface.proxy.bounds; found = true; }
-            else bounds.Encapsulate(surface.proxy.bounds);
-        }
-        glowRenderer.enabled = found;
-        if (!found) return;
-        glowRenderer.transform.position = bounds.center;
-        glowMaterial.SetVector("_GlowExtents", bounds.extents);
     }
 
     private void PrepareMaterials()
@@ -233,14 +271,23 @@ public sealed class WireAttentionVisual : MonoBehaviour
         surface.materials = null;
     }
 
-    private void OnDisable() => Restore();
+    private void OnDisable()
+    {
+        Restore();
+        lightWeight = 0f;
+        if (topLight != null) topLight.enabled = false;
+        if (fillLight != null) fillLight.enabled = false;
+    }
     private void OnDestroy()
     {
         Restore();
-        if (glowRenderer != null) TutorialGlowBloom.Unregister(glowRenderer);
-        if (glowMesh != null) ReleaseObject(glowMesh);
+        foreach (var surface in surfaces)
+            if (surface.source != null) surface.source.renderingLayerMask &= ~lightLayer;
+        allocatedLightLayers &= ~lightLayer;
+        if (topLight != null) ReleaseObject(topLight.gameObject);
+        if (fillLight != null) ReleaseObject(fillLight.gameObject);
+
         foreach (var surface in surfaces) ReleaseMaterials(surface);
-        if (glowMaterial != null) ReleaseObject(glowMaterial);
         if (visualRoot != null) ReleaseObject(visualRoot.gameObject);
     }
 

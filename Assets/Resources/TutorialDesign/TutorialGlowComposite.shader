@@ -32,7 +32,7 @@ Shader "Hidden/VRGame/TutorialGlowComposite"
                 half3 wide = SAMPLE_TEXTURE2D_X(_HintGlowWide, sampler_LinearClamp, input.texcoord).rgb;
                 half interior = saturate(SAMPLE_TEXTURE2D_X(_HintGlowMask, sampler_LinearClamp, input.texcoord).a);
                 // Leave the source's interior unchanged; scatter light around it.
-                return half4((tight * .42h + wide * .3h) * (1 - interior), 0);
+                return half4((tight * .48h + wide * .46h) * half3(.80h, .91h, 1.0h) * (1 - interior), 0);
             }
             ENDHLSL
         }

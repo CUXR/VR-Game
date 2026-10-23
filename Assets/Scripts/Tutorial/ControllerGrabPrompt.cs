@@ -24,13 +24,29 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
     private bool horizontal;
     private float horizontalBlend;
     private float blendUpdatedAt;
+    private string anchorBone = "left_b_trigger_grip";
+    private string prefixText = "PRESS To ";
+    private string actionText = "GRAB";
+    private bool fadeText;
+    private float textAppeared;
+    public void Configure(ControllerHintDefinition definition, bool swap = false)
+    {
+        anchorBone = definition.anchorBone;
+        prefixText = definition.prefix;
+        actionText = definition.action;
+        normalOffsetRatio = definition.normalTextOffset;
+        rightOffsetRatio = definition.rightTextOffset;
+        forwardOffsetRatio = definition.forwardTextOffset;
+        fadeText = swap;
+    }
 
     private void Start()
     {
         visual = GetComponent<TutorialHandControllerVisual>();
+        textAppeared = Time.unscaledTime;
         foreach (var child in GetComponentsInChildren<Transform>(true))
         {
-            if (child.name == "left_b_trigger_grip") grip = child;
+            if (child.name == anchorBone) grip = child;
         }
         var light = Resources.Load<TMP_FontAsset>("TutorialDesign/Inter-ExtraLight SDF");
         var medium = Resources.Load<TMP_FontAsset>("TutorialDesign/Inter-Medium SDF");
@@ -43,8 +59,8 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         modelHeight = MeasureModelHeight();
         label = new GameObject("PRESS To GRAB — Headset Facing").transform;
         label.SetParent(transform, false);
-        prefix = CreateText("PRESS To ", light);
-        action = CreateText("GRAB", medium);
+        prefix = CreateText(prefixText, light);
+        action = CreateText(actionText, medium);
         // Use the shaped trailing space advance so the two font weights share one line.
         action.transform.localPosition = Vector3.right
             * prefix.textInfo.characterInfo[prefix.textInfo.characterCount - 1].xAdvance;
@@ -120,6 +136,7 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         label.localScale = Vector3.one * labelScale;
         label.position = anchor - label.TransformVector(inkCenter);
         float opacity = visual.RevealOpacity;
+        if (fadeText) opacity *= Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - textAppeared) / 0.25f);
         prefix.alpha = opacity;
         action.alpha = opacity;
     }

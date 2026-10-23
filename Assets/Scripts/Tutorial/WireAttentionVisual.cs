@@ -11,7 +11,6 @@ public sealed class WireAttentionVisual : MonoBehaviour
     {
         public Renderer source;
         public MeshRenderer proxy;
-        public MeshRenderer glow;
         public bool wasHidden;
         public Material[] materials;
         public Color[] colors;
@@ -22,6 +21,8 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private Transform visualRoot;
     private Transform basis;
     private Material glowMaterial;
+    private MeshRenderer glowRenderer;
+    private Mesh glowMesh;
     private Vector3 pivot;
     private Vector3 approach;
     private bool requested;
@@ -31,9 +32,12 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private PropertyInfo xrSelected;
     private Component legacyGrab;
     private PropertyInfo legacyHeld;
+    private TutorialAttentionStyle settings;
+    public void Configure(TutorialAttentionStyle style) { if (style != null) settings = style; }
 
     private void Awake()
     {
+        settings = Resources.Load<TutorialAttentionStyle>("TutorialDesign/Attention Style");
         xrGrab = GetComponent("XRGrabInteractable");
         xrSelected = xrGrab != null ? xrGrab.GetType().GetProperty("isSelected") : null;
         legacyGrab = GetComponent("Holdable");
@@ -64,21 +68,25 @@ public sealed class WireAttentionVisual : MonoBehaviour
             proxy.receiveShadows = source.receiveShadows;
             proxy.lightProbeUsage = source.lightProbeUsage;
             proxy.reflectionProbeUsage = source.reflectionProbeUsage;
-            MeshRenderer glow = null;
-            if (glowMaterial != null)
-            {
-                var glowObject = new GameObject(source.name + " — Glow", typeof(MeshFilter), typeof(MeshRenderer));
-                glowObject.layer = source.gameObject.layer;
-                glowObject.transform.SetParent(child.transform, false);
-                glowObject.GetComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
-                glow = glowObject.GetComponent<MeshRenderer>();
-                glow.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                glow.receiveShadows = false;
-                var glowSlots = new Material[filter.sharedMesh.subMeshCount];
-                for (int i = 0; i < glowSlots.Length; i++) glowSlots[i] = glowMaterial;
-                glow.sharedMaterials = glowSlots;
-            }
-            surfaces.Add(new Surface { source = source, proxy = proxy, glow = glow, wasHidden = source.forceRenderingOff });
+            surfaces.Add(new Surface { source = source, proxy = proxy, wasHidden = source.forceRenderingOff });
+        }
+        // A single broad emitter avoids sampling individual thin wire triangles.
+        if (glowMaterial != null && hasBounds)
+        {
+            glowMesh = new Mesh { name = "Wire soft halo quad" };
+            glowMesh.vertices = new[] { new Vector3(-1, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0), new Vector3(-1, 1, 0) };
+            glowMesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+            glowMesh.RecalculateBounds();
+            var glowObject = new GameObject("Wire — Broad Soft Halo", typeof(MeshFilter), typeof(MeshRenderer));
+            glowObject.layer = gameObject.layer;
+            glowObject.transform.SetParent(visualRoot, false);
+            glowObject.GetComponent<MeshFilter>().sharedMesh = glowMesh;
+            glowRenderer = glowObject.GetComponent<MeshRenderer>();
+            glowRenderer.sharedMaterial = glowMaterial;
+            glowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            glowRenderer.receiveShadows = false;
+            glowRenderer.forceRenderingOff = true;
+            TutorialGlowBloom.Register(glowRenderer, glowMesh, glowMaterial);
         }
         pivot = transform.InverseTransformPoint(bounds.center);
         basis.localPosition = -pivot;
@@ -113,7 +121,8 @@ public sealed class WireAttentionVisual : MonoBehaviour
         if (visible && !requested)
         {
             // Capture one small approach target; never follow the moving head.
-            approach = (camera.transform.position - transform.TransformPoint(pivot)).normalized * 0.06f;
+            approach = (camera.transform.position - transform.TransformPoint(pivot)).normalized
+                * (settings != null ? settings.approachDistance : 0.06f);
             if (weight == 0f) startedAt = Time.unscaledTimeAsDouble;
         }
         requested = visible;
@@ -124,7 +133,8 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private void Animate(float deltaTime, double now)
     {
         if (IsHeld) { Restore(); return; }
-        weight = Mathf.MoveTowards(weight, requested ? 1f : 0f, deltaTime / 0.85f);
+        weight = Mathf.MoveTowards(weight, requested ? 1f : 0f,
+            deltaTime / (settings != null ? settings.transitionDuration : 0.85f));
         if (weight == 0f) { Restore(); return; }
         if (!visualRoot.gameObject.activeSelf)
         {
@@ -133,13 +143,14 @@ public sealed class WireAttentionVisual : MonoBehaviour
         }
         // Quintic ease has zero speed and acceleration at both endpoints.
         float eased = weight * weight * weight * (weight * (weight * 6f - 15f) + 10f);
-        float breath = Mathf.Sin((float)(now - startedAt) * Mathf.PI * 2f / 4.8f);
-        float scale = 1f + (0.2f + 0.04f * breath) * eased;
+        float breath = Mathf.Sin((float)(now - startedAt) * Mathf.PI * 2f / (settings != null ? settings.period : 4.8f));
+        float scale = 1f + ((settings != null ? settings.scale - 1f : 0.2f)
+            + (settings != null ? settings.scaleBreath : 0.04f) * breath) * eased;
         Vector3 offset = approach * eased
-            + Vector3.up * (breath * 0.015f * eased);
+            + Vector3.up * (breath * (settings != null ? settings.floatAmplitude : 0.015f) * eased);
         visualRoot.localPosition = pivot + transform.InverseTransformVector(offset);
         visualRoot.localScale = Vector3.one * scale;
-        if (glowMaterial != null) glowMaterial.SetFloat("_GlowStrength", 0.3f * eased);
+        if (glowMaterial != null) glowMaterial.SetFloat("_GlowStrength", (settings != null ? settings.glowIntensity : 0.3f) * eased);
         // Preserve the full authored hierarchy, including nonuniform scales.
         // Flattening it to a world rotation/lossyScale changes the Wire's shape.
         foreach (var pair in mirrors)
@@ -154,16 +165,31 @@ public sealed class WireAttentionVisual : MonoBehaviour
             if (surface.source == null) continue;
             surface.source.forceRenderingOff = true;
             surface.proxy.enabled = surface.source.enabled && surface.source.gameObject.activeInHierarchy;
-            if (surface.glow != null) surface.glow.enabled = surface.proxy.enabled;
             for (int i = 0; i < surface.materials.Length; i++)
             {
                 if (surface.colorProperties[i] == null) continue;
                 Color original = surface.colors[i];
-                Color bright = Color.Lerp(original * 1.65f, Color.white, 0.18f);
-                bright.a = original.a;
-                surface.materials[i].SetColor(surface.colorProperties[i], Color.Lerp(original, bright, eased));
+                surface.materials[i].SetColor(surface.colorProperties[i], original);
             }
         }
+        UpdateHaloBounds();
+    }
+
+    private void UpdateHaloBounds()
+    {
+        if (glowRenderer == null) return;
+        Bounds bounds = default;
+        bool found = false;
+        foreach (var surface in surfaces)
+        {
+            if (surface.proxy == null || !surface.proxy.enabled || !surface.proxy.gameObject.activeInHierarchy) continue;
+            if (!found) { bounds = surface.proxy.bounds; found = true; }
+            else bounds.Encapsulate(surface.proxy.bounds);
+        }
+        glowRenderer.enabled = found;
+        if (!found) return;
+        glowRenderer.transform.position = bounds.center;
+        glowMaterial.SetVector("_GlowExtents", bounds.extents);
     }
 
     private void PrepareMaterials()
@@ -211,6 +237,8 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private void OnDestroy()
     {
         Restore();
+        if (glowRenderer != null) TutorialGlowBloom.Unregister(glowRenderer);
+        if (glowMesh != null) ReleaseObject(glowMesh);
         foreach (var surface in surfaces) ReleaseMaterials(surface);
         if (glowMaterial != null) ReleaseObject(glowMaterial);
         if (visualRoot != null) ReleaseObject(visualRoot.gameObject);

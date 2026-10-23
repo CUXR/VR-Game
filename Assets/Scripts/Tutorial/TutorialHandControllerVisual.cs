@@ -1,8 +1,18 @@
 using UnityEngine;
+using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
 
 // This visual shares the scene controller's tracking and only replaces its appearance.
 public sealed class TutorialHandControllerVisual : MonoBehaviour
 {
+    [SerializeField, Range(0f, 1f)] private float breathHapticAmplitude = 0.55f;
+    [SerializeField, Range(0f, 1f)] private float breathHapticMinAmplitude = 0.04f;
+    [SerializeField, Min(0.1f)] private float breathHapticMinPulseRate = 2f;
+    [SerializeField, Min(0.1f)] private float breathHapticMaxPulseRate = 14f;
+    [SerializeField, Min(0.01f)] private float breathHapticDuration = 0.08f;
+    private XRNode hapticHand;
+    private Material breathMaterial;
+    private float hapticPulsePhase;
     private Renderer[] renderers;
     private Material[][] rendererMaterials;
     private Material bodyMaterial;
@@ -19,13 +29,25 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     private float revealScale = 1f;
     private float shrinkDuration;
     private bool shrinking;
+    private float accentSwapStarted = -1000f;
+    public void ContinueHandReveal()
+    {
+        opacity = 1f;
+        revealScale = 1f;
+        shrinking = false;
+        transform.localScale = Vector3.one;
+        accentSwapStarted = Time.unscaledTime;
+        ApplyOpacity(1f);
+    }
     private TutorialPanelDockMotion shrinkMotion;
     public bool IsTracked => tracked && configured && !retiring;
     public float RevealOpacity => TutorialControllerSnapMotion.Smooth(opacity);
 
     public void Configure(Transform controller, Transform sceneVisual, float duration,
-        float initialScale = 1f, float settleDuration = 1.25f)
+        float initialScale = 1f, float settleDuration = 1.25f, XRNode hand = XRNode.LeftHand)
     {
+        hapticHand = hand;
+        hapticPulsePhase = 0f;
         fadeDuration = Mathf.Max(0.01f, duration);
         revealScale = Mathf.Max(1f, initialScale);
         shrinkDuration = Mathf.Max(0.1f, settleDuration);
@@ -36,7 +58,10 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         {
             rendererMaterials[i] = renderers[i].sharedMaterials;
             foreach (var material in rendererMaterials[i])
+            {
                 if (material != null && material.name.StartsWith("Controller Body Transparent")) bodyMaterial = material;
+                if (material != null && material.name.StartsWith("Controller Side Grip White")) breathMaterial = material;
+            }
         }
         properties = new MaterialPropertyBlock();
         transform.SetParent(controller, false);
@@ -59,7 +84,8 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         retiring = true;
         gameObject.SetActive(false);
         RestoreOriginalVisual();
-        Destroy(gameObject);
+        if (Application.isPlaying) Destroy(gameObject);
+        else DestroyImmediate(gameObject);
     }
 
     private void OnEnable()
@@ -70,6 +96,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
 
     private void OnDisable()
     {
+        hapticPulsePhase = 0f;
         Application.onBeforeRender -= UpdateVisibility;
         if (renderers != null)
             foreach (var renderer in renderers)
@@ -88,6 +115,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         UpdateVisibility();
         if (tracked) opacity = Mathf.MoveTowards(opacity, 1f, Time.unscaledDeltaTime / fadeDuration);
         ApplyOpacity(TutorialControllerSnapMotion.Smooth(opacity));
+        UpdateBreathHaptics();
         // Reveal and shrink together. Keep the original curve's rebound,
         // but apply it only to scale, never to the tracked rotation.
         if (tracked && !shrinking)
@@ -98,6 +126,33 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         if (shrinking)
             transform.localScale = Vector3.one * Mathf.LerpUnclamped(revealScale, 1f,
                 shrinkMotion.Evaluate(Time.unscaledTimeAsDouble).value);
+    }
+
+    private void UpdateBreathHaptics()
+    {
+        if (!tracked || !Application.isFocused || RevealOpacity < 0.1f || breathMaterial == null)
+        {
+            hapticPulsePhase = 0f;
+            return;
+        }
+        // Match the white coat's shader clock, cosine curve and opacity range.
+        float period = Mathf.Max(0.1f, breathMaterial.GetFloat("_BreathPeriod"));
+        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * 2f * Mathf.PI / period);
+        float whiteOpacity = Mathf.Lerp(breathMaterial.GetFloat("_BreathOpacityMin"),
+            breathMaterial.GetFloat("_BreathOpacityMax"), breath);
+        float strength = Mathf.InverseLerp(
+            Mathf.Min(breathMaterial.GetFloat("_BreathOpacityMin"), breathMaterial.GetFloat("_BreathOpacityMax")),
+            Mathf.Max(breathMaterial.GetFloat("_BreathOpacityMin"), breathMaterial.GetFloat("_BreathOpacityMax")), whiteOpacity);
+        float pulseRate = Mathf.Lerp(breathHapticMinPulseRate, breathHapticMaxPulseRate, strength);
+        // Integrate the changing rate rather than rescheduling a fixed timer.
+        // Drop missed pulses after a stall so they never arrive in a burst.
+        hapticPulsePhase += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * Mathf.Max(0.1f, pulseRate);
+        if (hapticPulsePhase < 1f) return;
+        hapticPulsePhase %= 1f;
+        HapticsUtility.SendHapticImpulse(
+            Mathf.Lerp(breathHapticMinAmplitude, breathHapticAmplitude, strength) * RevealOpacity,
+            Mathf.Min(breathHapticDuration, 0.7f / Mathf.Max(0.1f, pulseRate)),
+            hapticHand == XRNode.RightHand ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
     }
 
     [BeforeRenderOrder(-100)]
@@ -148,6 +203,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             renderer.GetPropertyBlock(properties);
             properties.SetFloat("_UIFade", alpha);
             properties.SetFloat("_BreathTime", Time.realtimeSinceStartup);
+            properties.SetFloat("_HintAccentFade", Mathf.SmoothStep(0f, 1f, (Time.unscaledTime - accentSwapStarted) / 0.25f));
             properties.SetFloat("_WhiteFrostedSurface", 0f);
             properties.SetFloat("_BreathOpacityMin", 1f);
             properties.SetFloat("_BreathOpacityMax", 1f);

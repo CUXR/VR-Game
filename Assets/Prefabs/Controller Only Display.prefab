@@ -44,8 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ea352c03a994687939bf6b5c067730a, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ControllerOnlyDisplay
-  controllerPrefab: {fileID: 1174099188002853058, guid: 25508a022611d6f4096419a29c7ff14a, type: 3}
-  revealDuration: 0.65
-  shrinkDuration: 1.25
-  viewExitDelay: 0.2
-  wireReachDistance: 2.5
+  grabHint: {fileID: 11400000, guid: c6f865d2c58b99a42a76a361c5cd3ce7, type: 2}
+  crawlHint: {fileID: 11400000, guid: cd784e722220a234fb90d52f22cb78cd, type: 2}
+  hintCycleSeconds: 4

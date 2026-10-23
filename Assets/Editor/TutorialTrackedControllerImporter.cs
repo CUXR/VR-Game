@@ -36,18 +36,32 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
     public void OnPreprocessBuild(BuildReport report) { PrepareIfMissing(); }
 
     [MenuItem("VR Game/UI/Rebuild Tracked Left Controller")]
-    public static void Build()
+    public static void Build() => BuildHand(false);
+
+    [MenuItem("VR Game/UI/Rebuild Right A Controller")]
+    public static void BuildRight() => BuildHand(true);
+
+    [MenuItem("VR Game/UI/Rebuild Left Y Controller")]
+    public static void BuildCrawl() => BuildHand(false, "b_button_y");
+
+    private static void BuildHand(bool right, string highlight = null)
     {
+        string side = right ? "Right" : "Left";
+        string boneSide = right ? "right" : "left";
+        string ModelPath = "Assets/TutorialDesign/Models/MetaQuestTouchPlus_" + side + ".fbx";
+        string suffix = highlight == "b_button_y" ? " Y" : "";
+        string PrefabPath = "Assets/TutorialDesign/Prefabs/Tracked " + side + suffix + " Touch Plus.prefab";
+        string MeshPath = "Assets/TutorialDesign/Models/TouchPlus" + side + (suffix == "" ? "" : "Y") + "Animated.asset";
         var imported = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath);
         if (imported == null) throw new InvalidOperationException("Official left Touch Plus FBX is missing.");
         var clip = AssetDatabase.LoadAllAssetsAtPath(ModelPath).OfType<AnimationClip>()
             .FirstOrDefault(c => !c.name.StartsWith("__preview__"));
         if (clip == null) throw new InvalidOperationException("Official controller button animation is missing.");
-        var root = new GameObject("Tracked Left Touch Plus");
+        var root = new GameObject("Tracked " + side + " Touch Plus");
         try
         {
             var model = UnityEngine.Object.Instantiate(imported, root.transform, false);
-            model.name = "Official Touch Plus Left Rig";
+            model.name = "Official Touch Plus " + side + " Rig";
             var bindings = AnimationUtility.GetCurveBindings(clip);
             float firstKey = bindings.Select(b => AnimationUtility.GetEditorCurve(clip, b))
                 .Where(c => c != null && c.length > 0).Min(c => c.keys[0].time);
@@ -55,15 +69,15 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             sample(1);
             var bones = model.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
             var motions = new List<TutorialControllerInputAnimation.BoneMotion>();
-            AddMotion(motions, bones["b_button_x"], TutorialControllerInputAnimation.Control.X, sample, 6);
-            AddMotion(motions, bones["b_button_y"], TutorialControllerInputAnimation.Control.Y, sample, 10);
-            AddMotion(motions, bones["left_b_button_oculus"], TutorialControllerInputAnimation.Control.Menu, sample, 30);
-            AddMotion(motions, bones["left_b_trigger_front"], TutorialControllerInputAnimation.Control.Trigger, sample, 20);
-            AddMotion(motions, bones["left_b_trigger_grip"], TutorialControllerInputAnimation.Control.Grip, sample, 26);
-            AddMotion(motions, bones["left_b_thumbstick"], TutorialControllerInputAnimation.Control.StickUp, sample, 38);
-            AddMotion(motions, bones["left_b_thumbstick"], TutorialControllerInputAnimation.Control.StickDown, sample, 36);
-            AddMotion(motions, bones["left_b_thumbstick"], TutorialControllerInputAnimation.Control.StickLeft, sample, 40);
-            AddMotion(motions, bones["left_b_thumbstick"], TutorialControllerInputAnimation.Control.StickRight, sample, 42);
+            AddMotion(motions, bones[right ? "b_button_a" : "b_button_x"], TutorialControllerInputAnimation.Control.X, sample, 6);
+            AddMotion(motions, bones[right ? "b_button_b" : "b_button_y"], TutorialControllerInputAnimation.Control.Y, sample, 10);
+            if (bones.TryGetValue(boneSide + "_b_button_oculus", out var menu)) AddMotion(motions, menu, TutorialControllerInputAnimation.Control.Menu, sample, 30);
+            AddMotion(motions, bones[boneSide + "_b_trigger_front"], TutorialControllerInputAnimation.Control.Trigger, sample, 20);
+            AddMotion(motions, bones[boneSide + "_b_trigger_grip"], TutorialControllerInputAnimation.Control.Grip, sample, 26);
+            AddMotion(motions, bones[boneSide + "_b_thumbstick"], TutorialControllerInputAnimation.Control.StickUp, sample, 38);
+            AddMotion(motions, bones[boneSide + "_b_thumbstick"], TutorialControllerInputAnimation.Control.StickDown, sample, 36);
+            AddMotion(motions, bones[boneSide + "_b_thumbstick"], TutorialControllerInputAnimation.Control.StickLeft, sample, 40);
+            AddMotion(motions, bones[boneSide + "_b_thumbstick"], TutorialControllerInputAnimation.Control.StickRight, sample, 42);
             sample(1);
             foreach (var animator in model.GetComponentsInChildren<Animator>())
                 UnityEngine.Object.DestroyImmediate(animator);
@@ -73,8 +87,8 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             if (body == null || white == null)
                 throw new InvalidOperationException("Tutorial controller materials are missing.");
             var skins = model.GetComponentsInChildren<SkinnedMeshRenderer>();
-            var main = skins.Single(s => s.bones.Any(b => b.name == "left_b_trigger_grip"));
-            int gripIndex = Array.FindIndex(main.bones, b => b.name == "left_b_trigger_grip");
+            var main = skins.Single(s => s.bones.Any(b => b.name == boneSide + "_b_trigger_grip"));
+            int gripIndex = Array.FindIndex(main.bones, b => b.name == (highlight ?? (right ? "b_button_a" : "left_b_trigger_grip")));
             var weights = main.sharedMesh.boneWeights;
             var triangles = main.sharedMesh.triangles;
             var bodyTriangles = new List<int>();
@@ -88,7 +102,7 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             }
             if (gripTriangles.Count == 0) throw new InvalidOperationException("No side grip geometry was found.");
             var mesh = UnityEngine.Object.Instantiate(main.sharedMesh);
-            mesh.name = "Touch Plus Left Animated";
+            mesh.name = "Touch Plus " + side + " Animated";
             mesh.subMeshCount = 2;
             mesh.SetTriangles(bodyTriangles, 0);
             mesh.SetTriangles(gripTriangles, 1);
@@ -101,7 +115,7 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             {
                 // This is a flat LED artwork card, not part of the controller
                 // shell. The glass boundary mask must never be drawn on it.
-                if (skin.name == "left_batteryIndicatorQuad_MeshX")
+                if (skin.name == boneSide + "_batteryIndicatorQuad_MeshX")
                     skin.gameObject.SetActive(false);
                 if (skin != main) skin.sharedMaterial = body;
                 skin.shadowCastingMode = ShadowCastingMode.Off;
@@ -112,10 +126,12 @@ public sealed class TutorialTrackedControllerImporter : IPreprocessBuildWithRepo
             }
 
             root.AddComponent<TutorialHandControllerVisual>();
-            root.AddComponent<TutorialControllerInputAnimation>().Configure(motions.ToArray());
+            var inputAnimation = root.AddComponent<TutorialControllerInputAnimation>();
+            inputAnimation.Configure(motions.ToArray());
+            inputAnimation.SetHand(right ? UnityEngine.XR.XRNode.RightHand : UnityEngine.XR.XRNode.LeftHand);
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             AssetDatabase.SaveAssetIfDirty(savedMesh);
-            ConnectStyle();
+            if (!right && highlight == null) ConnectStyle();
             TutorialControllerModelImporter.CheckAndroidControllerConfiguration();
             Debug.Log("TUTORIAL_TRACKED_CONTROLLER_READY: scene controller replacement, X/Y/trigger/grip/thumbstick input animations.");
         }

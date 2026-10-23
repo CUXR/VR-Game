@@ -17,13 +17,22 @@ public static class InterTutorialFontImporter
     private static void Create(string name)
     {
         string destination = "Assets/Resources/TutorialDesign/" + name + " SDF.asset";
-        if (AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(destination) != null) return;
+        var existing = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(destination);
+        if (existing != null)
+        {
+            existing.atlasPopulationMode = AtlasPopulationMode.Dynamic;
+            if (!existing.TryAddCharacters("PRESS Y To GRAB CRAWL", out string absent))
+                throw new System.InvalidOperationException("Missing hint glyphs: " + absent);
+            existing.atlasPopulationMode = AtlasPopulationMode.Static;
+            EditorUtility.SetDirty(existing);
+            return;
+        }
         var font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Resources/TutorialDesign/" + name + ".otf");
         if (font == null) throw new System.InvalidOperationException("Missing Inter font: " + name);
         var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9, GlyphRenderMode.SDFAA,
             512, 512, AtlasPopulationMode.Dynamic);
         asset.name = name + " SDF";
-        if (!asset.TryAddCharacters("PRESS To GRAB", out string missing))
+        if (!asset.TryAddCharacters("PRESS Y To GRAB CRAWL", out string missing))
             throw new System.InvalidOperationException("Missing prompt glyphs: " + missing);
         asset.atlasPopulationMode = AtlasPopulationMode.Static;
         asset.material.shader = AssetDatabase.LoadAssetAtPath<Shader>(

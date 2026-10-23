@@ -19,6 +19,8 @@ public sealed class TutorialControllerInputAnimation : MonoBehaviour
     }
 
     [SerializeField] private BoneMotion[] motions;
+    [SerializeField] private XRNode hand = XRNode.LeftHand;
+    public void SetHand(XRNode node) => hand = node;
 
     public void Configure(BoneMotion[] boneMotions)
     {
@@ -28,7 +30,7 @@ public sealed class TutorialControllerInputAnimation : MonoBehaviour
     private void LateUpdate()
     {
         if (motions == null) return;
-        var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+        var left = InputDevices.GetDeviceAtXRNode(hand);
         left.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 stick);
         left.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool stickClick);
         foreach (var motion in motions)

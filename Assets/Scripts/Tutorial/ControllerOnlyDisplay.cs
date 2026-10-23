@@ -1,116 +1,119 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>Show the tracked grip tutorial while any Wire is in the headset view.</summary>
+/// <summary>Data-driven controller hints, sharing visibility, presentation and target attention.</summary>
 [DisallowMultipleComponent]
 public sealed class ControllerOnlyDisplay : MonoBehaviour
 {
-    [SerializeField] private GameObject controllerPrefab;
-    [SerializeField, Min(0.01f)] private float revealDuration = 0.65f;
-    [SerializeField, Min(0.1f)] private float shrinkDuration = 1.25f;
-    [SerializeField, Min(0f)] private float viewExitDelay = 0.2f;
-    [SerializeField, Min(0.05f)] private float wireReachDistance = 2.5f;
-    private readonly List<Transform> visibleWires = new List<Transform>();
-    private readonly List<WireAttentionVisual> wireEffects = new List<WireAttentionVisual>();
-    private readonly WireViewVisibility wireView = new WireViewVisibility();
-    private float lastWireSeen = float.NegativeInfinity;
-    private float nextShowAttempt;
-    private TutorialHandControllerVisual model;
-    private Camera blurCamera;
-    private System.IDisposable modelGlass;
+    [SerializeField] private ControllerHintDefinition grabHint;
+    [SerializeField] private ControllerHintDefinition crawlHint;
+    [SerializeField] private ControllerHintDefinition[] additionalHints = new ControllerHintDefinition[0];
+    [SerializeField, Min(2f)] private float hintCycleSeconds = 4f;
+    private readonly Dictionary<UnityEngine.XR.XRNode, float> cycleStarts = new Dictionary<UnityEngine.XR.XRNode, float>();
+    private sealed class Hint
+    {
+        public ControllerHintDefinition definition;
+        public ControllerHintPresenter presenter;
+        public WireViewVisibility visibility;
+        public readonly List<Transform> targets = new List<Transform>();
+        public bool visible;
+        public bool selected;
+    }
+    private readonly List<Hint> hints = new List<Hint>();
+    private readonly List<WireAttentionVisual> effects = new List<WireAttentionVisual>();
+    private readonly List<Transform> attentionTargets = new List<Transform>();
+    private readonly HashSet<UnityEngine.XR.XRNode> visibleHands = new HashSet<UnityEngine.XR.XRNode>();
+    private readonly HashSet<UnityEngine.XR.XRNode> continuingHands = new HashSet<UnityEngine.XR.XRNode>();
+    private readonly List<Hint> eligibleHints = new List<Hint>();
+    private readonly List<UnityEngine.XR.XRNode> staleCycles = new List<UnityEngine.XR.XRNode>();
 
     private void OnEnable()
     {
-        wireView.Invalidate();
-        lastWireSeen = float.NegativeInfinity;
-        nextShowAttempt = 0f;
+        Add(crawlHint != null ? crawlHint : Resources.Load<ControllerHintDefinition>("TutorialDesign/Crawl Hint"));
+        Add(grabHint != null ? grabHint : Resources.Load<ControllerHintDefinition>("TutorialDesign/Grab Hint"));
+        foreach (var definition in additionalHints) Add(definition);
     }
-
+    private void Add(ControllerHintDefinition definition)
+    {
+        if (definition == null || hints.Exists(hint => hint.definition == definition)) return;
+        hints.Add(new Hint { definition = definition, presenter = new ControllerHintPresenter(definition),
+            visibility = new WireViewVisibility(definition.targetTag, definition.targetName) });
+    }
     private void Update()
     {
-        var view = Camera.main;
-        visibleWires.Clear();
-        bool visible = view != null && view.isActiveAndEnabled
-            && wireView.CollectVisible(view, wireReachDistance, visibleWires);
-        foreach (var wire in visibleWires)
+        var camera = Camera.main;
+        attentionTargets.Clear();
+        var hands = visibleHands;
+        hands.Clear();
+        foreach (var hint in hints)
         {
-            var effect = wire.GetComponent<WireAttentionVisual>();
-            if (effect == null) effect = wire.gameObject.AddComponent<WireAttentionVisual>();
-            if (!wireEffects.Contains(effect)) wireEffects.Add(effect);
+            hint.targets.Clear();
+            hint.visible = camera != null && camera.isActiveAndEnabled
+                && hint.visibility.CollectVisible(camera, hint.definition.distance, hint.targets);
+            hint.selected = false;
+            if (hint.visible) hands.Add(hint.definition.hand);
+            if (!hint.definition.animateTarget) continue;
+            foreach (var target in hint.targets)
+            {
+                attentionTargets.Add(target);
+                var effect = target.GetComponent<WireAttentionVisual>();
+                if (effect == null) effect = target.gameObject.AddComponent<WireAttentionVisual>();
+                effect.Configure(hint.definition.attentionStyle);
+                if (!effects.Contains(effect)) effects.Add(effect);
+            }
         }
-        for (int i = wireEffects.Count - 1; i >= 0; i--)
+        foreach (var hand in hands)
         {
-            var effect = wireEffects[i];
-            if (effect == null) { wireEffects.RemoveAt(i); continue; }
-            effect.SetVisible(visibleWires.Contains(effect.transform), view);
+            var eligible = eligibleHints;
+            eligible.Clear();
+            foreach (var hint in hints)
+                if (hint.visible && hint.definition.hand == hand) eligible.Add(hint);
+            int index = 0;
+            if (eligible.Count > 1)
+            {
+                if (!cycleStarts.TryGetValue(hand, out float start)) cycleStarts[hand] = start = Time.unscaledTime;
+                index = Mathf.FloorToInt((Time.unscaledTime - start) / hintCycleSeconds) % eligible.Count;
+            }
+            else cycleStarts.Remove(hand);
+            eligible[index].selected = true;
         }
-        float now = Time.unscaledTime;
-        if (visible) lastWireSeen = now;
-        if (visible && model == null && now >= nextShowAttempt)
+        staleCycles.Clear();
+        foreach (var hand in cycleStarts.Keys)
+            if (!hands.Contains(hand)) staleCycles.Add(hand);
+        foreach (var hand in staleCycles) cycleStarts.Remove(hand);
+        var continuing = continuingHands;
+        continuing.Clear();
+        foreach (var hint in hints)
+            if (!hint.selected && hint.presenter.Model != null && hands.Contains(hint.definition.hand))
+                continuing.Add(hint.definition.hand);
+        // Dispose the outgoing owner before capturing original renderer state.
+        foreach (var hint in hints)
+            if (!hint.selected)
+            {
+                if (hands.Contains(hint.definition.hand)) hint.presenter.Hide();
+                else hint.presenter.Update(false, camera);
+            }
+        foreach (var hint in hints)
+            if (hint.selected) hint.presenter.Update(true, camera, continuing.Contains(hint.definition.hand));
+        for (int i = effects.Count - 1; i >= 0; i--)
         {
-            nextShowAttempt = now + 0.5f;
-            ShowReplacement();
+            var effect = effects[i];
+            if (effect == null) { effects.RemoveAt(i); continue; }
+            effect.SetVisible(attentionTargets.Contains(effect.transform), camera);
         }
-        else if (!visible && model != null && (view == null || now - lastWireSeen >= viewExitDelay))
-            RestoreOriginal();
     }
-
-    private void ShowReplacement()
-    {
-        if (controllerPrefab == null
-            || !controllerPrefab.TryGetComponent<TutorialHandControllerVisual>(out _))
-            return;
-        if (!TutorialLeftControllerTracking.TryGetSceneVisual(out Transform controller, out Transform visual))
-        {
-            Debug.LogWarning("Cannot replace the left controller: its scene visual is unavailable.", this);
-            return;
-        }
-        var instance = Instantiate(controllerPrefab, controller, false);
-        model = instance.GetComponent<TutorialHandControllerVisual>();
-        const float animationSpeed = 1.2f;
-        model.Configure(controller, visual, revealDuration / animationSpeed,
-            1.5f, shrinkDuration / animationSpeed);
-        instance.AddComponent<ControllerGrabPrompt>();
-    }
-
-    private void LateUpdate()
-    {
-        Camera view = model != null ? Camera.main : null;
-        if (view == null || !view.isActiveAndEnabled)
-        {
-            ReleaseGlass();
-            return;
-        }
-        if (blurCamera == view && modelGlass != null) return;
-        ReleaseGlass();
-        blurCamera = view;
-        modelGlass = TutorialGlassBlur.Acquire(view);
-    }
-
-    private void RestoreOriginal()
-    {
-        if (model != null) model.HideAndDestroy();
-        model = null;
-        ReleaseGlass();
-    }
-
-    private void ReleaseGlass()
-    {
-        modelGlass?.Dispose();
-        modelGlass = null;
-        blurCamera = null;
-    }
-
     private void OnDisable()
     {
-        RestoreOriginal();
-        foreach (var effect in wireEffects)
-            if (effect != null) { effect.enabled = false; Destroy(effect); }
-        wireEffects.Clear();
-    }
-
-    private void OnDestroy()
-    {
-        RestoreOriginal();
+        foreach (var hint in hints) hint.presenter.Dispose();
+        hints.Clear();
+        cycleStarts.Clear();
+        foreach (var effect in effects)
+            if (effect != null)
+            {
+                effect.enabled = false;
+                if (Application.isPlaying) Destroy(effect);
+                else DestroyImmediate(effect);
+            }
+        effects.Clear();
     }
 }

@@ -15,6 +15,10 @@ internal sealed class WireViewVisibility
     private readonly Plane[] rightPlanes = new Plane[6];
     private readonly RaycastHit[] hits = new RaycastHit[64];
     private float nextRefresh;
+    private readonly string targetTag;
+    private readonly string targetName;
+    public WireViewVisibility(string targetTag = "Wire", string targetName = null)
+    { this.targetTag = targetTag; this.targetName = targetName; }
 
     public void Invalidate() => nextRefresh = float.NegativeInfinity;
 
@@ -28,7 +32,13 @@ internal sealed class WireViewVisibility
         {
             nextRefresh = Time.unscaledTime + 0.5f;
             targets.Clear();
-            foreach (var wire in GameObject.FindGameObjectsWithTag("Wire"))
+            var roots = new List<GameObject>();
+            if (!string.IsNullOrEmpty(targetTag)) roots.AddRange(GameObject.FindGameObjectsWithTag(targetTag));
+            else if (!string.IsNullOrEmpty(targetName))
+                foreach (var node in Object.FindObjectsByType<Transform>())
+                    if (string.Equals(node.name.Replace(" ", ""), targetName.Replace(" ", ""), System.StringComparison.OrdinalIgnoreCase))
+                        roots.Add(node.gameObject);
+            foreach (var wire in roots)
             {
                 var effect = wire.GetComponent<WireAttentionVisual>();
                 foreach (var renderer in wire.GetComponentsInChildren<Renderer>(true))

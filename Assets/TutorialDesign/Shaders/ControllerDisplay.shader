@@ -22,6 +22,7 @@ Shader "VRGame/TutorialControllerDisplay"
         _BreathPeriod ("Breathing period in seconds", Range(0.1, 10)) = 2.4
         [HideInInspector] _BreathTime ("Unscaled breathing time", Float) = 0
         _WhiteFrostedSurface ("White frosted surface", Range(0, 1)) = 0
+        [HideInInspector] _HintAccentFade ("Hint swap accent fade", Range(0, 1)) = 1
         _UnderlayColor ("Grip frosted underlay tint", Color) = (0.30, 0.425, 0.50, 0.50)
         _UnderlayTintStrength ("Grip underlay tint strength", Range(0, 1)) = 0.82
         _UnderlayBrightness ("Grip underlay brightness", Range(0.5, 2)) = 1.35
@@ -81,6 +82,7 @@ Shader "VRGame/TutorialControllerDisplay"
                 float _BreathPeriod;
                 float _BreathTime;
                 float _WhiteFrostedSurface;
+                float _HintAccentFade;
                 half4 _UnderlayColor;
                 float _UnderlayTintStrength;
                 float _UnderlayBrightness;
@@ -169,9 +171,10 @@ Shader "VRGame/TutorialControllerDisplay"
                 // The grip underlay shares the body's soft white accents.
                 // Composite the breathing coat afterwards, so it reveals these
                 // accents as it fades without changing the base layer's strength.
-                color = lerp(color, half3(1,1,1), saturate(max(rim, boundary)));
                 color += _BaseColor.rgb * _EmissionIntensity * (0.25h + 0.75h * facingLight);
-                color = lerp(color, whiteCoat, _WhiteFrostedSurface * _BaseColor.a * breathingOpacity);
+                color = lerp(color, whiteCoat, _WhiteFrostedSurface * _BaseColor.a * breathingOpacity * _HintAccentFade);
+                half accent = saturate(max(rim, boundary)) * lerp(1.0h, breathingOpacity * _HintAccentFade, _WhiteFrostedSurface);
+                color = lerp(color, half3(1,1,1), accent);
                 // Material-local breathing preserves the model's independent reveal fade.
                 // Equal endpoints leave the controller body unchanged.
                 return half4(color, opacity * lerp(breathingOpacity, 1.0h, _WhiteFrostedSurface) * _UIFade);

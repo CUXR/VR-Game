@@ -19,19 +19,18 @@ public sealed class TutorialControllerInputAnimation : MonoBehaviour
     }
 
     [SerializeField] private BoneMotion[] motions;
-    [SerializeField] private Transform glow;
-    private Camera viewer;
+    [SerializeField] private XRNode hand = XRNode.LeftHand;
+    public void SetHand(XRNode node) => hand = node;
 
-    public void Configure(BoneMotion[] boneMotions, Transform gripGlow)
+    public void Configure(BoneMotion[] boneMotions)
     {
         motions = boneMotions;
-        glow = gripGlow;
     }
 
     private void LateUpdate()
     {
         if (motions == null) return;
-        var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+        var left = InputDevices.GetDeviceAtXRNode(hand);
         left.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 stick);
         left.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool stickClick);
         foreach (var motion in motions)
@@ -56,8 +55,6 @@ public sealed class TutorialControllerInputAnimation : MonoBehaviour
             }
             motion.bone.SetLocalPositionAndRotation(position, rotation);
         }
-        if (viewer == null) viewer = Camera.main;
-        if (glow != null && viewer != null) glow.rotation = viewer.transform.rotation;
     }
 
     private static float Value(InputDevice device, Control control, Vector2 stick)

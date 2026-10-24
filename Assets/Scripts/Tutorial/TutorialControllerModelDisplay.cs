@@ -213,6 +213,7 @@ public sealed class TutorialControllerModelDisplay : MonoBehaviour
             if (renderer == null) continue;
             renderer.GetPropertyBlock(properties);
             properties.SetFloat("_UIFade", alpha);
+            properties.SetFloat("_BreathTime", Time.realtimeSinceStartup);
             renderer.SetPropertyBlock(properties);
         }
     }

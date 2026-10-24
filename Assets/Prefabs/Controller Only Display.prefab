@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4348162395969113747}
   - component: {fileID: 3116129698105327243}
   m_Layer: 0
-  m_Name: Curved Tutorial Panel
+  m_Name: Controller Only Display
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,8 +41,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7868757249307237531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a59a761d5a5147dc8b9517a72151b0d3, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ea352c03a994687939bf6b5c067730a, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CurvedTutorialPanelController
-  useControllerButtonToToggle: 1
-  panelStyle: {fileID: 11400000, guid: 50b509b3e577461ca80ade329ca5d131, type: 2}
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerOnlyDisplay
+  grabHint: {fileID: 11400000, guid: c6f865d2c58b99a42a76a361c5cd3ce7, type: 2}
+  crawlHint: {fileID: 11400000, guid: cd784e722220a234fb90d52f22cb78cd, type: 2}
+  hintCycleSeconds: 4

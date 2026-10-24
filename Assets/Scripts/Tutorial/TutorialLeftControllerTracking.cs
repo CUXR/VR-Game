@@ -5,26 +5,39 @@ using UnityEngine.XR;
 public static class TutorialLeftControllerTracking
 {
     public static bool TryGetSceneVisual(out Transform controller, out Transform originalVisual)
+        => TryGetSceneVisual(XRNode.LeftHand, out controller, out originalVisual);
+
+    public static bool TryGetSceneVisual(XRNode hand, out Transform controller, out Transform originalVisual)
     {
         controller = null;
         originalVisual = null;
         var camera = Camera.main;
         var origin = camera != null ? camera.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>() : null;
-        if (origin != null && TryGetSceneVisual(origin, out controller, out originalVisual)) return true;
+        if (origin != null && TryGetSceneVisual(origin, hand, out controller, out originalVisual)) return true;
         foreach (var candidate in Object.FindObjectsByType<Unity.XR.CoreUtils.XROrigin>())
         {
             if (candidate == origin || !candidate.isActiveAndEnabled) continue;
-            if (TryGetSceneVisual(candidate, out controller, out originalVisual)) return true;
+            if (TryGetSceneVisual(candidate, hand, out controller, out originalVisual)) return true;
         }
         return false;
     }
 
-    private static bool TryGetSceneVisual(Unity.XR.CoreUtils.XROrigin origin,
+    private static bool TryGetSceneVisual(Unity.XR.CoreUtils.XROrigin origin, XRNode hand,
         out Transform controller, out Transform originalVisual)
     {
+        string side = hand == XRNode.RightHand ? "Right" : "Left";
         controller = origin.CameraFloorOffsetObject != null
-            ? origin.CameraFloorOffsetObject.transform.Find("Left Controller") : null;
-        originalVisual = controller != null ? controller.Find("Left Controller Visual") : null;
+            ? origin.CameraFloorOffsetObject.transform.Find(side + " Controller") : null;
+        originalVisual = controller != null ? controller.Find(side + " Controller Visual") : null;
+        // Walking collision rigs keep the visible model outside the tracked
+        // controller so that walls can stop it without stopping device tracking.
+        if (controller != null && originalVisual == null)
+            foreach (var child in origin.GetComponentsInChildren<Transform>(true))
+                if (child.name == side + " Controller Visual")
+                {
+                    originalVisual = child;
+                    break;
+                }
         return controller != null && controller.gameObject.activeInHierarchy && originalVisual != null;
     }
 

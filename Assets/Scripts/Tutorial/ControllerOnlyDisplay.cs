@@ -108,7 +108,14 @@ public sealed class ControllerOnlyDisplay : MonoBehaviour
                 else hint.presenter.Update(false, camera);
             }
         foreach (var hint in hints)
-            if (hint.selected) hint.presenter.Update(true, camera, continuing.Contains(hint.definition.hand));
+            if (hint.selected)
+            {
+                hint.presenter.Update(true, camera, continuing.Contains(hint.definition.hand));
+                if (hint.presenter.Model != null && hint.definition.animateTarget)
+                    foreach (var target in hint.targets)
+                        if (target != null && target.TryGetComponent<WireAttentionVisual>(out var effect))
+                            effect.SynchronizeBreathing(hint.presenter.Model.BreathStartedAt);
+            }
         for (int i = effects.Count - 1; i >= 0; i--)
         {
             var effect = effects[i];

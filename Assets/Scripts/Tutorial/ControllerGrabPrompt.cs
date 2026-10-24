@@ -40,7 +40,7 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
     private bool pendingFailure;
     private float baseLabelScale;
     private string targetTag;
-    private string completionText = "Well Done!";
+    private string completionText = "WELL DONE! You've got it!";
     public bool IsCrawlPrompt => actionText == "CRAWL";
     private readonly List<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor> grabInteractors = new List<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
     public void Complete() { completedAt = Time.unscaledTime; attemptFrame = -1; textSwapAt = restoreAt = -1f; }
@@ -57,7 +57,7 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         targetTag = definition.targetTag;
         completionText = IsCrawlPrompt
             ? "SWING <font=\"Inter-ExtraLight SDF\">Your Arms to </font>MOVE"
-            : "<font=\"Inter-ExtraLight SDF\">Well Done!</font>";
+            : "WELL DONE! <font=\"Inter-ExtraLight SDF\">You've got it!</font>";
     }
 
     private void Start()
@@ -89,7 +89,7 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         modelHeight = MeasureModelHeight();
         label = new GameObject("PRESS To GRAB — Headset Facing").transform;
         label.SetParent(transform, false);
-        prefix = CreateText(prefixText, light);
+        prefix = CreateText(FormatPrefix(prefixText), light);
         action = CreateText(actionText, medium);
         // Use the shaped trailing space advance so the two font weights share one line.
         action.transform.localPosition = Vector3.right
@@ -105,6 +105,10 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
         inkCenter = new Vector3(ink.min.x, ink.center.y, 0f);
         label.gameObject.SetActive(false);
     }
+
+    // Tutorial typography: uppercase words use Medium; sentence-case words use ExtraLight.
+    private static string FormatPrefix(string text) => System.Text.RegularExpressions.Regex.Replace(
+        text, @"\b[A-Z]+\b", match => "<font=\"Inter-Medium SDF\">" + match.Value + "</font>");
 
     private TextMeshPro CreateText(string content, TMP_FontAsset font)
     {
@@ -171,7 +175,7 @@ public sealed class ControllerGrabPrompt : MonoBehaviour
     private void SetFailureText(bool failure)
     {
         showingFailure = failure;
-        prefix.text = failure ? "" : prefixText;
+        prefix.text = failure ? "" : FormatPrefix(prefixText);
         action.text = failure
             ? "<font=\"Inter-ExtraLight SDF\">Move </font>CLOSER<font=\"Inter-ExtraLight SDF\"> to the Object</font>" : actionText;
         prefix.ForceMeshUpdate();

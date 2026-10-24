@@ -26,6 +26,11 @@ public sealed class WireAttentionVisual : MonoBehaviour
     private Light topLight;
     private Light fillLight;
     private float lightWeight;
+    private GameObject glowSphere;
+    private Material glowMaterial;
+    private Color glowTint = Color.white;
+    private float breathStartedAt;
+    public void SynchronizeBreathing(float startedAt) => breathStartedAt = startedAt;
     private Vector3 pivot;
     private Vector3 approach;
     private bool requested;
@@ -74,8 +79,27 @@ public sealed class WireAttentionVisual : MonoBehaviour
             surfaces.Add(new Surface { source = source, proxy = proxy, wasHidden = source.forceRenderingOff });
         }
         pivot = transform.InverseTransformPoint(bounds.center);
+        glowTint = FindGlowTint();
         basis.localPosition = -pivot;
         visualRoot.gameObject.SetActive(false);
+        var glowShader = Resources.Load<Shader>("TutorialDesign/WireSphereGlow");
+        if (glowShader != null)
+        {
+            glowSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            glowSphere.name = "Wire — Spherical Soft Glow";
+            glowSphere.layer = gameObject.layer;
+            var collider = glowSphere.GetComponent<Collider>();
+            collider.enabled = false;
+            ReleaseObject(collider);
+            var glowRenderer = glowSphere.GetComponent<MeshRenderer>();
+            glowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            glowRenderer.receiveShadows = false;
+            glowRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+            glowRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            glowMaterial = new Material(glowShader);
+            glowRenderer.sharedMaterial = glowMaterial;
+            glowSphere.SetActive(false);
+        }
         if (lightLayer != 0)
         {
             // Independent world transforms preserve the lighting direction as
@@ -160,7 +184,6 @@ public sealed class WireAttentionVisual : MonoBehaviour
 
     private void UpdateTopLight()
     {
-        if (topLight == null) return;
         lightWeight = Mathf.MoveTowards(lightWeight, requested || IsHeld ? 1f : 0f, Time.unscaledDeltaTime / 0.3f);
         bool found = false;
         Bounds bounds = default;
@@ -171,6 +194,21 @@ public sealed class WireAttentionVisual : MonoBehaviour
             if (!found) { bounds = renderer.bounds; found = true; }
             else bounds.Encapsulate(renderer.bounds);
         }
+        float breath = 0.5f - 0.5f * Mathf.Cos((Time.unscaledTime - breathStartedAt) * Mathf.PI * 2f / 2.4f);
+        if (glowSphere != null)
+        {
+            glowSphere.SetActive(found && lightWeight > 0f);
+            if (glowSphere.activeSelf)
+            {
+                glowSphere.transform.SetPositionAndRotation(bounds.center, Quaternion.identity);
+                float radius = Mathf.Max(0.08f, bounds.extents.magnitude * 1.45f);
+                glowSphere.transform.localScale = Vector3.one * radius * 2f;
+                Color tint = glowTint;
+                tint.a = lightWeight * Mathf.Lerp(0.012f, 0.085f, breath);
+                glowMaterial.SetColor("_GlowColor", tint);
+            }
+        }
+        if (topLight == null) return;
         topLight.enabled = found && lightWeight > 0f;
         fillLight.enabled = topLight.enabled;
         if (!topLight.enabled) return;
@@ -179,7 +217,6 @@ public sealed class WireAttentionVisual : MonoBehaviour
         topLight.transform.SetPositionAndRotation(bounds.center + direction * distance, Quaternion.identity);
         fillLight.transform.SetPositionAndRotation(bounds.center - direction * distance, Quaternion.identity);
         topLight.range = fillLight.range = distance * 3f;
-        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * Mathf.PI * 2f / 2.4f);
         // Compensate for inverse-square attenuation when wire dimensions differ.
         float strength = distance * distance * lightWeight * Mathf.Lerp(0.85f, 1f, breath);
         topLight.intensity = 0.45f * strength;
@@ -199,7 +236,7 @@ public sealed class WireAttentionVisual : MonoBehaviour
         }
         // Quintic ease has zero speed and acceleration at both endpoints.
         float eased = weight * weight * weight * (weight * (weight * 6f - 15f) + 10f);
-        float breath = 0.5f - 0.5f * Mathf.Cos(Time.realtimeSinceStartup * Mathf.PI * 2f / 2.4f);
+        float breath = 0.5f - 0.5f * Mathf.Cos((Time.unscaledTime - breathStartedAt) * Mathf.PI * 2f / 2.4f);
         float scale = 1f + ((settings != null ? settings.scale - 1f : 0.2f)
             + (settings != null ? settings.scaleBreath : 0.04f) * breath) * eased;
         Vector3 offset = approach * eased
@@ -254,6 +291,29 @@ public sealed class WireAttentionVisual : MonoBehaviour
         }
     }
 
+    private Color FindGlowTint()
+    {
+        // Prefer the colored coil over neutral connector materials. Use authored
+        // surface color rather than a name-to-color table so prefab variants work.
+        Color selected = Color.white;
+        float bestSaturation = 0.08f;
+        foreach (var surface in surfaces)
+        foreach (var material in surface.source.sharedMaterials)
+        {
+            if (material == null) continue;
+            string property = material.HasProperty("_BaseColor") ? "_BaseColor"
+                : material.HasProperty("_Color") ? "_Color" : null;
+            if (property == null) continue;
+            Color color = material.GetColor(property);
+            Color.RGBToHSV(color, out float hue, out float saturation, out float value);
+            if (value < 0.05f || saturation <= bestSaturation) continue;
+            bestSaturation = saturation;
+            selected = Color.HSVToRGB(hue, saturation, 1f);
+        }
+        // Keep hue visible; a small white mix gives a pale luminous tint.
+        return Color.Lerp(selected, Color.white, 0.28f);
+    }
+
     private void Restore()
     {
         requested = false;
@@ -277,6 +337,7 @@ public sealed class WireAttentionVisual : MonoBehaviour
         lightWeight = 0f;
         if (topLight != null) topLight.enabled = false;
         if (fillLight != null) fillLight.enabled = false;
+        if (glowSphere != null) glowSphere.SetActive(false);
     }
     private void OnDestroy()
     {
@@ -286,6 +347,8 @@ public sealed class WireAttentionVisual : MonoBehaviour
         allocatedLightLayers &= ~lightLayer;
         if (topLight != null) ReleaseObject(topLight.gameObject);
         if (fillLight != null) ReleaseObject(fillLight.gameObject);
+        if (glowSphere != null) ReleaseObject(glowSphere);
+        if (glowMaterial != null) ReleaseObject(glowMaterial);
 
         foreach (var surface in surfaces) ReleaseMaterials(surface);
         if (visualRoot != null) ReleaseObject(visualRoot.gameObject);

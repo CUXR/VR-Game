@@ -12,7 +12,12 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     [SerializeField, Min(0.01f)] private float breathHapticDuration = 0.08f;
     private XRNode hapticHand;
     private Material breathMaterial;
-    private float hapticPulsePhase;
+    public float BreathStartedAt { get; private set; }
+    private int lastHapticCycle = -1;
+    private int lastHapticSlot = int.MinValue;
+    private bool appearanceHapticSent;
+    private bool secondAppearanceHapticSent;
+    private float appearanceHapticAt;
     private Renderer[] renderers;
     private Material[][] rendererMaterials;
     private Material bodyMaterial;
@@ -51,6 +56,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
     }
     public void ContinueHandReveal()
     {
+        ResetBreathing();
         opacity = 1f;
         revealScale = 1f;
         shrinking = false;
@@ -67,7 +73,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         float initialScale = 1f, float settleDuration = 1.25f, XRNode hand = XRNode.LeftHand)
     {
         hapticHand = hand;
-        hapticPulsePhase = 0f;
+        ResetBreathing();
         fadeDuration = Mathf.Max(0.01f, duration);
         revealScale = Mathf.Max(1f, initialScale);
         shrinkDuration = Mathf.Max(0.1f, settleDuration);
@@ -116,7 +122,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
 
     private void OnDisable()
     {
-        hapticPulsePhase = 0f;
+        ResetBreathing();
         Application.onBeforeRender -= UpdateVisibility;
         if (renderers != null)
             foreach (var renderer in renderers)
@@ -135,6 +141,24 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
         UpdateVisibility();
         if (tracked) opacity = Mathf.MoveTowards(opacity, 1f, Time.unscaledDeltaTime / fadeDuration);
         ApplyOpacity(RevealOpacity);
+        // A distinct, short appearance cue responds as soon as the controller
+        // becomes visible. It does not restart or shift the breathing clock.
+        if (completedAt < 0f && !appearanceHapticSent && tracked && Application.isFocused
+            && RevealOpacity >= 0.05f)
+        {
+            appearanceHapticSent = true;
+            appearanceHapticAt = Time.unscaledTime;
+            HapticsUtility.SendHapticImpulse(0.16f, 0.035f,
+                hapticHand == XRNode.RightHand ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
+        }
+        if (completedAt < 0f && appearanceHapticSent && !secondAppearanceHapticSent
+            && Time.unscaledTime - appearanceHapticAt >= 0.075f)
+        {
+            secondAppearanceHapticSent = true;
+            if (tracked && Application.isFocused && Time.unscaledTime - appearanceHapticAt < 0.15f)
+                HapticsUtility.SendHapticImpulse(0.16f, 0.035f,
+                    hapticHand == XRNode.RightHand ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
+        }
         if (completedAt < 0f) UpdateBreathHaptics();
         else
         {
@@ -156,36 +180,74 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
 
     private void UpdateBreathHaptics()
     {
-        if (!tracked || !Application.isFocused || RevealOpacity < 0.1f || breathMaterial == null)
+        if (!tracked || !Application.isFocused || RevealOpacity < 0.05f || breathMaterial == null)
         {
-            hapticPulsePhase = 0f;
             return;
         }
-        // Share the visual clock across hands and hint replacements so switching
-        // tutorials cannot restart the strong/soft alternation.
+        // Separate the brisk opening double tap from the breathing rhythm,
+        // without shifting the shared visual/haptic phase.
+        if (!appearanceHapticSent || Time.unscaledTime - appearanceHapticAt < 0.40f) return;
+        // Each presentation starts its own shared visual/haptic clock.
         const float period = 2.4f;
-        float pairedPhase = Mathf.Repeat(Time.realtimeSinceStartup / period, 2f);
-        bool softCycle = pairedPhase >= 1f;
-        float phase = Mathf.Repeat(pairedPhase, 1f);
+        float cycleTime = (Time.unscaledTime - BreathStartedAt) / period;
+        int cycle = Mathf.FloorToInt(cycleTime);
+        bool softCycle = (cycle & 1) != 0;
+        float phase = cycleTime - cycle;
         // Match the envelope peak to the white coat's cosine maximum (phase 0.5).
-        // Advance only the boundaries by 12 ms, preserving both total lengths.
+        // Start slightly early and extend both releases to shorten the quiet gap.
         // The softer cycle releases sooner, leaving more quiet time.
-        const float advance = 0.012f / period;
-        const float start = 0.275f - advance, peak = 0.5f;
-        float end = (softCycle ? 0.66f : 0.805f) - advance;
+        const float onsetLead = 0.024f / period;
+        const float releaseExtension = 0.102f / period;
+        const float start = 0.275f - onsetLead, peak = 0.5f;
+        float end = (softCycle ? 0.735f : 0.805f) + releaseExtension;
         float amplitudeScale = softCycle ? 0.8f : 1f;
-        if (phase < start || phase > end) { hapticPulsePhase = 1f; return; }
+        if (phase < start) return;
+        if (phase > end)
+        {
+            // Both cycles close at the same absolute phase. The soft cycle has
+            // an earlier, lighter beat with the same crisp duration.
+            // Drop missed dispatch windows instead of replaying a burst.
+            float softEndTime = 0.735f * period + 0.102f;
+            float firstBeatTime = softEndTime + 0.10f;
+            float finalBeatTime = softEndTime + 0.42f;
+            float timeInCycle = phase * period;
+            int closingBeat = softCycle && timeInCycle >= firstBeatTime && timeInCycle < firstBeatTime + 0.06f ? 100
+                : timeInCycle >= finalBeatTime && timeInCycle < finalBeatTime + 0.06f ? 101 : -1;
+            if (closingBeat < 0 || (lastHapticCycle == cycle && lastHapticSlot == closingBeat)) return;
+            lastHapticCycle = cycle;
+            lastHapticSlot = closingBeat;
+            HapticsUtility.SendHapticImpulse(
+                breathHapticAmplitude * (softCycle ? (closingBeat == 100 ? 0.55f : 0.65f) : 0.85f) * RevealOpacity,
+                0.10f, hapticHand == XRNode.RightHand
+                    ? HapticsUtility.Controller.Right : HapticsUtility.Controller.Left);
+            return;
+        }
         float strength = phase < peak
             ? Mathf.SmoothStep(0f, 1f, (phase - start) / (peak - start))
             : 1f - Mathf.SmoothStep(0f, 1f, (phase - peak) / (end - peak));
-        float pulseRate = Mathf.Lerp(breathHapticMinPulseRate, breathHapticMaxPulseRate, strength);
-        // Release all the way to silence rather than ending at the onset floor.
-        float amplitudeFloor = phase < peak ? breathHapticMinAmplitude : 0f;
-        // Integrate the changing rate rather than rescheduling a fixed timer.
-        // Drop missed pulses after a stall so they never arrive in a burst.
-        hapticPulsePhase += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * Mathf.Max(0.1f, pulseRate);
-        if (hapticPulsePhase < 1f) return;
-        hapticPulsePhase %= 1f;
+        // Let the soft cycle's longer release become progressively more sparse.
+        // This changes pulse spacing, not the controller motor's carrier frequency.
+        float minPulseRate = softCycle && phase >= peak
+            ? breathHapticMinPulseRate * 0.5f : breathHapticMinPulseRate;
+        float pulseRate = Mathf.Lerp(minPulseRate, breathHapticMaxPulseRate, strength);
+        // Keep the final pulses perceptible so the transition to rest is clear.
+        float amplitudeFloor = phase < peak ? breathHapticMinAmplitude : (softCycle ? 0.12f : 0.08f);
+        // Analytic integral of the rate curve, anchored at the brightness peak.
+        // Integer crossings schedule pulses independently of frame accumulation;
+        // slot zero is always the visual maximum. Drop missed slots after stalls.
+        bool rising = phase < peak;
+        float span = rising ? peak - start : end - peak;
+        float u = Mathf.Clamp01((phase - (rising ? start : peak)) / span);
+        float integral = u * u * u - 0.5f * u * u * u * u;
+        float pulsePosition = rising
+            ? period * span * (breathHapticMinPulseRate * (u - 1f)
+                + (breathHapticMaxPulseRate - breathHapticMinPulseRate) * (integral - 0.5f))
+            : period * span * (breathHapticMaxPulseRate * u
+                - (breathHapticMaxPulseRate - minPulseRate) * integral);
+        int slot = Mathf.FloorToInt(pulsePosition);
+        if (lastHapticCycle == cycle && lastHapticSlot == slot) return;
+        lastHapticCycle = cycle;
+        lastHapticSlot = slot;
         HapticsUtility.SendHapticImpulse(
             Mathf.Lerp(amplitudeFloor, breathHapticAmplitude, strength) * amplitudeScale * RevealOpacity,
             Mathf.Min(breathHapticDuration, 0.7f / Mathf.Max(0.1f, pulseRate)),
@@ -204,6 +266,14 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             && transform.parent.gameObject.activeInHierarchy;
         foreach (var renderer in renderers)
             if (renderer != null) renderer.enabled = tracked;
+    }
+
+    private void ResetBreathing()
+    {
+        BreathStartedAt = Time.unscaledTime;
+        lastHapticCycle = -1;
+        lastHapticSlot = int.MinValue;
+        appearanceHapticSent = secondAppearanceHapticSent = false;
     }
 
     private void ResetReveal()
@@ -239,7 +309,7 @@ public sealed class TutorialHandControllerVisual : MonoBehaviour
             if (renderer == null) continue;
             renderer.GetPropertyBlock(properties);
             properties.SetFloat("_UIFade", alpha);
-            properties.SetFloat("_BreathTime", Time.realtimeSinceStartup);
+            properties.SetFloat("_BreathTime", Time.unscaledTime - BreathStartedAt);
             properties.SetFloat("_CompletionFrost", CompletionBlend);
             if (bodyMaterial != null)
             {

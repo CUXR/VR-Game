@@ -22,7 +22,7 @@ public static class InterTutorialFontImporter
         var existing = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(destination);
         if (existing != null)
         {
-            const string characters = "PRESS Y To GRAB CRAWLWell Done!Move CLOSER to the ObjectNow SWING Your Arms to MOVE";
+            const string characters = "PRESS Y To GRAB CRAWLWELL DONE! You've got it!Move CLOSER to the ObjectNow SWING Your Arms to MOVE";
             if (!existing.HasCharacters(characters))
             {
                 try
@@ -54,7 +54,7 @@ public static class InterTutorialFontImporter
         var asset = TMP_FontAsset.CreateFontAsset(font, 90, 9, GlyphRenderMode.SDFAA,
             512, 512, AtlasPopulationMode.Dynamic);
         asset.name = name + " SDF";
-        if (!asset.TryAddCharacters("PRESS Y To GRAB CRAWLWell Done!Move Closer to the ObjectNow SWING Your Arms to MOVE", out string missing))
+        if (!asset.TryAddCharacters("PRESS Y To GRAB CRAWLWELL DONE! You've got it!Move Closer to the ObjectNow SWING Your Arms to MOVE", out string missing))
             throw new System.InvalidOperationException("Missing prompt glyphs: " + missing);
         asset.atlasPopulationMode = AtlasPopulationMode.Static;
         asset.material.shader = AssetDatabase.LoadAssetAtPath<Shader>(

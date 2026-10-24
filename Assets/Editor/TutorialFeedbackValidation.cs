@@ -9,7 +9,7 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class TutorialFeedbackValidation
 {
-    private const string Key = "TutorialFeedbackValidation.v6";
+    private const string Key = "TutorialFeedbackValidation.v9";
     static TutorialFeedbackValidation() => EditorApplication.update += Check;
     private static void Check()
     {
@@ -30,10 +30,11 @@ public static class TutorialFeedbackValidation
             foreach (string name in new[] { "Inter-ExtraLight", "Inter-Medium" })
             {
                 var font = Resources.Load<TMP_FontAsset>("TutorialDesign/" + name + " SDF");
-                if (font == null || !font.HasCharacters("Well Done!Move Closer to the ObjectNow SWING Your Arms to MOVE")) throw new Exception(name + " is missing feedback glyphs");
+                if (font == null || !font.HasCharacters("WELL DONE! You've got it!Move Closer to the ObjectNow SWING Your Arms to MOVE")) throw new Exception(name + " is missing feedback glyphs");
             }
             foreach (string path in new[] {
-                "Assets/TutorialDesign/Shaders/ControllerDisplay.shader" })
+                "Assets/TutorialDesign/Shaders/ControllerDisplay.shader",
+                "Assets/Resources/TutorialDesign/WireSphereGlow.shader" })
             {
                 var shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
                 if (shader == null || ShaderUtil.ShaderHasError(shader)) throw new Exception("Shader validation failed: " + path);

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c465ba34d05d43f59389829d432000a0, type: 3}
+  m_Name: Crawl Hint
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerHintDefinition
+  hand: 4
+  controllerPrefab: {fileID: 6124033658315865740, guid: cb492184ae97d8d40bc9bdf8cb8f311e, type: 3}
+  anchorBone: b_button_y
+  prefix: 'PRESS Y To '
+  action: CRAWL
+  targetTag:
+  targetName: Incinerator Vent
+  distance: 2.5
+  animateTarget: 0
+  attentionStyle: {fileID: 11400000, guid: 4a508852afd866441abde108f019a6da, type: 2}
+  normalTextOffset: {x: -0.23, y: 0}
+  rightTextOffset: 0.6
+  forwardTextOffset: 0.04
+  revealDuration: 0.65
+  shrinkDuration: 1.25
+  exitDelay: 0.2

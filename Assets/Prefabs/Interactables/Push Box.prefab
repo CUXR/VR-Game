@@ -480,7 +480,7 @@ Rigidbody:
   m_GameObject: {fileID: 8636230450222540552}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 1.5
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -529,6 +529,7 @@ MonoBehaviour:
   pushForce: 5
   outline: {fileID: 1799210021522492614}
   tutorialText: 
+  sound: {fileID: 0}
 --- !u!114 &1799210021522492614
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -77,7 +77,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
     void OnTriggerEnter(Collider other)
     {
         //Debug.Log("OnTriggerEnter");
-        if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire"))
+        if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire") || other.GetComponent<HandContact>() != null)
         {
             pressed = true;
             Press();
@@ -87,7 +87,7 @@ public class ButtonTrigger  : MonoBehaviour, InteractableInterface
     void OnTriggerExit(Collider other)
     {
         //Debug.Log("OnTriggerExit");
-        if (other.CompareTag("Player") || other.CompareTag("Holdable"))
+        if (other.CompareTag("Player") || other.CompareTag("Holdable") || other.GetComponent<HandContact>() != null)
         {
             Release();
             pressed = false;

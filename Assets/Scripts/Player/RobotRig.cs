@@ -1,6 +1,7 @@
 namespace RobotLocomotion
 {
     using UnityEngine;
+    using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
     [RequireComponent(typeof(Rigidbody))]
     [DisallowMultipleComponent]
@@ -19,6 +20,9 @@ namespace RobotLocomotion
         [SerializeField] private Transform rightHandFollower;
         [SerializeField] private Vector3 leftHandOffset;
         [SerializeField] private Vector3 rightHandOffset;
+        [Tooltip("While this hand's interactor is holding something, the hand doesn't crawl.")]
+        [SerializeField] private XRBaseInteractor leftHandInteractor;
+        [SerializeField] private XRBaseInteractor rightHandInteractor;
 
         [Header("Reach")]
         [SerializeField, Min(0.1f)] private float maxArmLength = 1.5f;
@@ -33,18 +37,18 @@ namespace RobotLocomotion
 
         [Header("Weight")]
         [SerializeField, Range(0.05f, 1f)] private float pullEfficiency = 0.75f;
-        [SerializeField, Min(0.1f)] private float movementGain = 1.5f;
+        [SerializeField, Min(0.1f)] private float movementGain = 2.1f;
         [SerializeField, Range(0.05f, 1f)] private float climbEfficiency = 0.45f;
-        [SerializeField, Min(0.1f)] private float maxCrawlSpeed = 1.6f;
+        [SerializeField, Min(0.1f)] private float maxCrawlSpeed = 4.5f;
         [SerializeField, Min(0f)] private float extraGravity = 12f;
 
         [Header("Friction")]
         [SerializeField, Min(0f)] private float kineticFriction = 0.35f;
         [SerializeField, Min(0f)] private float dragCoefficient = 0.55f;
-        [SerializeField, Range(0f, 1f)] private float glideRetention = 0.3f;
+        [SerializeField, Range(0f, 1f)] private float glideRetention = 0.8f;
         [Tooltip("Seconds over which the drag velocity is averaged for the release glide. 0 = last frame only.")]
         [SerializeField, Min(0f)] private float releaseVelocitySmoothing = 0.06f;
-        [SerializeField, Min(0f)] private float groundFriction = 4f;
+        [SerializeField, Min(0f)] private float groundFriction = 3f;
         [SerializeField, Min(0.01f)] private float groundCheckDistance = 0.3f;
 
         public bool disableMovement;
@@ -60,6 +64,11 @@ namespace RobotLocomotion
         private bool wasRightHandGripping;
         private bool wasGripping;
         private Vector3 dragVelocity;
+        private Vector3 glideVelocity;
+        private Rigidbody groundBody;
+        private Rigidbody leftGripBody;
+        private Rigidbody rightGripBody;
+        private readonly Collider[] overlapBuffer = new Collider[8];
 
         private void Awake()
         {
@@ -138,16 +147,23 @@ namespace RobotLocomotion
             wasRightHandGripping = false;
             wasGripping = false;
             dragVelocity = Vector3.zero;
+            glideVelocity = Vector3.zero;
+            groundBody = null;
+            leftGripBody = null;
+            rightGripBody = null;
         }
 
         private void FixedUpdate()
         {
+            // Checked even while gripping so groundBody stays current for IsStandingOn.
+            bool grounded = IsGrounded();
+
             if (wasLeftHandGripping || wasRightHandGripping)
             {
                 return;
             }
 
-            if (IsGrounded())
+            if (grounded)
             {
                 Vector3 velocity = rb.linearVelocity;
                 Vector3 horizontal = new Vector3(velocity.x, 0f, velocity.z);
@@ -168,6 +184,7 @@ namespace RobotLocomotion
 
         private bool IsGrounded()
         {
+            groundBody = null;
             Vector3 origin = bodyCollider.transform.TransformPoint(bodyCollider.center);
 
             if (!Physics.SphereCast(origin, bodyCollider.radius * 0.9f, Vector3.down, out RaycastHit hitInfo,
@@ -177,7 +194,37 @@ namespace RobotLocomotion
                 return false;
             }
 
-            return IsGrippable(hitInfo.normal);
+            if (!IsGrippable(hitInfo.normal))
+            {
+                return false;
+            }
+
+            groundBody = hitInfo.rigidbody;
+            return true;
+        }
+
+        // True while the player stands on, or crawls by gripping, the given rigidbody.
+        public bool IsStandingOn(Rigidbody body)
+        {
+            return body != null && (body == groundBody || body == leftGripBody || body == rightGripBody);
+        }
+
+        private Rigidbody BodyUnderHand(Vector3 handPosition)
+        {
+            int count = Physics.OverlapSphereNonAlloc(handPosition, minimumRaycastDistance * 2f, overlapBuffer,
+                locomotionEnabledLayers, QueryTriggerInteraction.Ignore);
+
+            for (int i = 0; i < count; i++)
+            {
+                Rigidbody body = overlapBuffer[i].attachedRigidbody;
+
+                if (body != null && body != rb)
+                {
+                    return body;
+                }
+            }
+
+            return null;
         }
 
         private void Update()
@@ -195,12 +242,18 @@ namespace RobotLocomotion
 
             bodyCollider.transform.eulerAngles = new Vector3(0f, headCollider.transform.eulerAngles.y, 0f);
 
+            // Runs before the hand and head casts below, so the glide gets the same head collision handling.
+            ApplyGlide(deltaTime);
+
+            bool leftHandFree = !IsHolding(leftHandInteractor);
+            bool rightHandFree = !IsHolding(rightHandInteractor);
+
             Vector3 handGravityStep = Physics.gravity * (2f * deltaTime * deltaTime);
 
             Vector3 currentLeftHand = CurrentLeftHandPosition();
             Vector3 distanceTraveled = currentLeftHand - lastLeftHandPosition + handGravityStep;
 
-            if (IterativeCollisionSphereCast(lastLeftHandPosition, minimumRaycastDistance, distanceTraveled,
+            if (leftHandFree && IterativeCollisionSphereCast(lastLeftHandPosition, minimumRaycastDistance, distanceTraveled,
                     defaultPrecision, out Vector3 finalPosition, out Vector3 surfaceNormal, true))
             {
                 leftHandTouching = true;
@@ -216,7 +269,7 @@ namespace RobotLocomotion
             Vector3 currentRightHand = CurrentRightHandPosition();
             distanceTraveled = currentRightHand - lastRightHandPosition + handGravityStep;
 
-            if (IterativeCollisionSphereCast(lastRightHandPosition, minimumRaycastDistance, distanceTraveled,
+            if (rightHandFree && IterativeCollisionSphereCast(lastRightHandPosition, minimumRaycastDistance, distanceTraveled,
                     defaultPrecision, out finalPosition, out surfaceNormal, true))
             {
                 rightHandTouching = true;
@@ -265,7 +318,7 @@ namespace RobotLocomotion
             currentLeftHand = CurrentLeftHandPosition();
             distanceTraveled = currentLeftHand - lastLeftHandPosition;
 
-            if (IterativeCollisionSphereCast(lastLeftHandPosition, minimumRaycastDistance, distanceTraveled,
+            if (leftHandFree && IterativeCollisionSphereCast(lastLeftHandPosition, minimumRaycastDistance, distanceTraveled,
                     defaultPrecision, out finalPosition, out surfaceNormal, !twoHanded))
             {
                 lastLeftHandPosition = finalPosition;
@@ -280,7 +333,7 @@ namespace RobotLocomotion
             currentRightHand = CurrentRightHandPosition();
             distanceTraveled = currentRightHand - lastRightHandPosition;
 
-            if (IterativeCollisionSphereCast(lastRightHandPosition, minimumRaycastDistance, distanceTraveled,
+            if (rightHandFree && IterativeCollisionSphereCast(lastRightHandPosition, minimumRaycastDistance, distanceTraveled,
                     defaultPrecision, out finalPosition, out surfaceNormal, !twoHanded))
             {
                 lastRightHandPosition = finalPosition;
@@ -309,14 +362,18 @@ namespace RobotLocomotion
             leftHandFollower.position = lastLeftHandPosition;
             rightHandFollower.position = lastRightHandPosition;
 
+            leftGripBody = leftHandGripping ? BodyUnderHand(lastLeftHandPosition) : null;
+            rightGripBody = rightHandGripping ? BodyUnderHand(lastRightHandPosition) : null;
+
             bool grippingNow = leftHandGripping || rightHandGripping;
 
-            if (wasGripping && !grippingNow)
+            if (grippingNow)
             {
-                rb.linearVelocity = new Vector3(
-                    dragVelocity.x * glideRetention,
-                    rb.linearVelocity.y,
-                    dragVelocity.z * glideRetention);
+                glideVelocity = Vector3.zero;
+            }
+            else if (wasGripping)
+            {
+                glideVelocity = new Vector3(dragVelocity.x, 0f, dragVelocity.z) * glideRetention;
             }
 
             wasGripping = grippingNow;
@@ -325,6 +382,48 @@ namespace RobotLocomotion
             wasRightHandTouching = rightHandTouching;
             wasLeftHandGripping = leftHandGripping;
             wasRightHandGripping = rightHandGripping;
+        }
+
+        // The release glide moves the rig every rendered frame rather than through rb velocity,
+        // which only advances at the fixed timestep and judders against the headset's refresh rate.
+        private void ApplyGlide(float deltaTime)
+        {
+            if (glideVelocity == Vector3.zero || disableMovement)
+            {
+                return;
+            }
+
+            if (IsGrounded())
+            {
+                float speed = glideVelocity.magnitude;
+                float decayed = speed - groundFriction * deltaTime;
+
+                if (decayed <= 0.01f)
+                {
+                    glideVelocity = Vector3.zero;
+                    return;
+                }
+
+                glideVelocity *= decayed / speed;
+            }
+
+            Vector3 step = glideVelocity * deltaTime;
+
+            // Floors and ramps under the body are ignored; walls stop the glide and slide it along them.
+            if (rb.SweepTest(step.normalized, out RaycastHit hit, step.magnitude, QueryTriggerInteraction.Ignore) &&
+                !IsGrippable(hit.normal))
+            {
+                step = step.normalized * Mathf.Max(0f, hit.distance - minimumRaycastDistance * 0.1f);
+                glideVelocity = Vector3.ProjectOnPlane(glideVelocity, hit.normal);
+                glideVelocity.y = 0f;
+            }
+
+            transform.position += step;
+        }
+
+        private static bool IsHolding(XRBaseInteractor interactor)
+        {
+            return interactor != null && interactor.isActiveAndEnabled && interactor.hasSelection;
         }
 
         private Vector3 ApplyWeight(Vector3 movement, float deltaTime)

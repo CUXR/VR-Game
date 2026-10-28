@@ -6,6 +6,8 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
     private Vector3 targetPos;
     private Transform holdPosition;
     private bool holding;
+    [UnityEngine.Scripting.Preserve]
+    public bool IsHeld => holding;
     private bool objectPressed;
     private Vector3 size;
     private float rangeTimer = 0f;

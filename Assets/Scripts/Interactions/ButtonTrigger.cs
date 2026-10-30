@@ -82,7 +82,9 @@ public class ButtonTrigger : MonoBehaviour, InteractableInterface
 
     private bool CanPress(Collider other)
     {
-        return other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire") || other.CompareTag("VRHand");
+        // HandContact is the hand in both modes; the VRHand-tagged controller visuals are hidden while crawling.
+        return other.CompareTag("Player") || other.CompareTag("Holdable") || other.CompareTag("Wire") || other.CompareTag("VRHand")
+            || other.GetComponent<HandContact>() != null;
     }
 
     void OnTriggerEnter(Collider other)

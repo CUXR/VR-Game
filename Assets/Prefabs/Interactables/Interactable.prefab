@@ -230,6 +230,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Movable
   pushForce: 3
-  outline: {fileID: 0}
+  outline: {fileID: 4370575428391161021}
   tutorialText: Press [E] to push
   sound: {fileID: 3829036677190919620}

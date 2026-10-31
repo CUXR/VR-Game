@@ -62,9 +62,13 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         {
             size = rend.bounds.size;
         }
+        // The desktop Player is inactive in VR, so FindWithTag returns null there.
         GameObject player = GameObject.FindWithTag("Player");
-        playerCollider = player.GetComponent<Collider>();
-        playerObjectInteraction = player.GetComponent<ObjectInteraction>();
+        if (player != null)
+        {
+            playerCollider = player.GetComponent<Collider>();
+            playerObjectInteraction = player.GetComponent<ObjectInteraction>();
+        }
     }
 
     public void Interact()
@@ -107,7 +111,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
         rb.useGravity = true;
         rb.freezeRotation = false;
         holding = false;
-        playerObjectInteraction.clearHeld();
+        playerObjectInteraction?.clearHeld();
     }
 
     public void Throw()
@@ -121,7 +125,7 @@ public class Holdable : MonoBehaviour, ThrowableInterface, InteractableInterface
                 + Camera.main.transform.up * throwForce * 0.5f,
             ForceMode.Impulse
         );
-        playerObjectInteraction.clearHeld();
+        playerObjectInteraction?.clearHeld();
     }
 
     void OnCollisionEnter(Collision collision)

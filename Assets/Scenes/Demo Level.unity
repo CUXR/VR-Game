@@ -20418,6 +20418,14 @@ PrefabInstance:
       propertyPath: limbStatusText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
+      propertyPath: crawlMultiplier
+      value: -0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
+      propertyPath: defaultDecayRate
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 87.1
@@ -33872,6 +33880,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3188670363718268109, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: m_Transition
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Name
       value: GAME MANAGER
@@ -33930,7 +33942,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5885647572617211089, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8262815903305303207, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -33938,7 +33950,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9077428157625399602, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -64084,3 +64096,4 @@ SceneRoots:
   - {fileID: 1356526183}
   - {fileID: 2100000100}
   - {fileID: 18491724}
+  - {fileID: 242698257}

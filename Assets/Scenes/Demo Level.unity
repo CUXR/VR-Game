@@ -20352,10 +20352,6 @@ PrefabInstance:
       propertyPath: outlineColor.r
       value: 0.89411765
       objectReference: {fileID: 0}
-    - target: {fileID: 5208916131710732563, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: m_Volume
-      value: 0.54
-      objectReference: {fileID: 0}
     - target: {fileID: 6215204524427749888, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -20482,14 +20478,6 @@ PrefabInstance:
       propertyPath: volume
       value: 
       objectReference: {fileID: 625099538}
-    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: volumeMax
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: volumeMin
-      value: 0.05
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

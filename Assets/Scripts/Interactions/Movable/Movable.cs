@@ -17,6 +17,8 @@ public class Movable : MonoBehaviour, InteractableInterface
     public string tutorialText = ""; // tutorial text, empty if nothing
     public AudioSource sound;
 
+    private bool isTouchingSurface = false;
+
     [Header("SFX")]
     public float minVelocity = 0.1f; // Minimum speed for sound to play
     public float maxVelocity = 3.0f; // Speed at which volume reaches maximum
@@ -40,7 +42,7 @@ public class Movable : MonoBehaviour, InteractableInterface
 
         float speed = rb.linearVelocity.magnitude;
 
-        if (speed > minVelocity)
+        if (speed > minVelocity && isTouchingSurface)
         {
             // Map speed to volume level, capped at objectLoudness
             float speedRatio = Mathf.InverseLerp(minVelocity, maxVelocity, speed);
@@ -53,6 +55,16 @@ public class Movable : MonoBehaviour, InteractableInterface
             // Fade out when slowing
             sound.volume = Mathf.Lerp(sound.volume, 0f, Time.deltaTime * fadeSpeed);
         }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        isTouchingSurface = true;
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        isTouchingSurface = false;
     }
 
     public void SetInteractor(Transform interactor)

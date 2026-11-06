@@ -266,8 +266,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0ad50d35ebb8a6e468a4b1880ab3befb, type: 3}
   - {fileID: 8300000, guid: 9e854e5fa2249b041bc1d63de9549bd9, type: 3}
   strideLength: 0.7
-  volumeMin: 0.09
-  volumeMax: 0.16
+  volumeMin: 0.38
+  volumeMax: 0.47
   pitchMin: 0.9
   pitchMax: 1.047
 --- !u!114 &1395323971963812710

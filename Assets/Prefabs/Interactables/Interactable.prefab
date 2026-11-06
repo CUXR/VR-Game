@@ -233,3 +233,6 @@ MonoBehaviour:
   outline: {fileID: 0}
   tutorialText: Press [E] to push
   sound: {fileID: 3829036677190919620}
+  minVelocity: 0.1
+  maxVelocity: 3
+  fadeSpeed: 8

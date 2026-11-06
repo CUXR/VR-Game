@@ -20248,6 +20248,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 777358025}
     m_Modifications:
+    - target: {fileID: 168054079259670496, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 429220346112856912, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Size.x
       value: 0.7196929
@@ -20272,6 +20276,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1412093961}
+    - target: {fileID: 2851412235210781769, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 1065935482}
     - target: {fileID: 3595437157185852828, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -20345,16 +20353,8 @@ PrefabInstance:
       value: 0.89411765
       objectReference: {fileID: 0}
     - target: {fileID: 5208916131710732563, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: OutputAudioMixerGroup
-      value: 
-      objectReference: {fileID: 24300002, guid: 96aeec0bb4756524fb54b97ed49f9a87, type: 2}
-    - target: {fileID: 6033595485465187292, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: pushForce
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6033595485465187292, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: tutorialText
-      value: Press [E] to push
+      propertyPath: m_Volume
+      value: 0.54
       objectReference: {fileID: 0}
     - target: {fileID: 6215204524427749888, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Mesh
@@ -20483,25 +20483,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 625099538}
     - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: 'stepSounds.Array.data[0]'
-      value: 
-      objectReference: {fileID: 8300000, guid: c52c110fffef8c944a64f9dcde5d0a60, type: 3}
+      propertyPath: volumeMax
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: 'stepSounds.Array.data[1]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 5ddac91d560a89146aeb30f1d6dc1d2d, type: 3}
-    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: 'stepSounds.Array.data[2]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 3629d44d50a675942aafdc86f71afca4, type: 3}
-    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: 'stepSounds.Array.data[3]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 0ad50d35ebb8a6e468a4b1880ab3befb, type: 3}
-    - target: {fileID: 9061215443949643543, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
-      propertyPath: 'stepSounds.Array.data[4]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 9e854e5fa2249b041bc1d63de9549bd9, type: 3}
+      propertyPath: volumeMin
+      value: 0.05
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23600,6 +23588,11 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!82 &1065935482 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 168054079259670496, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+  m_PrefabInstance: {fileID: 900292439}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1067168476
 GameObject:
   m_ObjectHideFlags: 0
@@ -46568,7 +46561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: outlineColor.b

@@ -78,6 +78,17 @@ public class PlayerMovement : MonoBehaviour
     private float sprintingVolumeDecay = 0.1f;
     private float sprintingLoudness = 1.0f;
 
+    [Header("Footstep Settings")]
+    public AudioSource audioSource;
+    public AudioClip[] stepSounds;
+    public float strideLength = 0.7f; 
+    [Range(0f, 1f)] public float volumeMin = 0.6f;
+    [Range(0f, 1f)] public float volumeMax = 0.9f;
+    [Range(0.8f, 1.2f)] public float pitchMin = 0.9f;
+    [Range(0.8f, 1.2f)] public float pitchMax = 1.1f;
+    private Vector3 lastPosition;
+    private float accumulatedDistance = 0f;
+
     Rigidbody rb;
     Vector3 moveDirection;
     float horizontalInput,
@@ -102,6 +113,8 @@ public class PlayerMovement : MonoBehaviour
         rayUpper.transform.position = rayLower.transform.position + stepHeight * Vector3.up;
         defaultScale = transform.localScale.y;
         playerLimb = GetComponent<PlayerLimb>();
+
+        lastPosition = new Vector3(transform.position.x, 0, transform.position.z);
     }
 
     void Update()
@@ -120,6 +133,7 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl();
         SetDrag();
         HandleMovementState();
+        HandleFootsteps();
     }
 
     void FixedUpdate()
@@ -372,9 +386,6 @@ public class PlayerMovement : MonoBehaviour
         rayUpper.transform.position =
         rayLower.transform.position + stepHeight * Vector3.up;
 
-        Debug.DrawRay(rayLower.transform.position, rayLower.transform.forward * 0.1f, Color.red);
-        Debug.DrawRay(rayUpper.transform.position, rayUpper.transform.forward * 0.2f, Color.red);
-
         if (
             Physics.Raycast(rayLower.transform.position, rayLower.transform.forward, out _, 0.15f)
             && !Physics.Raycast(
@@ -427,5 +438,36 @@ public class PlayerMovement : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, radiusToDraw);
+    }
+
+    void HandleFootsteps()
+    {
+        if (audioSource == null || stepSounds.Length == 0) return;
+
+        Vector3 currentPosition = new Vector3(transform.position.x, 0, transform.position.z);
+        float distanceMoved = Vector3.Distance(currentPosition, lastPosition);
+
+        if (Grounded && movementState != MovementState.CRAWL && distanceMoved < 2.0f)
+        {
+            accumulatedDistance += distanceMoved;
+        }
+
+        lastPosition = currentPosition;
+
+        if (accumulatedDistance >= strideLength)
+        {
+            PlayFootstep();
+            accumulatedDistance = 0f;
+        }
+    }
+
+    void PlayFootstep()
+    {
+        int randomIndex = UnityEngine.Random.Range(0, stepSounds.Length);
+        AudioClip clipToPlay = stepSounds[randomIndex];
+
+        audioSource.volume = UnityEngine.Random.Range(volumeMin, volumeMax);
+        audioSource.pitch = UnityEngine.Random.Range(pitchMin, pitchMax);
+        audioSource.PlayOneShot(clipToPlay, 0.2f);
     }
 }

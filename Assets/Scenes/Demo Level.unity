@@ -20344,6 +20344,10 @@ PrefabInstance:
       propertyPath: outlineColor.r
       value: 0.89411765
       objectReference: {fileID: 0}
+    - target: {fileID: 5208916131710732563, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 24300002, guid: 96aeec0bb4756524fb54b97ed49f9a87, type: 2}
     - target: {fileID: 6033595485465187292, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: pushForce
       value: 2
@@ -33884,6 +33888,10 @@ PrefabInstance:
       propertyPath: m_Transition
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3671085541269501770, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: tutorialJsonFile
+      value: 
+      objectReference: {fileID: 4900000, guid: d4620f19e9a4955409c4ed6378feb781, type: 3}
     - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Name
       value: GAME MANAGER
@@ -45177,6 +45185,9 @@ MonoBehaviour:
   outline: {fileID: 1697835382}
   tutorialText: This generator is missing some wires
   sound: {fileID: 0}
+  minVelocity: 0.1
+  maxVelocity: 3
+  fadeSpeed: 8
 --- !u!54 &1697835390
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -46505,6 +46516,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: outlineColor.b
       value: 0.99607843
       objectReference: {fileID: 0}
@@ -46522,12 +46537,20 @@ PrefabInstance:
       objectReference: {fileID: 1654926204}
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_VersionIndex
-      value: 346
+      value: 349
       objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: sound
       value: 
       objectReference: {fileID: 1816795829}
+    - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: fadeSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: minVelocity
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: tutorialText
       value: Press [E] to push
@@ -54204,9 +54227,9 @@ AudioSource:
   m_GameObject: {fileID: 1816795816}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 96aeec0bb4756524fb54b97ed49f9a87, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 1727f16548fef1243aba4773e06a946f, type: 3}
+  m_Resource: {fileID: 8300000, guid: dc9a17cba9970504ab9fa28d828a2ec3, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

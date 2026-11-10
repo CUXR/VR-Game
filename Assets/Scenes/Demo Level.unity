@@ -20248,6 +20248,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 777358025}
     m_Modifications:
+    - target: {fileID: 168054079259670496, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 429220346112856912, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Size.x
       value: 0.7196929
@@ -20272,6 +20276,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1412093961}
+    - target: {fileID: 2851412235210781769, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 1065935482}
     - target: {fileID: 3595437157185852828, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -20344,14 +20352,6 @@ PrefabInstance:
       propertyPath: outlineColor.r
       value: 0.89411765
       objectReference: {fileID: 0}
-    - target: {fileID: 6033595485465187292, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: pushForce
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6033595485465187292, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
-      propertyPath: tutorialText
-      value: Press [E] to push
-      objectReference: {fileID: 0}
     - target: {fileID: 6215204524427749888, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -20417,6 +20417,14 @@ PrefabInstance:
     - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
       propertyPath: limbStatusText
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
+      propertyPath: crawlMultiplier
+      value: -0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1511533257326994146, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
+      propertyPath: defaultDecayRate
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1658712614496316490, guid: e4e263c31d7ae46ec8df6d8de78fd3a4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -23568,6 +23576,11 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!82 &1065935482 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 168054079259670496, guid: f2bacc3b0fc234248a65e507c4a4f73e, type: 3}
+  m_PrefabInstance: {fileID: 900292439}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1067168476
 GameObject:
   m_ObjectHideFlags: 0
@@ -33941,6 +33954,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3188670363718268109, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: m_Transition
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3671085541269501770, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
+      propertyPath: tutorialJsonFile
+      value: 
+      objectReference: {fileID: 4900000, guid: d4620f19e9a4955409c4ed6378feb781, type: 3}
     - target: {fileID: 3735919714756444862, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Name
       value: GAME MANAGER
@@ -33999,7 +34020,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5885647572617211089, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8262815903305303207, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -34007,7 +34028,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9077428157625399602, guid: dd41aa0c2cb024d3d96fa3d915164d39, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -34208,6 +34229,37 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1411627713
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1411627714}
+  m_Layer: 0
+  m_Name: Tutorial Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1411627714
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411627713}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.20000005, z: 1.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1166986419}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1412093961
 Mesh:
   m_ObjectHideFlags: 0
@@ -45232,8 +45284,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Movable
   pushForce: 0
   outline: {fileID: 1697835382}
-  tutorialText: This generator is missing some wires
+  tutorialText: 
   sound: {fileID: 0}
+  minVelocity: 0.1
+  maxVelocity: 3
+  fadeSpeed: 8
 --- !u!54 &1697835390
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -46562,6 +46617,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1799210021522492614, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: outlineColor.b
       value: 0.99607843
       objectReference: {fileID: 0}
@@ -46579,12 +46638,20 @@ PrefabInstance:
       objectReference: {fileID: 1654926204}
     - target: {fileID: 3183456941349686994, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: m_VersionIndex
-      value: 346
+      value: 349
       objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: sound
       value: 
       objectReference: {fileID: 1816795829}
+    - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: fadeSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
+      propertyPath: minVelocity
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 7376680513483142337, guid: 4cb1a0bc40b634a31a0f58fe678bdf49, type: 3}
       propertyPath: tutorialText
       value: Press [E] to push
@@ -48507,7 +48574,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7449521972592460446, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1411627714}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7fcfab5b78e724fd4bfd3d64c8791fd2, type: 3}
 --- !u!43 &1803647001
@@ -54261,9 +54331,9 @@ AudioSource:
   m_GameObject: {fileID: 1816795816}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 96aeec0bb4756524fb54b97ed49f9a87, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 1727f16548fef1243aba4773e06a946f, type: 3}
+  m_Resource: {fileID: 8300000, guid: 677ed06399a1ba446834f968adbe4c5f, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

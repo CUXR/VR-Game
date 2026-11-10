@@ -63,7 +63,7 @@ public class PlayerHealth : MonoBehaviour
         // Debug.Log(defaultDecayRate * currentDecayRate * Time.deltaTime);
         // Apply the multiplier to health decay
         currentHealth = Mathf.Clamp(
-            currentHealth - defaultDecayRate * currentDecayRate * Time.deltaTime,
+            currentHealth - currentDecayRate * Time.deltaTime,
             minHealth,
             maxHealth
         );

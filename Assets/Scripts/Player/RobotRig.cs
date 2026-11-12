@@ -239,19 +239,23 @@ namespace RobotLocomotion
                 ? Vector3.zero
                 : ApplyWeight(rigidBodyMovement, deltaTime);
 
-            if (IterativeCollisionSphereCast(lastHeadPosition, headCollider.radius,
-                    headCollider.transform.position + rigidBodyMovement - lastHeadPosition,
+            Vector3 currentHeadPosition = headCollider.transform.position;
+            float headRadius = headCollider.radius * headCollider.transform.lossyScale.y;
+            if (IterativeCollisionSphereCast(lastHeadPosition, headRadius,
+                    currentHeadPosition + rigidBodyMovement - lastHeadPosition,
                     defaultPrecision, out finalPosition, out _, false))
             {
-                rigidBodyMovement = finalPosition - lastHeadPosition;
+                // Tracking has already moved the head this frame. Move the rig by the
+                // remaining correction from that tracked pose to the safe contact pose.
+                rigidBodyMovement = finalPosition - currentHeadPosition;
 
-                Vector3 headSweep = headCollider.transform.position - lastHeadPosition + rigidBodyMovement;
+                Vector3 headSweep = currentHeadPosition - lastHeadPosition + rigidBodyMovement;
 
                 if (Physics.Raycast(lastHeadPosition, headSweep, out RaycastHit hitInfo,
-                        headSweep.magnitude + headCollider.radius * defaultPrecision * 0.999f,
+                        headSweep.magnitude + headRadius * defaultPrecision * 0.999f,
                         locomotionEnabledLayers, QueryTriggerInteraction.Ignore))
                 {
-                    rigidBodyMovement = lastHeadPosition - headCollider.transform.position;
+                    rigidBodyMovement = lastHeadPosition - currentHeadPosition;
                 }
             }
 

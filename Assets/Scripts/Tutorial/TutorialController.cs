@@ -26,6 +26,7 @@ public class TutorialController : MonoBehaviour
     public void DisplayText(InteractableInterface interactableObject)
     {
         Debug.Log("display");
+        uiTextElement.fontStyle |= FontStyles.UpperCase;
         uiTextElement.text = interactableObject.GetTutorialText();
     }
 

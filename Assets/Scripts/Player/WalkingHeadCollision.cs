@@ -72,8 +72,7 @@ namespace RobotLocomotion
             if (IterativeCollisionSphereCast(lastHeadPosition, radius, headPosition - lastHeadPosition,
                     defaultPrecision, out Vector3 finalPosition, out _, false))
             {
-                // RobotRig uses finalPosition - lastHeadPosition, which works there because hand pulls
-                // dominate. Here the movement is all physical head motion, so correct from the current head.
+                // Tracking has already moved the head, so apply the correction from its current pose.
                 originMovement = finalPosition - headPosition;
 
                 Vector3 headSweep = headPosition - lastHeadPosition + originMovement;

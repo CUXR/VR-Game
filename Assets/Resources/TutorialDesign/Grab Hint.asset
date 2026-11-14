@@ -15,7 +15,7 @@ MonoBehaviour:
   hand: 4
   controllerPrefab: {fileID: 1174099188002853058, guid: 25508a022611d6f4096419a29c7ff14a, type: 3}
   anchorBone: left_b_trigger_grip
-  prefix: 'PRESS To '
+  prefix: 'PRESS GRIP To '
   action: GRAB
   targetTag: Wire
   targetName:

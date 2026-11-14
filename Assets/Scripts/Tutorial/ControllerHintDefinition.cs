@@ -7,7 +7,7 @@ public sealed class ControllerHintDefinition : ScriptableObject
     public XRNode hand = XRNode.LeftHand;
     public GameObject controllerPrefab;
     public string anchorBone = "left_b_trigger_grip";
-    public string prefix = "PRESS To ";
+    public string prefix = "PRESS GRIP To ";
     public string action = "GRAB";
     public string targetTag = "Wire";
     public string targetName;
